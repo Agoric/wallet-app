@@ -1,7 +1,13 @@
 /* global window fetch */
 
-export async function suggestChain(nc) {
+export const AGORIC_COIN_TYPE = 564;
+export const COSMOS_COIN_TYPE = 118;
+
+export async function suggestChain(nc, caption = undefined) {
   // alert('networkConfig ' + networkConfig.value);
+  const coinType = Number(
+    new URL(nc).searchParams.get('coinType') || AGORIC_COIN_TYPE,
+  );
   const res = await fetch(nc);
   if (!res.ok) {
     throw Error(`Cannot fetch network: ${res.status}`);
@@ -34,11 +40,11 @@ export async function suggestChain(nc) {
     rpc,
     rest: api,
     chainId,
-    chainName: `Agoric ${network}`,
+    chainName: caption || `Agoric ${network}`,
     stakeCurrency,
     walletUrlForStaking: `https://${network}.staking.agoric.app`,
     bip44: {
-      coinType: 564,
+      coinType,
     },
     bech32Config: {
       bech32PrefixAccAddr: 'agoric',

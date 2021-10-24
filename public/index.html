@@ -15,6 +15,7 @@
       :root {
         --mdc-theme-primary: #BB2D40;
         --mdc-theme-on-primary: white;
+        --mdc-theme-secondary: #BB2D40;
       }
 
       html, body {
@@ -243,7 +244,10 @@
       Choose the network to connect:
       <p>
       <mwc-select id="networks" fixedMenuPosition label="Network">
-        <mwc-list-item selected value="https://testnet.agoric.net/network-config">Agoric Testnet</mwc-list-item>
+        <mwc-list-item selected value="https://main.agoric.net/network-config">Agoric Mainnet</mwc-list-item>
+        <mwc-list-item class="experimental nodisplay" value="https://main.agoric.net/network-config?coinType=118">Agoric Mainnet (118)</mwc-list-item>
+        <mwc-list-item value="https://testnet.agoric.net/network-config">Agoric Testnet</mwc-list-item>
+        <mwc-list-item class="experimental nodisplay" value="https://testnet.agoric.net/network-config?coinType=118">Agoric Testnet (118)</mwc-list-item>
         <mwc-list-item value="https://devnet.agoric.net/network-config">Agoric Devnet</mwc-list-item>
         <mwc-list-item value="https://stage.agoric.net/network-config">Agoric
         Stage</mwc-list-item>
@@ -260,7 +264,7 @@
       import '@material/mwc-dialog';
       import '@material/mwc-select';
       import '@material/mwc-list/mwc-list-item';
-      import { suggestChain } from '@agoric/wallet/components/use-keplr.js';
+      import { suggestChain, COSMOS_COIN_TYPE } from '@agoric/wallet/components/use-keplr.js';
 
       const suggestCosmosHubTestnet = async (chainId, rpc, api) => {
         const actualDecimals = 6;
@@ -280,7 +284,7 @@
           stakeCurrency,
           walletUrlForStaking: `http://localhost`,
           bip44: {
-            coinType: 118,
+            coinType: COSMOS_COIN_TYPE,
           },
           bech32Config: {
             bech32PrefixAccAddr: 'cosmos',
@@ -333,7 +337,7 @@
           if (nc === 'cosmoshub-testnet') {
             await suggestCosmosHubTestnet('cosmoshub-testnet', 'https://rpc.testnet.cosmos.network:443', 'https://api.testnet.cosmos.network:443');
           } else {
-            await suggestChain(nc);
+            await suggestChain(nc, networks.selected.textContent);
           }
           st.innerText = `${networks.selected.text} configured`;
         } catch (e) {
