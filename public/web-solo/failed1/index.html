@@ -2,18 +2,28 @@
 <html>
   <head>
     <link rel="manifest" href="../manifest.json" />
-    <link rel="icon" type="image/png" href="../images/touch/homescreen144.png" />
+    <link
+      rel="icon"
+      type="image/png"
+      href="../images/touch/homescreen144.png"
+    />
     <title>Agoric Wallet App</title>
   </head>
   <body>
     <h1>Failed 1</h1>
-    <p>Verdict: FAILED! Table at the end of <a
-    href="https://html.spec.whatwg.org/#integration-with-the-javascript-agent-cluster-formalism">HTML
-    spec</a> says that SharedWorkers are not in the same agent cluster as the
-    window, so can't communicate via SharedArrayBuffer.</p>
-    <img src="failed1.svg" width="300px" height="300px"/>
+    <p>
+      Verdict: FAILED! Table at the end of
+      <a
+        href="https://html.spec.whatwg.org/#integration-with-the-javascript-agent-cluster-formalism"
+        >HTML spec</a
+      >
+      says that SharedWorkers are not in the same agent cluster as the window,
+      so can't communicate via SharedArrayBuffer.
+    </p>
+    <img src="failed1.svg" width="300px" height="300px" />
     <div id="spinner"></div>
-    <button id="getCount">Increment Count</button> <span id="currentCount"></span>
+    <button id="getCount">Increment Count</button>
+    <span id="currentCount"></span>
     <script type="module">
       import '@agoric/wallet/components/install-ses-lockdown.js';
       if (!self.crossOriginIsolated) {
