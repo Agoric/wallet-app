@@ -56,6 +56,11 @@ export async function suggestChain(nc, caption = undefined) {
     },
     currencies: [stakeCurrency, stableCurrency],
     feeCurrencies: [stableCurrency],
+    gasPriceStep: {
+      low: 0.0, // allow 0 RUN
+      average: 0.02,
+      high: 0.04,
+    },
     features: ['stargate', 'ibc-transfer'],
   };
   await window.keplr.experimentalSuggestChain(chainInfo);
