@@ -1,10 +1,11 @@
 {
-  "name": "Agoric Web Wallet",
+  "name": "Agoric Wallet",
   "short_name": "Agoric",
-  "start_url": "./current/",
+  "start_url": ".",
   "display": "standalone",
+  "theme_color": "#000",
   "background_color": "#fff",
-  "description": "An experimental wallet for the Agoric chain.",
+  "description": "A wallet for the Agoric chain.",
   "icons": [{
     "src": "images/touch/homescreen48.png",
     "sizes": "48x48",

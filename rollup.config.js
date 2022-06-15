@@ -10,13 +10,12 @@ import minifyHTML from 'rollup-plugin-minify-html-literals';
 import summary from 'rollup-plugin-summary';
 
 export default {
-  input: ['public/**/*-worker.js'],
   plugins: [
     multiInput({ relative: 'public/' }),
     // Entry point for application build; can specify a glob to build multiple
     // HTML files for non-SPA app
     html({
-      input: '**/*.html',
+      input: '*.html',
       rootDir: 'public',
       flattenOutput: false,
       extractAssets: false,
@@ -38,7 +37,7 @@ export default {
     summary(),
     // Optional: copy any static assets to build directory
     copy({
-      patterns: ['**/*.{svg,json,png}', '_headers'],
+      patterns: ['**/wallet/**/*'],
       rootDir: 'public',
     }),
   ],
