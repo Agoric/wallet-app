@@ -5,7 +5,7 @@
     <link
       rel="icon"
       type="image/png"
-      href="web-solo/images/touch/homescreen144.png"
+      href="wallet/images/touch/homescreen144.png"
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -56,8 +56,8 @@
         grid-template-areas:
           'intro intro intro intro intro intro intro'
           'dapp-clients dapp-clients border-right . cosmos-clients cosmos-clients cosmos-clients'
-          'ag-solo web-solo border-right . keplr . ag-cosmos-helper'
-          'ag-solo-install web-solo-install border-right . keplr-install . ag-cosmos-helper-install'
+          'web ag-solo border-right . keplr . ag-cosmos-helper'
+          'web-install ag-solo-install border-right . keplr-install . ag-cosmos-helper-install'
           '. . . . . . .';
         padding-left: 80px;
         padding-right: 80px;
@@ -98,11 +98,11 @@
       #ag-cosmos-helper {
         grid-area: ag-cosmos-helper;
       }
-      #web-solo {
-        grid-area: web-solo;
+      #web {
+        grid-area: web;
       }
-      #web-solo-install {
-        grid-area: web-solo-install;
+      #web-install {
+        grid-area: web-install;
       }
 
       .nodisplay {
@@ -157,8 +157,8 @@
             'dapp-clients'
             'ag-solo'
             'ag-solo-install'
-            'web-solo'
-            'web-solo-install'
+            'web'
+            'web-install'
             'cosmos-clients'
             'keplr'
             'keplr-install'
@@ -192,7 +192,7 @@
       <a href="https://agoric.com"
         ><img
           class="big-logo"
-          src="web-solo/images/touch/homescreen144.png"
+          src="wallet/images/touch/homescreen144.png"
           height="144"
           width="144"
       /></a>
@@ -202,7 +202,7 @@
       <a href="https://agoric.com"
         ><img
           class="little-logo"
-          src="web-solo/images/touch/homescreen72.png"
+          src="wallet/images/touch/homescreen72.png"
           height="72"
           width="72"
       /></a>
@@ -221,6 +221,19 @@
         <p>These wallets support offer-safe interaction with Agoric dapps.</p>
       </div>
 
+      <div id="web">
+        <h2>Agoric Web Wallet</h2>
+
+        <p>Browser-based</p>
+      </div>
+
+      <a
+        class="button"
+        id="web-install"
+        href="wallet/"
+        >Try&nbsp;It</a
+      >
+
       <div id="ag-solo">
         <h2>Ag-Solo</h2>
 
@@ -232,19 +245,6 @@
         id="ag-solo-install"
         href="https://agoric.com/documentation/getting-started/beta.html#set-up-a-wallet-agoric-solo-machine"
         >Learn&nbsp;How</a
-      >
-
-      <div id="web-solo" class="experimental nodisplay">
-        <h2>Web-Solo</h2>
-
-        <p>Web Page</p>
-      </div>
-
-      <a
-        class="nodisplay button experimental"
-        id="web-solo-install"
-        href="web-solo/current/"
-        >Try&nbsp;It</a
       >
 
       <div class="border-right"></div>
