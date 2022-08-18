@@ -2,11 +2,7 @@
 <html>
   <head>
     <title>Agoric || Welcome aboard!</title>
-    <link
-      rel="icon"
-      type="image/png"
-      href="wallet/images/touch/homescreen144.png"
-    />
+    <link rel="icon" type="image/png" href="images/touch/homescreen144.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -192,7 +188,7 @@
       <a href="https://agoric.com"
         ><img
           class="big-logo"
-          src="wallet/images/touch/homescreen144.png"
+          src="images/touch/homescreen144.png"
           height="144"
           width="144"
       /></a>
@@ -202,7 +198,7 @@
       <a href="https://agoric.com"
         ><img
           class="little-logo"
-          src="wallet/images/touch/homescreen72.png"
+          src="images/touch/homescreen72.png"
           height="72"
           width="72"
       /></a>
@@ -227,12 +223,7 @@
         <p>Browser-based</p>
       </div>
 
-      <a
-        class="button"
-        id="web-install"
-        href="wallet/"
-        >Try&nbsp;It</a
-      >
+      <a class="button" id="web-install" href="wallet/">Try&nbsp;It</a>
 
       <div id="ag-solo">
         <h2>Ag-Solo</h2>
@@ -334,9 +325,7 @@
             <mwc-list-item value="cosmoshub-testnet"
               >Cosmos Hub Testnet</mwc-list-item
             >
-            <mwc-list-item value="custom"
-              >Custom</mwc-list-item
-            >
+            <mwc-list-item value="custom">Custom</mwc-list-item>
           </mwc-select>
           <button id="chooseNetworkConfig">Configure</button>
         </p>
@@ -436,7 +425,10 @@
             );
           } else if (nc === 'custom') {
             const netname = prompt('Network Name: e.g. xnet', `xnet`);
-            const netconfig = prompt("Network Config URL", `https://${netname}.agoric.net/network-config`);
+            const netconfig = prompt(
+              'Network Config URL',
+              `https://${netname}.agoric.net/network-config`,
+            );
             await suggestChain(netconfig, netname);
           } else {
             await suggestChain(nc, networks.selected.textContent);
