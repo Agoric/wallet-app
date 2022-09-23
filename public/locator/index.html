@@ -4,7 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Register your Agoric Installation</title>
-    <link rel="shortcut icon" href="favicon-full.ico" type="image/x-icon">
+
+    <link rel="icon" href="favicon-full.png" type="image/png">
 
     <style media="screen">
       body { background: #ECEFF1; color: rgba(0,0,0,0.87); font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
@@ -40,16 +41,6 @@
       return false;
     }
 
-    function makeQueryMap(search) {
-      const du = decodeURIComponent;
-      const splits = window.location.search.substr(1).split(/&/);
-      const map = new Map(splits.map(split => {
-        const match = split.match(/^(([^=]*)=)?(.*)/);
-        return match[1] ? [du(match[2]), du(match[3])] : [du(match[3]), undefined];
-      }));
-      return map;
-    }
-
     // Load the config value and reflect to our parent.
     let ls;
     try {
@@ -58,18 +49,18 @@
       console.error('cannot load localStorage', e);
     }
     if (!ls) {
-      ls = 'http://localhost:8000';
+      ls = 'https://wallet.agoric.app';
     }
     localAgoric.value = ls;
     if (window.parent !== window) {
-      // Append the "append=" query value.
-      const map = makeQueryMap(window.location.search);
-      const append = map.get('append') || '';
+      // Append the "append=" query value, if any.
+      const params = new URLSearchParams(window.location.search);
+      const append = params.get('append') || '';
       window.parent.postMessage(`${localAgoric.value}${append}`, '*');
     }
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js')
+      navigator.serviceWorker.register('./sw.js')
         .then(function(registration) {
           console.log('Registration successful, scope is:', registration.scope);
         })
