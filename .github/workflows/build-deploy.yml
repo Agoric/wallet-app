@@ -44,36 +44,38 @@ jobs:
         path: .
         key: ${{ runner.os }}-${{ matrix.node-version }}-built-${{ github.sha }}
 
-  lint:
-    needs: build
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        # note: only use one node-version
-        node-version: ['14.x']
-    steps:
-    - uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-    # BEGIN-RESTORE-BOILERPLATE
-    - name: restore built files
-      id: built
-      uses: actions/cache@v1
-      with:
-        path: .
-        key: ${{ runner.os }}-${{ matrix.node-version }}-built-${{ github.sha }}
-    - uses: actions/checkout@v2
-      with:
-        submodules: 'true'
-      if: steps.built.outputs.cache-hit != 'true'
-    - name: yarn install
-      run: yarn install
-      if: steps.built.outputs.cache-hit != 'true'
-    - name: yarn build
-      run: yarn build
-      if: steps.built.outputs.cache-hit != 'true'
-    # END-RESTORE-BOILERPLATE
+  # FIXME: The following takes at least 6 hours to run, then is killed off by Github.
+  #
+  # lint:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       # note: only use one node-version
+  #       node-version: ['14.x']
+  #   steps:
+  #   - uses: actions/setup-node@v1
+  #     with:
+  #       node-version: ${{ matrix.node-version }}
+  #   # BEGIN-RESTORE-BOILERPLATE
+  #   - name: restore built files
+  #     id: built
+  #     uses: actions/cache@v1
+  #     with:
+  #       path: .
+  #       key: ${{ runner.os }}-${{ matrix.node-version }}-built-${{ github.sha }}
+  #   - uses: actions/checkout@v2
+  #     with:
+  #       submodules: 'true'
+  #     if: steps.built.outputs.cache-hit != 'true'
+  #   - name: yarn install
+  #     run: yarn install
+  #     if: steps.built.outputs.cache-hit != 'true'
+  #   - name: yarn build
+  #     run: yarn build
+  #     if: steps.built.outputs.cache-hit != 'true'
+  #   # END-RESTORE-BOILERPLATE
 
-    - name: lint check
-      run: yarn lint-check
+  #   - name: lint check
+  #     run: yarn lint-check
 
