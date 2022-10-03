@@ -37,7 +37,7 @@ export default {
     summary(),
     // Optional: copy any static assets to build directory
     copy({
-      patterns: ['**/wallet/**/*'],
+      patterns: ['**/wallet/**/*', '**/locator/**/*'],
       rootDir: 'public',
     }),
   ],
