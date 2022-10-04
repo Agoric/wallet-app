@@ -1,5 +1,5 @@
 {
-  "name": "@agoric/wallet",
+  "name": "@agoric/wallet-site",
   "private": true,
   "version": "0.1.0",
   "description": "The wallet.agoric.app web site",

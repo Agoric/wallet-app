@@ -338,14 +338,14 @@
     </mwc-dialog>
 
     <script type="module">
-      import '@agoric/wallet/components/install-ses-lockdown.js';
+      import '@agoric/wallet-site/components/install-ses-lockdown.js';
       import '@material/mwc-dialog';
       import '@material/mwc-select';
       import '@material/mwc-list/mwc-list-item';
       import {
         suggestChain,
         COSMOS_COIN_TYPE,
-      } from '@agoric/wallet/components/use-keplr.js';
+      } from '@agoric/wallet-site/components/use-keplr.js';
 
       const suggestCosmosHubTestnet = async (chainId, rpc, api) => {
         const actualDecimals = 6;
