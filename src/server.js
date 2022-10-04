@@ -44,6 +44,11 @@ const server = http.createServer(app);
 // serve the static HTML
 app.use(express.static(STATIC_DIR));
 
+// TODO serve /public/wallet at root path
+app.get('/', (req, res) => {
+  res.redirect('/wallet');
+});
+
 const doListen = async (host, port) => {
   // Test to see if the listener already exists.
   await new Promise((resolve, reject) => {
