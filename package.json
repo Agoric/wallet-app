@@ -1,9 +1,10 @@
 {
   "name": "@agoric/wallet",
+  "private": true,
   "version": "0.1.0",
   "description": "The wallet.agoric.app web site",
   "type": "module",
-  "repository": "https://github.com/Agoric/agoric-sdk",
+  "repository": "https://github.com/Agoric/wallet-app",
   "scripts": {
     "build": "rm -rf build && rollup -c",
     "start": "web-dev-server --port=3000 packages/wallet/public/",
@@ -72,9 +73,6 @@
   "prettier": {
     "trailingComma": "all",
     "singleQuote": true
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "engines": {
     "node": ">=11.0"
