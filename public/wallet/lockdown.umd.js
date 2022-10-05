@@ -7217,7 +7217,8 @@ const        tameV8ErrorConstructor=  (
 })
 ,
 // === functors[29] ===
-(({   imports: $h‍_imports,   liveVar: $h‍_live,   onceVar: $h‍_once,   importMeta: $h‍____meta,  }) => {   let FERAL_ERROR,TypeError,apply,construct,defineProperties,setPrototypeOf,getOwnPropertyDescriptor,NativeErrors,tameV8ErrorConstructor;$h‍_imports([["../commons.js", [["FERAL_ERROR", [$h‍_a => (FERAL_ERROR = $h‍_a)]],["TypeError", [$h‍_a => (TypeError = $h‍_a)]],["apply", [$h‍_a => (apply = $h‍_a)]],["construct", [$h‍_a => (construct = $h‍_a)]],["defineProperties", [$h‍_a => (defineProperties = $h‍_a)]],["setPrototypeOf", [$h‍_a => (setPrototypeOf = $h‍_a)]],["getOwnPropertyDescriptor", [$h‍_a => (getOwnPropertyDescriptor = $h‍_a)]]]],["../whitelist.js", [["NativeErrors", [$h‍_a => (NativeErrors = $h‍_a)]]]],["./tame-v8-error-constructor.js", [["tameV8ErrorConstructor", [$h‍_a => (tameV8ErrorConstructor = $h‍_a)]]]]]);   
+(({   imports: $h‍_imports,   liveVar: $h‍_live,   onceVar: $h‍_once,   importMeta: $h‍____meta,  }) => {   let FERAL_ERROR,TypeError,apply,construct,defineProperties,setPrototypeOf,getOwnPropertyDescriptor,defineProperty,NativeErrors,tameV8ErrorConstructor;$h‍_imports([["../commons.js", [["FERAL_ERROR", [$h‍_a => (FERAL_ERROR = $h‍_a)]],["TypeError", [$h‍_a => (TypeError = $h‍_a)]],["apply", [$h‍_a => (apply = $h‍_a)]],["construct", [$h‍_a => (construct = $h‍_a)]],["defineProperties", [$h‍_a => (defineProperties = $h‍_a)]],["setPrototypeOf", [$h‍_a => (setPrototypeOf = $h‍_a)]],["getOwnPropertyDescriptor", [$h‍_a => (getOwnPropertyDescriptor = $h‍_a)]],["defineProperty", [$h‍_a => (defineProperty = $h‍_a)]]]],["../whitelist.js", [["NativeErrors", [$h‍_a => (NativeErrors = $h‍_a)]]]],["./tame-v8-error-constructor.js", [["tameV8ErrorConstructor", [$h‍_a => (tameV8ErrorConstructor = $h‍_a)]]]]]);   
+
 
 
 
@@ -7355,6 +7356,39 @@ function                tameErrorConstructor(
       configurable: true}});
 
 
+
+  if( platform===  'v8') {
+    // `SharedError.prepareStackTrace`, if it exists, must also be
+    // powerless. However, from what we've heard, depd expects to be able to
+    // assign to it without the assignment throwing. It is normally a function
+    // that returns a stack string to be magically added to error objects.
+    // However, as long as we're adding a lenient standin, we may as well
+    // accommodate any who expect to get a function they can call and get
+    // a string back. This prepareStackTrace is a do-nothing function that
+    // always returns the empty string.
+    defineProperties(SharedError, {
+      prepareStackTrace: {
+        get() {
+          return ()=>  '';
+         },
+        set(_prepareFn) {
+          // do nothing
+         },
+        enumerable: false,
+        configurable: true},
+
+      captureStackTrace: {
+        value: (errorish, _constructorOpt)=>  {
+          defineProperty(errorish, 'stack', {
+            value: ''});
+
+         },
+        writable: false,
+        enumerable: false,
+        configurable: true}});
+
+
+   }
 
   let initialGetStackString=  tamedMethods.getStackString;
   if( platform===  'v8') {
