@@ -1,11 +1,11 @@
 {
   "files": {
     "main.css": "/wallet/static/css/main.32b910b2.css",
-    "main.js": "/wallet/static/js/main.65194f3f.js",
+    "main.js": "/wallet/static/js/main.93fabbee.js",
     "index.9aef649a.css": "/wallet/static/css/index.9aef649a.32b910b2.css",
-    "index.9aef649a.js": "/wallet/static/js/index.9aef649a.94a7e85a.js",
+    "index.9aef649a.js": "/wallet/static/js/index.9aef649a.168ec60e.js",
     "bridge.1298522f.css": "/wallet/static/css/bridge.1298522f.2f6d26f7.css",
-    "bridge.1298522f.js": "/wallet/static/js/bridge.1298522f.757c5836.js",
+    "bridge.1298522f.js": "/wallet/static/js/bridge.1298522f.fe9ebeb3.js",
     "static/js/47.9389dc00.chunk.js": "/wallet/static/js/47.9389dc00.chunk.js",
     "static/js/912.cbcff8f0.chunk.js": "/wallet/static/js/912.cbcff8f0.chunk.js",
     "public/index.html": "/wallet/public/index.html",
@@ -13,16 +13,16 @@
     "public/bridge.html": "/wallet/public/bridge.html",
     "./bridge.html": "/wallet/./bridge.html",
     "main.32b910b2.css.map": "/wallet/static/css/main.32b910b2.css.map",
-    "main.65194f3f.js.map": "/wallet/static/js/main.65194f3f.js.map",
+    "main.93fabbee.js.map": "/wallet/static/js/main.93fabbee.js.map",
     "index.9aef649a.32b910b2.css.map": "/wallet/static/css/index.9aef649a.32b910b2.css.map",
-    "index.9aef649a.94a7e85a.js.map": "/wallet/static/js/index.9aef649a.94a7e85a.js.map",
+    "index.9aef649a.168ec60e.js.map": "/wallet/static/js/index.9aef649a.168ec60e.js.map",
     "bridge.1298522f.2f6d26f7.css.map": "/wallet/static/css/bridge.1298522f.2f6d26f7.css.map",
-    "bridge.1298522f.757c5836.js.map": "/wallet/static/js/bridge.1298522f.757c5836.js.map",
+    "bridge.1298522f.fe9ebeb3.js.map": "/wallet/static/js/bridge.1298522f.fe9ebeb3.js.map",
     "47.9389dc00.chunk.js.map": "/wallet/static/js/47.9389dc00.chunk.js.map",
     "912.cbcff8f0.chunk.js.map": "/wallet/static/js/912.cbcff8f0.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.32b910b2.css",
-    "static/js/main.65194f3f.js"
+    "static/js/main.93fabbee.js"
   ]
 }
