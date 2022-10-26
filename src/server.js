@@ -7,6 +7,7 @@ import anylogger from 'anylogger';
 import * as morganStar from 'morgan';
 
 const STATIC_DIR = process.argv[2] || `${__dirname}/../public`;
+const WALLET_DIR = `${STATIC_DIR}/wallet`;
 
 // We need to CommonJS require morgan or else it warns, until:
 // https://github.com/expressjs/morgan/issues/190
@@ -43,6 +44,8 @@ const server = http.createServer(app);
 
 // serve the static HTML
 app.use(express.static(STATIC_DIR));
+
+app.use('/wallet/*', express.static(WALLET_DIR));
 
 const doListen = async (host, port) => {
   // Test to see if the listener already exists.
