@@ -1,1 +1,2 @@
-/wallet/dapps /wallet/
+/wallet/* /wallet/
+/wallet/bridge/* /wallet/bridge/
