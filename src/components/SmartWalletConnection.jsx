@@ -1,7 +1,7 @@
 import { makeFollower, makeLeader } from '@agoric/casting';
 import { observeIterator } from '@agoric/notifier';
 import { NO_SMART_WALLET_ERROR } from '@agoric/smart-wallet/src/utils';
-import { makeImportContext } from '@agoric/wallet/api/src/marshal-contexts';
+import { makeImportContext } from '@agoric/wallet-backend/src/marshal-contexts.js';
 import { Far } from '@endo/marshal';
 import MuiAlert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
