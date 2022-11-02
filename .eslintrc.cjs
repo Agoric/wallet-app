@@ -1,34 +1,41 @@
 /* eslint-env node */
-const process = require('process');
-
-const lintTypes = !!process.env.AGORIC_ESLINT_TYPES;
-
 module.exports = {
   root: true,
   parser: '@typescript-eslint/parser',
-  parserOptions: lintTypes
-    ? {
-        sourceType: 'module',
-        project: [
-          './packages/*/jsconfig.json',
-          './packages/*/tsconfig.json',
-          './packages/wallet/*/jsconfig.json',
-          './tsconfig.json',
-        ],
-        tsconfigRootDir: __dirname,
-        extraFileExtensions: ['.cjs'],
-      }
-    : undefined,
+  parserOptions: {
+    sourceType: 'module',
+    project: ['./jsconfig.json'],
+    tsconfigRootDir: __dirname,
+    extraFileExtensions: ['.cjs'],
+  },
   plugins: [
     '@typescript-eslint',
     'eslint-plugin-import',
     'eslint-plugin-jsdoc',
+    'jest',
   ],
+  env: {
+    browser: true,
+    'jest/globals': true,
+  },
+  settings: {
+    'import/resolver': {
+      node: {
+        extensions: ['.js', '.jsx'],
+      },
+    },
+    jsdoc: {
+      mode: 'typescript',
+    },
+    react: {
+      version: 'detect',
+    },
+  },
   // Pulls in too much, including Prettier
   // extends: ['@agoric'],
   rules: {
     '@typescript-eslint/prefer-ts-expect-error': 'warn',
-    '@typescript-eslint/no-floating-promises': lintTypes ? 'warn' : 'off',
+    '@typescript-eslint/no-floating-promises': 'warn',
     // so that floating-promises can be explicitly permitted with void operator
     'no-void': ['error', { allowAsStatement: true }],
     // Not severe but the default 'warning' clutters output and it's easy to fix
@@ -45,45 +52,13 @@ module.exports = {
       'error',
       {
         devDependencies: [
-          '**/*.config.js',
-          '**/*.config.*.js',
-          '**/*test*/**/*.js',
-          '**/demo*/**/*.js',
-          '**/scripts/**/*.js',
+          '**/*.test.js',
+          '**/*.test.jsx',
+          // hard-coded Jest setup path in https://create-react-app.dev/docs/running-tests/#initializing-test-environment
+          '**/src/setupTests.js',
         ],
       },
     ],
   },
-  settings: {
-    jsdoc: {
-      mode: 'typescript',
-    },
-  },
-  ignorePatterns: [
-    'coverage/**',
-    '**/output/**',
-    'bundles/**',
-    'bundle-*',
-    'dist/**',
-    'examples/**',
-    'test262/**',
-    '*.html',
-    'ava*.config.js',
-  ],
-  overrides: [
-    {
-      files: ['*.ts'],
-      rules: {
-        // TS has this covered and eslint gets it wrong
-        'no-undef': 'off',
-      },
-    },
-    {
-      // disable type-aware linting in HTML
-      files: ['*.html'],
-      parserOptions: {
-        project: false,
-      },
-    },
-  ],
+  ignorePatterns: ['**/*.umd.js', '**/generated/*'],
 };
