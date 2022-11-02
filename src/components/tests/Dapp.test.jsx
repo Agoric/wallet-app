@@ -66,13 +66,13 @@ test('updates the petname when pressing enter on the textfield', () => {
 
   let textField = component.find(TextField);
   act(() =>
-    textField.props().onChange({ target: { value: 'Token Palace 2' } }),
+    textField.props().onChange({ target: { value: 'Token Palace 2' } })
   );
   component.update();
 
   textField = component.find(TextField);
   act(() =>
-    textField.props().onKeyDown({ key: 'Enter', stopPropagation: jest.fn() }),
+    textField.props().onKeyDown({ key: 'Enter', stopPropagation: jest.fn() })
   );
 
   expect(dapps[0].actions.setPetname).toHaveBeenCalledWith('Token Palace 2');

@@ -44,6 +44,9 @@ const appTheme = createTheme({
     warning: {
       main: 'rgb(255, 152, 0)',
     },
+    font: {
+      main: '#282230',
+    },
     background: {
       default: '#ffffff',
     },
@@ -76,5 +79,5 @@ ReactDOM.render(
       </StyledEngineProvider>
     </Router>
   </ApplicationContextProvider>,
-  document.getElementById('root'),
+  document.getElementById('root')
 );
