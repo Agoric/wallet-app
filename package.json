@@ -76,6 +76,7 @@
     "build": "yarn build:ses && yarn build:react",
     "build:ses": "cp node_modules/ses/dist/lockdown.umd.js public/",
     "build:react": "react-app-rewired build",
+    "format": "yarn prettier --write .",
     "lint": "run-s --continue-on-error lint:*",
     "lint:eslint": "eslint '**/*.{js,jsx}'",
     "lint-fix": "yarn lint:eslint --fix",
