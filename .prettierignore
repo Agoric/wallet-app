@@ -20,10 +20,4 @@ public
 # - some have careful manual formatting such as a matrix and there's no safe way to have an ignore comment in JSON
 !package.json
 
-# subrepos
-/packages/xsnap/moddable
-/packages/xsnap/xsnap-native
-
-# copied from upstream
-/packages/xsnap/lib/object-inspect.js
-
+.yarn
