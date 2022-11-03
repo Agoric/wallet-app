@@ -185,9 +185,9 @@ export const getOfferService = (
         });
       }),
     );
-    storedOffersP.then(() => broadcastUpdates());
+    storedOffersP.then(() => broadcastUpdates()).catch(console.error);
 
-    watchChainOffers();
+    watchChainOffers().catch(console.error);
 
     watchOffers(smartWalletKey, newOffers => {
       const newOffersP = Promise.all(
@@ -210,7 +210,7 @@ export const getOfferService = (
           );
         }),
       );
-      newOffersP.then(() => broadcastUpdates());
+      newOffersP.then(() => broadcastUpdates()).catch(console.error);
     });
   };
 
