@@ -119,7 +119,7 @@ const ProvisionDialog = ({
       return;
     }
 
-    provisionWallet(interactiveSigner);
+    return provisionWallet(interactiveSigner);
   };
 
   const progressIndicator = text => (

@@ -1,5 +1,4 @@
 // @ts-check
-/* eslint-disable react/display-name */
 import { observeIterator } from '@agoric/notifier';
 import { E } from '@endo/far';
 import React, { useEffect, useState, useReducer } from 'react';

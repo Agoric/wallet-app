@@ -186,17 +186,17 @@ const Bridge = () => {
     const tryConnect = async () => {
       if ('requestStorageAccess' in document) {
         if (await document.hasStorageAccess()) {
-          connectDapp();
+          return connectDapp();
         } else {
           sendCookiesDisabledError();
         }
       } else if ('localStorage' in window) {
-        connectDapp();
+        return connectDapp();
       } else {
         sendCookiesDisabledError();
       }
     };
-    tryConnect();
+    void tryConnect();
   }, []);
 
   return <></>;
