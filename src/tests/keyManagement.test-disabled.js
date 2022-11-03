@@ -1,6 +1,6 @@
 /**
  * FIXME need to restore this test.
- * 
+ *
  * Lots of problems with libsodium-wrappers in Jest:
  * https://stackoverflow.com/questions/64012897/creating-an-encrypted-secret-with-libsodium-in-a-jest-unit-test-fails-typeerror
  * https://stackoverflow.com/questions/73088159/importing-libsodium-wrappers-in-jest-throws-the-error-cannot-read-properties-of
@@ -9,7 +9,7 @@
  * https://stackoverflow.com/questions/65626653/create-react-app-doesnt-properly-mock-modules-from-mocks-directory
  *
  */
- import { toBase64 } from '@cosmjs/encoding';
+import { toBase64 } from '@cosmjs/encoding';
 import {
   SwingsetMsgs,
   SwingsetConverters,
