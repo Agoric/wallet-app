@@ -9,12 +9,6 @@
     "moduleResolution": "node"
   },
   "include": [
-    "*.js",
-    "*.d.ts",
-    "scripts/**/*.js",
-    "src/**/*.js",
-    "src/**/*.jsx",
-    "test/**/*.js",
-    "tools/**/*.js"
+    "./src"
   ]
 }

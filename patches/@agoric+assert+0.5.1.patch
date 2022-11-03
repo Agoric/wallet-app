@@ -1,0 +1,12 @@
+diff --git a/node_modules/@agoric/assert/src/assert.js b/node_modules/@agoric/assert/src/assert.js
+index 3a239ce..428c8af 100644
+--- a/node_modules/@agoric/assert/src/assert.js
++++ b/node_modules/@agoric/assert/src/assert.js
+@@ -1,6 +1,6 @@
+ /* global globalThis */
+ // Copyright (C) 2019 Agoric, under Apache License 2.0
+-// @ts-check
++// @ts-nocheck
+ 
+ // This module assumes the existence of a non-standard `assert` host object.
+ // SES version 0.11.0 introduces this global object and entangles it

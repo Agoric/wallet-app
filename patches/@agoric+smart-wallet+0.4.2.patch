@@ -1,0 +1,10 @@
+diff --git a/node_modules/@agoric/smart-wallet/src/smartWallet.js b/node_modules/@agoric/smart-wallet/src/smartWallet.js
+index faadb54..91ddf67 100644
+--- a/node_modules/@agoric/smart-wallet/src/smartWallet.js
++++ b/node_modules/@agoric/smart-wallet/src/smartWallet.js
+@@ -1,4 +1,4 @@
+-// @ts-check
++// @ts-nocheck
+ import {
+   AmountMath,
+   AmountShape,
