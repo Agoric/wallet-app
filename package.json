@@ -77,7 +77,6 @@
     "build:ses": "cp node_modules/ses/dist/lockdown.umd.js public/",
     "build:react": "react-app-rewired build",
     "lint": "run-s --continue-on-error lint:*",
-    "lint:types": "tsc -p jsconfig.json",
     "lint:eslint": "eslint '**/*.{js,jsx}'",
     "lint-fix": "yarn lint:eslint --fix",
     "postinstall": "patch-package",
