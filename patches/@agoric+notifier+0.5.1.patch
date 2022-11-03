@@ -1,0 +1,10 @@
+diff --git a/node_modules/@agoric/notifier/src/notifier.js b/node_modules/@agoric/notifier/src/notifier.js
+index 31cbed2..055b050 100644
+--- a/node_modules/@agoric/notifier/src/notifier.js
++++ b/node_modules/@agoric/notifier/src/notifier.js
+@@ -1,4 +1,4 @@
+-// @ts-check
++// @ts-nocheck
+ /// <reference types="ses"/>
+ 
+ import { assert } from '@agoric/assert';
