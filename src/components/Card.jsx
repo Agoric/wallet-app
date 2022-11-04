@@ -1,3 +1,4 @@
+// @ts-check
 import React from 'react';
 import IconButton from '@mui/material/IconButton';
 import Popover from '@mui/material/Popover';
@@ -6,7 +7,17 @@ import Box from '@mui/material/Box';
 
 import './Card.scss';
 
-const Card = ({ children, header, helptip }) => {
+/**
+ * The params for the Card component. If `header` is not provided, `helptip`
+ * will not be rendered.
+ * @typedef {{
+ *  header?: JSX.Element | string;
+ *  helptip?: JSX.Element | string;
+ *  children: JSX.Element[];
+ * }} CardParams
+ */
+
+const Card = (/** @type {CardParams} */ { children, header, helptip }) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
 
   const handleClick = event => {
@@ -28,6 +39,7 @@ const Card = ({ children, header, helptip }) => {
             {helptip && (
               <>
                 <IconButton
+                  // @ts-expect-error "font" is defined in index.jsx
                   color="font"
                   size="small"
                   aria-label="purses info"
