@@ -18,6 +18,14 @@ import { getIssuerService } from '../service/Issuers.js';
 import { getOfferService } from '../service/Offers.js';
 
 /** @typedef {import('@agoric/cosmic-proto/swingset/swingset.js').Params} SwingsetParams */
+// Ambient types. Needed only for dev but this does a runtime import.
+import '@agoric/ertp/exported.js';
+import '@agoric/notifier/exported.js';
+// eslint-disable-next-line import/no-extraneous-dependencies -- transitive
+import '@agoric/store/exported.js';
+// eslint-disable-next-line import/no-extraneous-dependencies -- transitive
+import '@agoric/zoe/exported.js';
+import '@endo/captp/src/types.js';
 
 /** @typedef {import('@agoric/smart-wallet/src/types.js').Petname} Petname */
 
@@ -150,7 +158,7 @@ export const makeWalletBridgeFromFollowers = (
     getPaymentsNotifier: 'payments',
   };
 
-  /** @type {Record<string, NotifierRecord<unknown>>} */
+  /** @type {Record<string, NotifierRecord<any>>} */
   const notifierKits = Object.fromEntries(
     Object.entries(notifiers).map(([_method, stateName]) => [
       stateName,
@@ -207,7 +215,6 @@ export const makeWalletBridgeFromFollowers = (
   );
 
   /** @type {Notifier<import('@agoric/smart-wallet/src/offers.js').OfferStatus>} */
-  // @ts-expect-error
   const offersNotifer = getNotifierMethods.getOffersNotifier();
 
   const offerService = getOfferService(

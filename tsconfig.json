@@ -4,6 +4,7 @@
     "target": "esnext",
     "module": "esnext",
     "noEmit": true,
+    "allowJs": true,
     "skipLibCheck": true,
     "downlevelIteration": true,
     "strictNullChecks": true,
