@@ -67,8 +67,14 @@ export const PursesWithoutContext = ({
 
   const helptip = (
     <span>
-      The smart wallet only supports certain assets and IBC denoms. Please see
-      information on supported assets.
+      The smart wallet only supports certain assets and IBC denoms. If you are
+      missing assets it may be because they are not supported.{' '}
+      <a
+        target="supported-assets"
+        href="https://docs.inter.trade/inter-protocol-system-documentation/parity-stability-module/supported-assets"
+      >
+        Please see information on supported assets.
+      </a>
     </span>
   );
 
