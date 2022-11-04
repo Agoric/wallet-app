@@ -23,7 +23,7 @@ const errors = {
   NO_SIGNER: 'Cannot sign a transaction in read only mode, connect to keplr.',
 };
 
-const convertUBldToBld = ubld => ubld / 1_000_000n;
+const convertUBldToBld = ubld => ubld / 1000000;
 
 // 100 IST
 const MINIMUM_PROVISION_POOL_BALANCE = 100n * 1_000_000n;
@@ -150,7 +150,7 @@ const ProvisionDialog = ({
             Change Connection
           </Button>
           <Button
-            disabled={!provisionPoolData || provisionPoolLow}
+            disabled={!provisionPoolData || !creationFee || provisionPoolLow}
             onClick={handleCreateButtonClicked}
           >
             Create

@@ -50,9 +50,6 @@ const appTheme = createTheme({
     background: {
       default: '#ffffff',
     },
-    font: {
-      main: '#282230',
-    },
   },
   typography: {
     fontFamily: ['Roboto', 'Helvetica', 'Arial', 'sans-serif'].join(','),

@@ -217,10 +217,10 @@ const SmartWalletConnection = ({
 
   const creationFee =
     swingsetParams &&
-    BigInt(
+    Number(
       swingsetParams.powerFlagFees?.find(
         ({ powerFlag }) => powerFlag === 'SMART_WALLET',
-      )?.fee[0]?.amount ?? 0n,
+      )?.fee[0]?.amount ?? 0,
     );
 
   return (
