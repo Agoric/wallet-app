@@ -16,8 +16,6 @@ export const querySwingsetParams = async endpoint => {
   const base = QueryClient.withExtensions(trpc);
   const rpc = createProtobufRpcClient(base);
   const queryService = new QueryClientImpl(rpc);
-  console.log('query swingset params');
-  const result = await queryService.Params({});
 
-  return result;
+  return queryService.Params({});
 };

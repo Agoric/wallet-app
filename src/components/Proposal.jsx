@@ -1,3 +1,8 @@
+import React from 'react';
+import IconButton from '@mui/material/IconButton';
+import Popover from '@mui/material/Popover';
+import InfoOutlined from '@mui/icons-material/InfoOutlined';
+import Box from '@mui/material/Box';
 import { Nat } from '@agoric/nat';
 import { stringifyPurseValue } from '@agoric/ui-components';
 import Petname from './Petname';
@@ -89,13 +94,36 @@ const cmp = (a, b) => {
 const sortedEntries = entries =>
   Object.entries(entries).sort(([kwa], [kwb]) => cmp(kwa, kwb));
 
-const Proposal = ({ offer, purses }) => {
+const Proposal = ({ offer, purses, swingsetParams }) => {
+  const [anchorEl, setAnchorEl] = React.useState(null);
+
+  const handleClick = event => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const isOpen = Boolean(anchorEl);
+
   const {
     proposalForDisplay,
     proposalTemplate,
     invitationDetails: { fee, feePursePetname, expiry } = {},
     error,
   } = offer;
+
+  const executionFeeDenominator = swingsetParams?.beansPerUnit?.find(
+    ({ key }) => key === 'feeUnit',
+  )?.beans;
+  const executionFeeNumerator = swingsetParams?.beansPerUnit?.find(
+    ({ key }) => key === 'minFeeDebit',
+  )?.beans;
+  const executionFee =
+    executionFeeDenominator &&
+    executionFeeNumerator &&
+    Number(executionFeeNumerator) / Number(executionFeeDenominator);
 
   let give = {};
   let want = {};
@@ -138,6 +166,54 @@ const Proposal = ({ offer, purses }) => {
     </div>
   );
 
+  const executionFeeEntry = executionFee && (
+    <div className="OfferEntry">
+      <h6>
+        Pay Execution Fee
+        <>
+          <IconButton
+            color="font"
+            size="small"
+            aria-label="execution fee info"
+            onClick={handleClick}
+          >
+            <InfoOutlined fontSize="inherit" />
+          </IconButton>
+          <Popover
+            open={isOpen}
+            anchorEl={anchorEl}
+            onClose={handleClose}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'left',
+            }}
+          >
+            <Box sx={{ p: 2, maxWidth: '480px' }}>
+              The on-chain computation cost of this transaction. These are
+              batched and deducted from your purse balance every 10
+              transactions.
+            </Box>
+          </Popover>
+        </>
+      </h6>
+      <div className="Token">
+        <BrandIcon brandPetname="IST" />
+        <div>
+          <div className="Value">
+            {executionFee} <Petname name="IST" />
+          </div>
+          from{' '}
+          <Petname
+            name={
+              purses.find(({ brandPetname }) => brandPetname === 'IST')
+                .pursePetname
+            }
+          />
+        </div>
+      </div>
+    </div>
+  );
+
   const Gives = sortedEntries(give).map(g =>
     hasDisplayInfo ? GiveFromDisplayInfo(g) : GiveFromTemplate(g, purses),
   );
@@ -150,6 +226,7 @@ const Proposal = ({ offer, purses }) => {
       {Gives}
       {Wants}
       {feeEntry}
+      {executionFeeEntry}
       {expiry && (
         <div className="OfferEntry">
           <h6>Expiry</h6>
@@ -174,6 +251,10 @@ const Proposal = ({ offer, purses }) => {
   );
 };
 
-export default withApplicationContext(Proposal, ({ purses }) => ({
-  purses,
-}));
+export default withApplicationContext(
+  Proposal,
+  ({ purses, swingsetParams }) => ({
+    swingsetParams,
+    purses,
+  }),
+);

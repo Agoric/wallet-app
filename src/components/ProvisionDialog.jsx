@@ -111,7 +111,7 @@ const ProvisionDialog = ({
             </DialogContentText>
           </div>
         ) : (
-          progressIndicator('Checking current creation fees from chain.')
+          progressIndicator('Fetching current creation fee from chain.')
         );
       case steps.AWAITING_APPROVAL:
         return progressIndicator('Please approve the transaction in Keplr.');
