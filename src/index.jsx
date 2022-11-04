@@ -79,5 +79,5 @@ ReactDOM.render(
       </StyledEngineProvider>
     </Router>
   </ApplicationContextProvider>,
-  document.getElementById('root')
+  document.getElementById('root'),
 );

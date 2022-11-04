@@ -89,7 +89,7 @@ test('renders the purse amounts', () => {
   const component = mount(
     <ThemeProvider theme={appTheme}>
       <Purses />
-    </ThemeProvider>
+    </ThemeProvider>,
   );
 
   expect(component.find(PurseAmount)).toHaveLength(2);
@@ -99,7 +99,7 @@ test('renders a loading indicator over pending transfers', () => {
   const component = mount(
     <ThemeProvider theme={appTheme}>
       <Purses />
-    </ThemeProvider>
+    </ThemeProvider>,
   );
 
   expect(component.find(CircularProgress)).toHaveLength(1);
@@ -110,7 +110,7 @@ test('renders a loading indicator when purses is null', () => {
   const component = mount(
     <ThemeProvider theme={appTheme}>
       <PursesWithoutContext />
-    </ThemeProvider>
+    </ThemeProvider>,
   );
 
   expect(component.find(Loading)).toHaveLength(1);
@@ -121,7 +121,7 @@ test('opens the transfer dialog when the button is clicked', async () => {
   const component = mount(
     <ThemeProvider theme={appTheme}>
       <Purses />
-    </ThemeProvider>
+    </ThemeProvider>,
   );
 
   const firstSendButton = component.find(Button).get(0);
