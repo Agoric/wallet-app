@@ -13,7 +13,7 @@ import { withApplicationContext } from '../contexts/Application';
 import './Dapps.scss';
 
 // Exported for testing only.
-export const DappsWithoutContext = ({ dapps }) => {
+export const DappsWithoutContext = ({ dapps }: { dapps?: any }) => {
   dapps = dapps?.filter(({ isEnabled }) => isEnabled);
 
   const remove = ({ actions }) => E(actions).delete();

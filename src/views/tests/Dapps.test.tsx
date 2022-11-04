@@ -87,5 +87,5 @@ test('lets you remove a dapp', async () => {
   firstDappPopover = component.find(Popover).at(0);
   expect(firstDappPopover.props().open).toBe(true);
   await act(async () => firstDappPopover.find(Button).props().onClick());
-  expect(dapps[0].actions.delete).toHaveBeenCalled();
+  expect(dapps[0]?.actions?.delete).toHaveBeenCalled();
 });

@@ -12,7 +12,6 @@ import '@agoric/store/exported.js';
 import '@agoric/zoe/exported.js';
 import '@endo/captp/src/types.js';
 
-import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter as Router } from 'react-router-dom';
 import {

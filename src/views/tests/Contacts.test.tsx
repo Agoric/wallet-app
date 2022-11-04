@@ -35,6 +35,7 @@ const schemaActions = {
 
 const appTheme = createTheme({
   palette: {
+    // @ts-expect-error not in Palette
     cancel: {
       main: '#595959',
     },

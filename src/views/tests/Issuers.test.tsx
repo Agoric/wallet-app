@@ -38,6 +38,7 @@ const pendingPurseCreations = new Set([0]);
 
 const appTheme = createTheme({
   palette: {
+    // @ts-expect-error not in Palette
     cancel: {
       main: '#595959',
     },

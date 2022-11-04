@@ -14,10 +14,14 @@ import { withApplicationContext } from '../contexts/Application';
 const useStyles = makeStyles(theme => ({
   nav: {
     position: 'fixed',
+    // @ts-ignore on our theme
     top: theme.appBarHeight,
+    // @ts-ignore on our theme
     width: theme.navMenuWidth,
+    // @ts-ignore on our theme
     height: `calc(100vh - ${theme.appBarHeight})`,
     overflowY: 'auto',
+    // @ts-ignore on our theme
     [theme.breakpoints.down('md')]: {
       position: 'relative',
       top: '0',
@@ -42,6 +46,7 @@ const ListItemLink = ({ icon, primary, to, onClick }) => {
     () =>
       forwardRef((itemProps, ref) => {
         return (
+          // @ts-ignore
           <Link
             to={to}
             ref={ref}
@@ -58,6 +63,7 @@ const ListItemLink = ({ icon, primary, to, onClick }) => {
     <li>
       <ListItem
         selected={match !== null}
+        // @ts-ignore
         button
         style={{ borderRadius: '0 32px 32px 0' }}
         component={renderLink}
@@ -86,27 +92,33 @@ const NavMenu = ({ setDrawerOpened, previewEnabled }) => {
           onClick={onLinkClick}
           to="/"
           primary="Dashboard"
+          // @ts-ignore
           icon={<DashboardIcon />}
         />
         <ListItemLink
           onClick={onLinkClick}
           to="/dapps"
           primary="Dapps"
+          // @ts-ignore
           icon={<Apps />}
         />
         {previewEnabled && (
+          // @ts-ignore
           <ListItemLink
             onClick={onLinkClick}
             to="/contacts"
             primary="Contacts"
+            // @ts-ignore
             icon={<People />}
           />
         )}
         {previewEnabled && (
+          // @ts-ignore
           <ListItemLink
             onClick={onLinkClick}
             to="/issuers"
             primary="Asset Issuers"
+            // @ts-ignore
             icon={<AddCircle />}
           />
         )}

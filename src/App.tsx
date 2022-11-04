@@ -1,4 +1,3 @@
-import React from 'react';
 import { Switch, Route } from 'react-router-dom';
 import { makeStyles, useTheme } from '@mui/styles';
 import AppBar from './components/AppBar';
@@ -14,16 +13,21 @@ const useStyles = makeStyles(theme => ({
   main: {
     boxSizing: 'border-box',
     padding: '32px',
+    // @ts-expect-error in our theme
     marginLeft: theme.navMenuWidth,
     position: 'absolute',
+    // @ts-expect-error in our theme
     width: `calc(100vw - ${theme.navMenuWidth})`,
+    // @ts-expect-error in our theme
     top: theme.appBarHeight,
+    // @ts-expect-error in our theme
     [theme.breakpoints.down('md')]: {
       marginLeft: '0',
       width: '100vw',
     },
   },
   navMenu: {
+    // @ts-expect-error in our theme
     [theme.breakpoints.down('md')]: {
       display: 'none',
     },

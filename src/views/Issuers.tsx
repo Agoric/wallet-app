@@ -26,6 +26,11 @@ export const IssuersWithoutContext = ({
   pendingPurseCreations,
   schemaActions,
   services,
+}: {
+  issuers?: any;
+  pendingPurseCreations?: any;
+  schemaActions?: any;
+  services?: any;
 }) => {
   const [selectedIssuer, setSelectedIssuer] = useState(null);
   const handleCreatePurse = id => setSelectedIssuer(id);

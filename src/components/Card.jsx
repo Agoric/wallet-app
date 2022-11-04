@@ -1,5 +1,4 @@
 // @ts-check
-import React from 'react';
 import IconButton from '@mui/material/IconButton';
 import Popover from '@mui/material/Popover';
 import InfoOutlined from '@mui/icons-material/InfoOutlined';

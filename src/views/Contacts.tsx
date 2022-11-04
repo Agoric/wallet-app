@@ -21,6 +21,10 @@ export const ContactsWithoutContext = ({
   contacts,
   services,
   schemaActions,
+}: {
+  contacts?: any;
+  services?: any;
+  schemaActions?: any;
 }) => {
   const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
   const handleCloseSnackbar = _ => {

@@ -1,7 +1,9 @@
 // Allow the React dev environment to extend the console for debugging
 // features.
+// @ts-expect-error template
 // eslint-disable-next-line no-constant-condition
 const consoleTaming = '%NODE_ENV%' === 'development' ? 'unsafe' : 'safe';
+// @ts-expect-error template
 // eslint-disable-next-line no-constant-condition
 const errorTaming = '%NODE_ENV%' === 'development' ? 'unsafe' : 'safe';
 

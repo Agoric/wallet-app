@@ -81,7 +81,7 @@
     "format": "yarn prettier --write .",
     "lint": "run-s --continue-on-error lint:*",
     "lint:eslint": "eslint '**/*.{js,jsx}'",
-    "lint:types": "yarn tsc -p jsconfig.json",
+    "lint:types": "yarn tsc",
     "lint-fix": "yarn lint:eslint --fix",
     "postinstall": "patch-package",
     "test": "CI=true react-app-rewired test",
