@@ -29,6 +29,9 @@ const appTheme = createTheme({
     cancel: {
       main: '#595959',
     },
+    font: {
+      main: '#282230',
+    },
   },
 });
 

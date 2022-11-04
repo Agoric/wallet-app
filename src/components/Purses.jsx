@@ -65,9 +65,18 @@ export const PursesWithoutContext = ({
     <Loading defaultMessage="Fetching purses..." />
   );
 
+  const helptip = (
+    <span>
+      The smart wallet only supports certain assets and IBC denoms. Please see
+      information on supported assets.
+    </span>
+  );
+
   return (
     <div>
-      <Card header="Purses">{purseItems}</Card>
+      <Card header="Purses" helptip={helptip}>
+        {purseItems}
+      </Card>
       <Transfer purse={openPurse} handleClose={handleClose} />
     </div>
   );
