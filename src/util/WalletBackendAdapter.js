@@ -12,15 +12,18 @@ import {
 } from '@agoric/smart-wallet/src/utils.js';
 import { E } from '@endo/eventual-send';
 import { Far } from '@endo/marshal';
+import { querySwingsetParams } from '../util/querySwingsetParams.js';
 import { getDappService } from '../service/Dapps.js';
 import { getIssuerService } from '../service/Issuers.js';
 import { getOfferService } from '../service/Offers.js';
+
+/** @typedef {import('@agoric/cosmic-proto/swingset/swingset.js').Params} SwingsetParams */
 
 /** @typedef {import('@agoric/smart-wallet/src/types.js').Petname} Petname */
 
 const newId = kind => `${kind}${Math.random()}`;
 
-/** @typedef {{actions: object, issuerSuggestions: Promise<AsyncIterator>}} BackendSchema */
+/** @typedef {{actions: object, issuerSuggestions: Promise<AsyncIterator>, swingsetParams: Promise<SwingsetParams | undefined>}} BackendSchema */
 
 export const makeBackendFromWalletBridge = (
   /** @type {ReturnType<typeof makeWalletBridgeFromFollowers>} */ walletBridge,
@@ -87,6 +90,7 @@ export const makeBackendFromWalletBridge = (
     issuerSuggestions: iterateNotifier(
       E(walletBridge).getIssuerSuggestionsNotifier(),
     ),
+    swingsetParams: E(walletBridge).getSwingsetParams(),
   });
 
   // Just produce a single update for the initial backend.
@@ -107,6 +111,7 @@ export const makeBackendFromWalletBridge = (
 /** @typedef {import('../store/Dapps').SmartWalletKey} SmartWalletKey */
 /**
  * @param {SmartWalletKey} smartWalletKey
+ * @param {String} rpc
  * @param {ReturnType<import('@endo/marshal').makeMarshal>} marshaller
  * @param {import('@agoric/casting').ValueFollower<import('@agoric/smart-wallet/src/smartWallet').CurrentWalletRecord>} currentFollower
  * @param {import('@agoric/casting').ValueFollower<import('@agoric/smart-wallet/src/smartWallet').UpdateRecord>} updateFollower
@@ -116,6 +121,7 @@ export const makeBackendFromWalletBridge = (
  */
 export const makeWalletBridgeFromFollowers = (
   smartWalletKey,
+  rpc,
   marshaller,
   currentFollower,
   updateFollower,
@@ -327,10 +333,14 @@ export const makeWalletBridgeFromFollowers = (
     getPursesNotifier,
   } = getNotifierMethods;
 
+  const fetchSwingsetParams = () =>
+    querySwingsetParams(rpc).then(res => res.params);
+
   const walletBridge = Far('follower wallet bridge', {
     getDappsNotifier: () => dappService.notifier,
     getOffersNotifier: () => offerService.notifier,
     getIssuerSuggestionsNotifier: () => issuerService.notifier,
+    getSwingsetParams: () => fetchSwingsetParams(),
     getIssuersNotifier,
     getContactsNotifier,
     getPaymentsNotifier,

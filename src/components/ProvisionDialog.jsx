@@ -1,5 +1,4 @@
 // @ts-check
-import { makeFollower, iterateLatest } from '@agoric/casting';
 import CircularProgress from '@mui/material/CircularProgress';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -9,7 +8,7 @@ import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 
 import { AmountMath } from '@agoric/ertp';
 import { withApplicationContext } from '../contexts/Application';
@@ -24,59 +23,11 @@ const errors = {
   NO_SIGNER: 'Cannot sign a transaction in read only mode, connect to keplr.',
 };
 
-// TODO: Read this from the chain via rpc.
-const CREATION_FEE = '10 BLD';
+const convertUBldToBld = ubld => ubld / 1_000_000n;
 
 // 100 IST
 const MINIMUM_PROVISION_POOL_BALANCE = 100n * 1_000_000n;
 
-// XXX import from the contract
-
-/**
- * @typedef {object} ProvisionPoolMetrics
- * @property {bigint} walletsProvisioned  count of new wallets provisioned
- * @property {Amount<'nat'>} totalMintedProvided  running sum of Minted provided to new wallets
- * @property {Amount<'nat'>} totalMintedConverted  running sum of Minted
- * ever received by the contract from PSM
- */
-
-export const useProvisionPoolMetrics = (unserializer, leader) => {
-  const [data, setData] = useState(/** @type {ProvisionPoolMetrics?} */ (null));
-
-  useEffect(() => {
-    let cancelled = false;
-    const fetchData = async () => {
-      const follower = await makeFollower(
-        `:published.provisionPool.metrics`,
-        leader,
-        {
-          unserializer,
-        },
-      );
-      for await (const { value } of iterateLatest(follower)) {
-        if (cancelled) {
-          break;
-        }
-        console.log('provisionPoolData', value);
-        setData(value);
-      }
-    };
-    fetchData().catch(e =>
-      console.error('useProvisionPoolMetrics fetchData error', e),
-    );
-    return () => {
-      cancelled = true;
-    };
-  }, [unserializer, leader]);
-
-  return data;
-};
-
-/**
- *
- * @param {ProvisionPoolMetrics} provisionPoolData
- * @returns {boolean}
- */
 const isProvisionPoolLow = provisionPoolData =>
   provisionPoolData &&
   AmountMath.subtract(
@@ -90,12 +41,11 @@ const ProvisionDialog = ({
   address,
   href,
   keplrConnection,
-  unserializer,
-  leader,
+  provisionPoolData,
+  creationFee,
 }) => {
   const [currentStep, setCurrentStep] = useState(steps.INITIAL);
   const [error, setError] = useState(/** @type {string?} */ (null));
-  const provisionPoolData = useProvisionPoolMetrics(unserializer, leader);
 
   const provisionWallet = async signer => {
     setError(null);
@@ -122,6 +72,9 @@ const ProvisionDialog = ({
     return provisionWallet(interactiveSigner);
   };
 
+  const creationFeeForDisplay =
+    creationFee && `${convertUBldToBld(creationFee)} BLD`;
+
   const progressIndicator = text => (
     <Box>
       <Box
@@ -141,7 +94,7 @@ const ProvisionDialog = ({
   const content = useMemo(() => {
     switch (currentStep) {
       case steps.INITIAL:
-        return (
+        return creationFeeForDisplay && provisionPoolData ? (
           <div>
             <DialogContentText>
               <b>Network Config</b>:{' '}
@@ -154,9 +107,11 @@ const ProvisionDialog = ({
             </DialogContentText>
             <DialogContentText sx={{ pt: 2 }}>
               There is no smart wallet provisioned for this address yet. A fee
-              of <b>{CREATION_FEE}</b> is required to create one.
+              of <b>{creationFeeForDisplay}</b> is required to create one.
             </DialogContentText>
           </div>
+        ) : (
+          progressIndicator('Checking current creation fees from chain.')
         );
       case steps.AWAITING_APPROVAL:
         return progressIndicator('Please approve the transaction in Keplr.');
@@ -165,7 +120,7 @@ const ProvisionDialog = ({
       default:
         return <></>;
     }
-  }, [currentStep, href, address]);
+  }, [currentStep, href, address, creationFeeForDisplay, provisionPoolData]);
 
   const provisionPoolLow =
     provisionPoolData !== null && isProvisionPoolLow(provisionPoolData);

@@ -139,6 +139,11 @@ const Provider = ({ children }) => {
   const [issuers, setIssuers] = useReducer(issuersReducer, null);
   const [issuerSuggestions, setIssuerSuggestions] = useState(null);
   const [services, setServices] = useState(null);
+  const [swingsetParams, setSwingsetParams] = useState(
+    /** @type {import('@agoric/cosmic-proto/swingset/swingset.js').Params?} */ (
+      null
+    ),
+  );
   const [backend, setBackend] = useState(
     /** @type {import('../util/WalletBackendAdapter').BackendSchema?} */ (null),
   );
@@ -209,6 +214,7 @@ const Provider = ({ children }) => {
       address: accounts[0]?.address,
       signers: { interactiveSigner, backgroundSigner },
       chainId: chainInfo.chainId,
+      rpc: chainInfo.rpc,
     });
   };
 
@@ -224,6 +230,7 @@ const Provider = ({ children }) => {
 
   // Resubscribe when a new backend is set.
   useEffect(() => {
+    setSwingsetParams(null);
     setSchemaActions(null);
     for (const setter of backendSetters.values()) {
       setter(null);
@@ -263,6 +270,19 @@ const Provider = ({ children }) => {
         setIssuerSuggestions(state);
       },
     }).catch(rethrowIfNotCancelled);
+
+    E.get(backend)
+      .swingsetParams.then(params => {
+        if (cancelIteration) {
+          throw cancelIteration;
+        }
+        if (params === undefined) {
+          rethrowIfNotCancelled(new Error('swingset params undefined'));
+        }
+        assert(params);
+        setSwingsetParams(params);
+      })
+      .catch(rethrowIfNotCancelled);
 
     return () => {
       cancelIteration = Error('cancelled');
@@ -347,6 +367,7 @@ const Provider = ({ children }) => {
     keplrConnection,
     tryKeplrConnect,
     previewEnabled,
+    swingsetParams,
   };
 
   useDebugLogging(state, [

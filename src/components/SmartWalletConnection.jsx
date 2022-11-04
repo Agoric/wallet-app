@@ -1,4 +1,4 @@
-import { makeFollower, makeLeader } from '@agoric/casting';
+import { makeFollower, makeLeader, iterateLatest } from '@agoric/casting';
 import { observeIterator } from '@agoric/notifier';
 import { NO_SMART_WALLET_ERROR } from '@agoric/smart-wallet/src/utils';
 import { makeImportContext } from '@agoric/wallet-backend/src/marshal-contexts.js';
@@ -27,6 +27,49 @@ const Alert = React.forwardRef(function Alert({ children, ...props }, ref) {
   );
 });
 
+// XXX import from the contract
+/**
+ * @typedef {object} ProvisionPoolMetrics
+ * @property {bigint} walletsProvisioned  count of new wallets provisioned
+ * @property {Amount<'nat'>} totalMintedProvided  running sum of Minted provided to new wallets
+ * @property {Amount<'nat'>} totalMintedConverted  running sum of Minted
+ * ever received by the contract from PSM
+ */
+
+export const useProvisionPoolMetrics = (unserializer, leader) => {
+  const [data, setData] = useState(/** @type {ProvisionPoolMetrics?} */ (null));
+
+  useEffect(() => {
+    if (!(unserializer && leader)) return;
+
+    let cancelled = false;
+    const fetchData = async () => {
+      const follower = await makeFollower(
+        `:published.provisionPool.metrics`,
+        leader,
+        {
+          unserializer,
+        },
+      );
+      for await (const { value } of iterateLatest(follower)) {
+        if (cancelled) {
+          break;
+        }
+        console.log('provisionPoolData', value);
+        setData(value);
+      }
+    };
+    fetchData().catch(e =>
+      console.error('useProvisionPoolMetrics fetchData error', e),
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [unserializer, leader]);
+
+  return data;
+};
+
 /**
  * Wallet UI doesn't use objects as presences, only as identities.
  * Use this to override the defaultMakePresence of makeImportContext.
@@ -43,6 +86,7 @@ const SmartWalletConnection = ({
   keplrConnection,
   allConnectionConfigs,
   tryKeplrConnect,
+  swingsetParams,
 }) => {
   const [snackbarMessages, setSnackbarMessages] = useState([]);
   const [provisionDialogOpen, setProvisionDialogOpen] = useState(false);
@@ -94,6 +138,8 @@ const SmartWalletConnection = ({
     [connectionConfig, keplrConnection],
   );
 
+  const provisionPoolData = useProvisionPoolMetrics(context.fromBoard, leader);
+
   useEffect(() => {
     maybeSave('connectionConfig', connectionConfig);
 
@@ -130,7 +176,11 @@ const SmartWalletConnection = ({
           unserializer: context.fromMyWallet,
         });
       const bridge = makeWalletBridgeFromFollowers(
-        { chainId: keplrConnection.chainId, address: publicAddress },
+        {
+          chainId: keplrConnection.chainId,
+          address: publicAddress,
+        },
+        keplrConnection.rpc,
         context.fromBoard,
         followPublished(`wallet.${publicAddress}.current`),
         followPublished(`wallet.${publicAddress}`),
@@ -165,6 +215,14 @@ const SmartWalletConnection = ({
     };
   }, [connectionConfig, keplrConnection]);
 
+  const creationFee =
+    swingsetParams &&
+    BigInt(
+      swingsetParams.powerFlagFees?.find(
+        ({ powerFlag }) => powerFlag === 'SMART_WALLET',
+      )?.fee[0]?.amount ?? 0n,
+    );
+
   return (
     <div>
       <Snackbar open={snackbarMessages.length > 0}>
@@ -179,10 +237,10 @@ const SmartWalletConnection = ({
       <ProvisionDialog
         open={provisionDialogOpen}
         onClose={onProvisionDialogClose}
+        provisionPoolData={provisionPoolData}
+        creationFee={creationFee}
         address={publicAddress}
         href={href}
-        unserializer={context.fromBoard}
-        leader={leader}
       />
     </div>
   );
@@ -196,4 +254,5 @@ export default withApplicationContext(SmartWalletConnection, context => ({
   keplrConnection: context.keplrConnection,
   allConnectionConfigs: context.allConnectionConfigs,
   tryKeplrConnect: context.tryKeplrConnect,
+  swingsetParams: context.swingsetParams,
 }));
