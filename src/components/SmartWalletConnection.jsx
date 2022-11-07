@@ -184,6 +184,9 @@ const SmartWalletConnection = ({
         context.fromBoard,
         followPublished(`wallet.${publicAddress}.current`),
         followPublished(`wallet.${publicAddress}`),
+        makeFollower(`:beansOwing.${publicAddress}`, leader, {
+          unserializer: { unserialize: data => data },
+        }),
         keplrConnection,
         backendError,
         () => {

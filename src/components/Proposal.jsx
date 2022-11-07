@@ -1,7 +1,6 @@
 import React from 'react';
-import IconButton from '@mui/material/IconButton';
 import Popover from '@mui/material/Popover';
-import InfoOutlined from '@mui/icons-material/InfoOutlined';
+import Link from '@mui/material/Link';
 import Box from '@mui/material/Box';
 import { Nat } from '@agoric/nat';
 import { stringifyPurseValue } from '@agoric/ui-components';
@@ -12,6 +11,7 @@ import { withApplicationContext } from '../contexts/Application.jsx';
 import BrandIcon from './BrandIcon';
 
 import './Offer.scss';
+import { Typography } from '@mui/material';
 
 const OfferEntryFromTemplate = (
   type,
@@ -94,7 +94,7 @@ const cmp = (a, b) => {
 const sortedEntries = entries =>
   Object.entries(entries).sort(([kwa], [kwb]) => cmp(kwa, kwb));
 
-const Proposal = ({ offer, purses, swingsetParams }) => {
+const Proposal = ({ offer, purses, swingsetParams, beansOwing }) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
 
   const handleClick = event => {
@@ -112,18 +112,41 @@ const Proposal = ({ offer, purses, swingsetParams }) => {
     proposalTemplate,
     invitationDetails: { fee, feePursePetname, expiry } = {},
     error,
+    spendAction,
   } = offer;
 
-  const executionFeeDenominator = swingsetParams?.beansPerUnit?.find(
+  const feeUnit = swingsetParams?.beansPerUnit?.find(
     ({ key }) => key === 'feeUnit',
   )?.beans;
-  const executionFeeNumerator = swingsetParams?.beansPerUnit?.find(
+  const minFeeDebit = swingsetParams?.beansPerUnit?.find(
     ({ key }) => key === 'minFeeDebit',
   )?.beans;
-  const executionFee =
-    executionFeeDenominator &&
-    executionFeeNumerator &&
-    Number(executionFeeNumerator) / Number(executionFeeDenominator);
+  const messageCost = swingsetParams?.beansPerUnit?.find(
+    ({ key }) => key === 'message',
+  )?.beans;
+  const messageByteCost = swingsetParams?.beansPerUnit?.find(
+    ({ key }) => key === 'messageByte',
+  )?.beans;
+  const inboundTxCost = swingsetParams?.beansPerUnit?.find(
+    ({ key }) => key === 'inboundTx',
+  )?.beans;
+  const feeThreshold =
+    feeUnit && minFeeDebit && Number(minFeeDebit) / Number(feeUnit);
+  const accumulatedFees =
+    beansOwing &&
+    feeUnit &&
+    minFeeDebit &&
+    (beansOwing % Number(minFeeDebit)) / Number(feeUnit);
+  const feeDelta =
+    messageCost &&
+    inboundTxCost &&
+    messageByteCost &&
+    feeUnit &&
+    spendAction &&
+    (Number(messageCost) +
+      Number(inboundTxCost) +
+      Number(messageByteCost) * spendAction.length) /
+      Number(feeUnit);
 
   let give = {};
   let want = {};
@@ -166,52 +189,39 @@ const Proposal = ({ offer, purses, swingsetParams }) => {
     </div>
   );
 
-  const executionFeeEntry = executionFee && (
-    <div className="OfferEntry">
-      <h6>
-        Pay Execution Fee
-        <>
-          <IconButton
-            color="font"
-            size="small"
-            aria-label="execution fee info"
-            onClick={handleClick}
-          >
-            <InfoOutlined fontSize="inherit" />
-          </IconButton>
-          <Popover
-            open={isOpen}
-            anchorEl={anchorEl}
-            onClose={handleClose}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'left',
-            }}
-          >
-            <Box sx={{ p: 2, maxWidth: '480px' }}>
-              The on-chain computation cost of this transaction. These are
-              batched and deducted from your purse balance every 10
-              transactions.
-            </Box>
-          </Popover>
-        </>
-      </h6>
-      <div className="Token">
-        <BrandIcon brandPetname="IST" />
-        <div>
-          <div className="Value">
-            {executionFee} <Petname name="IST" />
-          </div>
-          from{' '}
-          <Petname
-            name={
-              purses.find(({ brandPetname }) => brandPetname === 'IST')
-                .pursePetname
-            }
-          />
-        </div>
-      </div>
-    </div>
+  const executionFeeEntry = feeThreshold && accumulatedFees && feeDelta && (
+    <Box sx={{ mt: 2, fontWeight: '400' }} className="text-gray">
+      <Typography
+        sx={{
+          display: 'inline',
+        }}
+      >
+        Execution Fee:
+      </Typography>{' '}
+      <Link color="inherit" href="#" onClick={handleClick}>
+        {feeDelta} IST
+      </Link>
+      <Popover
+        open={isOpen}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+      >
+        <Box sx={{ p: 2, maxWidth: '480px' }}>
+          <Typography>
+            Fees pay for on-chain execution costs. They accumulate with each
+            transaction and are deducted from your purse balance every{' '}
+            {feeThreshold} IST.
+          </Typography>
+          <Typography sx={{ pt: 1 }} fontWeight={500}>
+            Current Fees Accumulated: {accumulatedFees} / {feeThreshold} IST
+          </Typography>
+        </Box>
+      </Popover>
+    </Box>
   );
 
   const Gives = sortedEntries(give).map(g =>
@@ -253,8 +263,9 @@ const Proposal = ({ offer, purses, swingsetParams }) => {
 
 export default withApplicationContext(
   Proposal,
-  ({ purses, swingsetParams }) => ({
+  ({ purses, swingsetParams, beansOwing }) => ({
     swingsetParams,
     purses,
+    beansOwing,
   }),
 );
