@@ -11,8 +11,8 @@ import {
   NO_SMART_WALLET_ERROR,
 } from '@agoric/smart-wallet/src/utils.js';
 import { E } from '@endo/eventual-send';
-import { Far } from '@endo/marshal';
-import { querySwingsetParams } from '../util/querySwingsetParams.js';
+import { Far, Marshal } from '@endo/marshal';
+import type { querySwingsetParams } from '../util/querySwingsetParams.js';
 import { getDappService } from '../service/Dapps.js';
 import { getIssuerService } from '../service/Issuers.js';
 import { getOfferService } from '../service/Offers.js';
@@ -20,34 +20,25 @@ import { getOfferService } from '../service/Offers.js';
 /** @typedef {import('@agoric/cosmic-proto/swingset/swingset.js').Params} SwingsetParams */
 // Ambient types. Needed only for dev but this does a runtime import.
 import '@agoric/ertp/exported.js';
+import '@agoric/ertp/src/types.js';
 import '@agoric/notifier/exported.js';
 // eslint-disable-next-line import/no-extraneous-dependencies -- transitive
 import '@agoric/store/exported.js';
 // eslint-disable-next-line import/no-extraneous-dependencies -- transitive
 import '@agoric/zoe/exported.js';
 import '@endo/captp/src/types.js';
-
-/** @typedef {import('@agoric/smart-wallet/src/types.js').Petname} Petname */
+import { Petname } from '@agoric/smart-wallet/src/types.js';
+import { UpdateRecord } from '@agoric/smart-wallet/src/smartWallet.js';
+import { SmartWalletKey } from '../store/Dapps.js';
 
 const newId = kind => `${kind}${Math.random()}`;
 
-/**
- * @typedef {{
- * actions: object;
- * issuerSuggestions: Promise<AsyncIterator>;
- * swingsetParams: Promise<SwingsetParams | undefined>;
- * beansOwing: Promise<AsyncIterator>
- * }} BackendSchema
- */
+/** @typedef {{actions: object, issuerSuggestions: Promise<AsyncIterator>}} BackendSchema */
 
 export const makeBackendFromWalletBridge = (
-  /** @type {ReturnType<typeof makeWalletBridgeFromFollowers>} */ walletBridge,
+  walletBridge: ReturnType<typeof makeWalletBridgeFromFollowers>,
 ) => {
-  /**
-   * @template T
-   * @param {ERef<Notifier<T>>} notifier
-   */
-  const iterateNotifier = async notifier =>
+  const iterateNotifier = async <T>(notifier: ERef<Notifier<T>>) =>
     makeAsyncIterableFromNotifier(notifier)[Symbol.asyncIterator]();
 
   // XXX we don't have access to the board yet.
@@ -98,7 +89,6 @@ export const makeBackendFromWalletBridge = (
     dapps: iterateNotifier(E(walletBridge).getDappsNotifier()),
     issuers: iterateNotifier(E(walletBridge).getIssuersNotifier()),
     offers: wrapOffersIterator(
-      // @ts-expect-error xxx
       iterateNotifier(E(walletBridge).getOffersNotifier()),
     ),
     payments: iterateNotifier(E(walletBridge).getPaymentsNotifier()),
@@ -124,7 +114,6 @@ export const makeBackendFromWalletBridge = (
   return { backendIt, cancel };
 };
 
-/** @typedef {import('../store/Dapps').SmartWalletKey} SmartWalletKey */
 /**
  * @param {SmartWalletKey} smartWalletKey
  * @param {String} rpc
@@ -138,7 +127,6 @@ export const makeBackendFromWalletBridge = (
  */
 export const makeWalletBridgeFromFollowers = (
   smartWalletKey,
-  rpc,
   marshaller,
   currentFollower,
   updateFollower,
@@ -148,7 +136,7 @@ export const makeWalletBridgeFromFollowers = (
     // Make an unhandled rejection.
     throw e;
   },
-  firstCallback = () => {},
+  firstCallback: () => void | undefined = () => {},
 ) => {
   const notifiers = {
     getPursesNotifier: 'purses',
@@ -158,34 +146,22 @@ export const makeWalletBridgeFromFollowers = (
     getPaymentsNotifier: 'payments',
   };
 
-  /** @type {Record<string, NotifierRecord<any>>} */
   const notifierKits = Object.fromEntries(
     Object.entries(notifiers).map(([_method, stateName]) => [
       stateName,
-      makeNotifierKit(null),
+      makeNotifierKit(null as any),
     ]),
   );
 
   const { notifier: beansOwingNotifier, updater: beansOwingUpdater } =
-    makeNotifierKit(/** @type {Number?} */ (null));
+    makeNotifierKit(/** @type {Number?} */ null);
 
   // We assume just one cosmos purse per brand.
-  /**
-   * @typedef {{
-   *  brand?: Brand,
-   *  brandPetname?: Petname,
-   *  currentAmount: Amount,
-   *  pursePetname?: Petname,
-   *  displayInfo?: DisplayInfo,
-   * }} PurseInfo
-   * @type {Map<Brand, PurseInfo>}
-   */
-  const brandToPurse = new Map();
-  /** @type {Map<Petname, Brand>} */
-  const pursePetnameToBrand = new Map();
+  const brandToPurse = new Map<Brand, PurseInfo>();
+  const pursePetnameToBrand = new Map<Petname, Brand>();
 
   const updatePurses = () => {
-    const purses = [];
+    const purses = [] as PurseInfo[];
     for (const [brand, purse] of brandToPurse.entries()) {
       if (purse.currentAmount && purse.brandPetname) {
         assert(purse.pursePetname, 'missing purse.pursePetname');
@@ -241,6 +217,7 @@ export const makeWalletBridgeFromFollowers = (
       Object.values(notifierKits).forEach(({ updater }) =>
         updater.updateState([]),
       );
+      // @ts-expect-error xxx param mutation
       firstCallback = undefined;
     }
     /** @type {import('@agoric/casting').ValueFollowerElement<import('@agoric/smart-wallet/src/smartWallet').CurrentWalletRecord>} */
@@ -270,11 +247,11 @@ export const makeWalletBridgeFromFollowers = (
   };
 
   const followLatest = async startingHeight => {
+    // @ts-expect-error TODO use newer lib
     for await (const { value } of iterateEach(updateFollower, {
       height: startingHeight,
     })) {
-      /** @type {import('@agoric/smart-wallet/src/smartWallet').UpdateRecord} */
-      const updateRecord = value;
+      const updateRecord = value as UpdateRecord;
       switch (updateRecord.updated) {
         case 'brand': {
           const {

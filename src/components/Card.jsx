@@ -1,4 +1,5 @@
 // @ts-check
+import * as React from 'react';
 import IconButton from '@mui/material/IconButton';
 import Popover from '@mui/material/Popover';
 import InfoOutlined from '@mui/icons-material/InfoOutlined';
@@ -12,7 +13,7 @@ import './Card.scss';
  * @typedef {{
  *  header?: JSX.Element | string;
  *  helptip?: JSX.Element | string;
- *  children: JSX.Element[];
+ *  children: React.ReactChild;
  * }} CardParams
  */
 
