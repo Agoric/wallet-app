@@ -1,3 +1,7 @@
+import React from 'react';
+import Popover from '@mui/material/Popover';
+import Link from '@mui/material/Link';
+import Box from '@mui/material/Box';
 import { Nat } from '@agoric/nat';
 import { stringifyPurseValue } from '@agoric/ui-components';
 import Petname from './Petname';
@@ -7,6 +11,7 @@ import { withApplicationContext } from '../contexts/Application.jsx';
 import BrandIcon from './BrandIcon';
 
 import './Offer.scss';
+import { Typography } from '@mui/material';
 
 const OfferEntryFromTemplate = (
   type,
@@ -89,19 +94,106 @@ const cmp = (a, b) => {
 const sortedEntries = entries =>
   Object.entries(entries).sort(([kwa], [kwb]) => cmp(kwa, kwb));
 
-const Proposal = ({ offer, purses }) => {
+/**
+ * Calculates and displays the execution fee according to the logic in
+ * https://github.com/Agoric/agoric-sdk/blob/master/golang/cosmos/x/swingset/types/msgs.go.
+ */
+const ExecutionFeeInfo = ({ swingsetParams, beansOwing, spendAction }) => {
+  beansOwing = Number(beansOwing ?? 0);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const handleClick = event => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const isOpen = Boolean(anchorEl);
+
+  const feeUnit = swingsetParams?.beansPerUnit?.find(
+    ({ key }) => key === 'feeUnit',
+  )?.beans;
+  const minFeeDebit = swingsetParams?.beansPerUnit?.find(
+    ({ key }) => key === 'minFeeDebit',
+  )?.beans;
+  const messageCost = swingsetParams?.beansPerUnit?.find(
+    ({ key }) => key === 'message',
+  )?.beans;
+  const messageByteCost = swingsetParams?.beansPerUnit?.find(
+    ({ key }) => key === 'messageByte',
+  )?.beans;
+  const inboundTxCost = swingsetParams?.beansPerUnit?.find(
+    ({ key }) => key === 'inboundTx',
+  )?.beans;
+  const feeThreshold =
+    feeUnit && minFeeDebit && Number(minFeeDebit) / Number(feeUnit);
+  const accumulatedFees =
+    feeUnit &&
+    minFeeDebit &&
+    (beansOwing % Number(minFeeDebit)) / Number(feeUnit);
+  const feeDelta =
+    messageCost &&
+    inboundTxCost &&
+    messageByteCost &&
+    feeUnit &&
+    spendAction &&
+    (Number(messageCost) +
+      Number(inboundTxCost) +
+      Number(messageByteCost) * spendAction.length) /
+      Number(feeUnit);
+
+  return feeThreshold && feeDelta ? (
+    <Box
+      sx={{ mt: 2, fontWeight: '400' }}
+      className="text-gray execution-fee-info"
+    >
+      <Typography
+        sx={{
+          display: 'inline',
+        }}
+      >
+        Execution Fee:
+      </Typography>{' '}
+      <Link color="inherit" href="#" onClick={handleClick}>
+        {feeDelta} IST
+      </Link>
+      <Popover
+        open={isOpen}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+      >
+        <Box className="execution-fee-popover" sx={{ p: 2, maxWidth: '480px' }}>
+          <Typography>
+            Fees pay for on-chain execution costs. They accumulate with each
+            transaction and are deducted from your purse balance upon reaching
+            the minimum fee batch of {feeThreshold} IST.
+          </Typography>
+          <Typography sx={{ pt: 1 }} fontWeight={500}>
+            Current Fees Accumulated: {accumulatedFees} / {feeThreshold} IST
+          </Typography>
+        </Box>
+      </Popover>
+    </Box>
+  ) : null;
+};
+
+const Proposal = ({ offer, purses, swingsetParams, beansOwing }) => {
   const {
     proposalForDisplay,
     proposalTemplate,
     invitationDetails: { fee, feePursePetname, expiry } = {},
     error,
+    spendAction,
   } = offer;
-
   let give = {};
   let want = {};
   let args;
   let hasDisplayInfo = false;
-
   // Proposed offers only have a `proposalTemplate`. Offers from the wallet
   // contract have a `proposalForDisplay`.
   if (proposalForDisplay) {
@@ -164,6 +256,11 @@ const Proposal = ({ offer, purses }) => {
           <pre>{JSON.stringify(args, null, 2)}</pre>
         </div>
       )}
+      <ExecutionFeeInfo
+        beansOwing={beansOwing}
+        swingsetParams={swingsetParams}
+        spendAction={spendAction}
+      />
       {error && (
         <div className="OfferEntry">
           <h6>Error</h6>
@@ -174,6 +271,11 @@ const Proposal = ({ offer, purses }) => {
   );
 };
 
-export default withApplicationContext(Proposal, ({ purses }) => ({
-  purses,
-}));
+export default withApplicationContext(
+  Proposal,
+  ({ purses, swingsetParams, beansOwing }) => ({
+    swingsetParams,
+    purses,
+    beansOwing,
+  }),
+);

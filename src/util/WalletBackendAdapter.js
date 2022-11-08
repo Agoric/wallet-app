@@ -1,5 +1,5 @@
 // @ts-check
-import { iterateEach } from '@agoric/casting';
+import { iterateEach, iterateLatest } from '@agoric/casting';
 import { AmountMath } from '@agoric/ertp';
 import { objectMap } from '@agoric/internal';
 import {
@@ -12,15 +12,26 @@ import {
 } from '@agoric/smart-wallet/src/utils.js';
 import { E } from '@endo/eventual-send';
 import { Far } from '@endo/marshal';
+import { querySwingsetParams } from '../util/querySwingsetParams.js';
 import { getDappService } from '../service/Dapps.js';
 import { getIssuerService } from '../service/Issuers.js';
 import { getOfferService } from '../service/Offers.js';
+
+// @ts-ignore UNTIL https://github.com/Agoric/wallet-app/pull/39/
+/** @typedef {import('@agoric/cosmic-proto/swingset/swingset.js').Params} SwingsetParams */
 
 /** @typedef {import('@agoric/smart-wallet/src/types.js').Petname} Petname */
 
 const newId = kind => `${kind}${Math.random()}`;
 
-/** @typedef {{actions: object, issuerSuggestions: Promise<AsyncIterator>}} BackendSchema */
+/**
+ * @typedef {{
+ * actions: object;
+ * issuerSuggestions: Promise<AsyncIterator>;
+ * swingsetParams: Promise<SwingsetParams | undefined>;
+ * beansOwing: Promise<AsyncIterator>
+ * }} BackendSchema
+ */
 
 export const makeBackendFromWalletBridge = (
   /** @type {ReturnType<typeof makeWalletBridgeFromFollowers>} */ walletBridge,
@@ -74,6 +85,7 @@ export const makeBackendFromWalletBridge = (
       createIssuer: (issuer, id = newId('Issuer')) =>
         E(walletBridge).addIssuer(id, issuer, true),
     }),
+    beansOwing: iterateNotifier(E(walletBridge).getBeansOwingNotifier()),
     services: iterateNotifier(servicesNotifier),
     contacts: iterateNotifier(E(walletBridge).getContactsNotifier()),
     dapps: iterateNotifier(E(walletBridge).getDappsNotifier()),
@@ -87,6 +99,7 @@ export const makeBackendFromWalletBridge = (
     issuerSuggestions: iterateNotifier(
       E(walletBridge).getIssuerSuggestionsNotifier(),
     ),
+    swingsetParams: E(walletBridge).getSwingsetParams(),
   });
 
   // Just produce a single update for the initial backend.
@@ -107,18 +120,22 @@ export const makeBackendFromWalletBridge = (
 /** @typedef {import('../store/Dapps').SmartWalletKey} SmartWalletKey */
 /**
  * @param {SmartWalletKey} smartWalletKey
+ * @param {String} rpc
  * @param {ReturnType<import('@endo/marshal').makeMarshal>} marshaller
  * @param {import('@agoric/casting').ValueFollower<import('@agoric/smart-wallet/src/smartWallet').CurrentWalletRecord>} currentFollower
  * @param {import('@agoric/casting').ValueFollower<import('@agoric/smart-wallet/src/smartWallet').UpdateRecord>} updateFollower
+ * @param {import('@agoric/casting').ValueFollower<string>} beansOwingFollower
  * @param {import('../contexts/Provider.jsx').KeplrUtils} keplrConnection
  * @param {(e: unknown) => void} [errorHandler]
  * @param {() => void} [firstCallback]
  */
 export const makeWalletBridgeFromFollowers = (
   smartWalletKey,
+  rpc,
   marshaller,
   currentFollower,
   updateFollower,
+  beansOwingFollower,
   keplrConnection,
   errorHandler = e => {
     // Make an unhandled rejection.
@@ -141,6 +158,9 @@ export const makeWalletBridgeFromFollowers = (
       makeNotifierKit(null),
     ]),
   );
+
+  const { notifier: beansOwingNotifier, updater: beansOwingUpdater } =
+    makeNotifierKit(/** @type {Number?} */ (null));
 
   // We assume just one cosmos purse per brand.
   /**
@@ -198,8 +218,15 @@ export const makeWalletBridgeFromFollowers = (
     marshaller,
   );
 
+  const watchBeansOwing = async () => {
+    for await (const { value } of iterateLatest(beansOwingFollower)) {
+      beansOwingUpdater.updateState(Number(value));
+    }
+  };
+
   const fetchCurrent = async () => {
     await assertHasData(currentFollower);
+    void watchBeansOwing();
     const latestIterable = await E(currentFollower).getLatestIterable();
     const iterator = latestIterable[Symbol.asyncIterator]();
     const latest = await iterator.next();
@@ -327,10 +354,15 @@ export const makeWalletBridgeFromFollowers = (
     getPursesNotifier,
   } = getNotifierMethods;
 
+  const fetchSwingsetParams = () =>
+    querySwingsetParams(rpc).then(res => res.params);
+
   const walletBridge = Far('follower wallet bridge', {
     getDappsNotifier: () => dappService.notifier,
     getOffersNotifier: () => offerService.notifier,
     getIssuerSuggestionsNotifier: () => issuerService.notifier,
+    getSwingsetParams: () => fetchSwingsetParams(),
+    getBeansOwingNotifier: () => beansOwingNotifier,
     getIssuersNotifier,
     getContactsNotifier,
     getPaymentsNotifier,

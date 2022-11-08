@@ -246,7 +246,6 @@ export const makeBackgroundSigner = async ({ localStorage, csprng }) => {
    * @returns {Promise<GenericAuthorization[]>}
    */
   const queryGrants = async (granter, rpcClient) => {
-    // @ts-expect-error XXX types version conflict
     const base = QueryClient.withExtensions(rpcClient);
     const rpc = createProtobufRpcClient(base);
     const queryService = new QueryClientImpl(rpc);

@@ -139,6 +139,13 @@ const Provider = ({ children }) => {
   const [issuers, setIssuers] = useReducer(issuersReducer, null);
   const [issuerSuggestions, setIssuerSuggestions] = useState(null);
   const [services, setServices] = useState(null);
+  const [swingsetParams, setSwingsetParams] = useState(
+    // @ts-ignore UNTIL https://github.com/Agoric/wallet-app/pull/39/
+    /** @type {import('@agoric/cosmic-proto/swingset/swingset.js').Params?} */ (
+      null
+    ),
+  );
+  const [beansOwing, setBeansOwing] = useState(/** @type {string?} */ (null));
   const [backend, setBackend] = useState(
     /** @type {import('../util/WalletBackendAdapter').BackendSchema?} */ (null),
   );
@@ -209,6 +216,7 @@ const Provider = ({ children }) => {
       address: accounts[0]?.address,
       signers: { interactiveSigner, backgroundSigner },
       chainId: chainInfo.chainId,
+      rpc: chainInfo.rpc,
     });
   };
 
@@ -224,6 +232,8 @@ const Provider = ({ children }) => {
 
   // Resubscribe when a new backend is set.
   useEffect(() => {
+    setSwingsetParams(null);
+    setBeansOwing(null);
     setSchemaActions(null);
     for (const setter of backendSetters.values()) {
       setter(null);
@@ -263,6 +273,30 @@ const Provider = ({ children }) => {
         setIssuerSuggestions(state);
       },
     }).catch(rethrowIfNotCancelled);
+
+    const beansOwingNotifier = E.get(backend).beansOwing;
+    observeIterator(beansOwingNotifier, {
+      fail: rethrowIfNotCancelled,
+      updateState: state => {
+        if (cancelIteration) {
+          throw cancelIteration;
+        }
+        setBeansOwing(state);
+      },
+    }).catch(rethrowIfNotCancelled);
+
+    E.get(backend)
+      .swingsetParams.then(params => {
+        if (cancelIteration) {
+          throw cancelIteration;
+        }
+        if (params === undefined) {
+          rethrowIfNotCancelled(new Error('swingset params undefined'));
+        }
+        assert(params);
+        setSwingsetParams(params);
+      })
+      .catch(rethrowIfNotCancelled);
 
     return () => {
       cancelIteration = Error('cancelled');
@@ -347,6 +381,8 @@ const Provider = ({ children }) => {
     keplrConnection,
     tryKeplrConnect,
     previewEnabled,
+    swingsetParams,
+    beansOwing,
   };
 
   useDebugLogging(state, [

@@ -42,6 +42,8 @@ const OfferWithoutContext = ({
   declinedOffers,
   setDeclinedOffers,
   setClosedOffers,
+  swingsetParams,
+  beansOwing,
 }) => {
   const [signingError, setSigningError] = useState(null);
 
@@ -147,7 +149,11 @@ const OfferWithoutContext = ({
         <span className="Blue">{dappOrigin || origin}</span>
       </div>
       <ErrorBoundary>
-        <Proposal offer={offer} />
+        <Proposal
+          offer={offer}
+          beansOwing={beansOwing}
+          swingsetParams={swingsetParams}
+        />
       </ErrorBoundary>
       {signingError && (
         <div className="OfferEntry">
@@ -168,4 +174,6 @@ export default withApplicationContext(OfferWithoutContext, context => ({
   declinedOffers: context.declinedOffers,
   setDeclinedOffers: context.setDeclinedOffers,
   setClosedOffers: context.setClosedOffers,
+  swingsetParams: context.swingsetParams,
+  beansOwing: context.beansOwing,
 }));
