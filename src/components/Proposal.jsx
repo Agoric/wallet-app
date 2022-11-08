@@ -94,9 +94,13 @@ const cmp = (a, b) => {
 const sortedEntries = entries =>
   Object.entries(entries).sort(([kwa], [kwb]) => cmp(kwa, kwb));
 
-const Proposal = ({ offer, purses, swingsetParams, beansOwing }) => {
+/**
+ * Calculates and displays the execution fee according to the logic in
+ * https://github.com/Agoric/agoric-sdk/blob/master/golang/cosmos/x/swingset/types/msgs.go.
+ */
+const ExecutionFeeInfo = ({ swingsetParams, beansOwing, spendAction }) => {
+  beansOwing = Number(beansOwing ?? 0);
   const [anchorEl, setAnchorEl] = React.useState(null);
-
   const handleClick = event => {
     setAnchorEl(event.currentTarget);
   };
@@ -106,14 +110,6 @@ const Proposal = ({ offer, purses, swingsetParams, beansOwing }) => {
   };
 
   const isOpen = Boolean(anchorEl);
-
-  const {
-    proposalForDisplay,
-    proposalTemplate,
-    invitationDetails: { fee, feePursePetname, expiry } = {},
-    error,
-    spendAction,
-  } = offer;
 
   const feeUnit = swingsetParams?.beansPerUnit?.find(
     ({ key }) => key === 'feeUnit',
@@ -133,7 +129,6 @@ const Proposal = ({ offer, purses, swingsetParams, beansOwing }) => {
   const feeThreshold =
     feeUnit && minFeeDebit && Number(minFeeDebit) / Number(feeUnit);
   const accumulatedFees =
-    beansOwing &&
     feeUnit &&
     minFeeDebit &&
     (beansOwing % Number(minFeeDebit)) / Number(feeUnit);
@@ -148,11 +143,57 @@ const Proposal = ({ offer, purses, swingsetParams, beansOwing }) => {
       Number(messageByteCost) * spendAction.length) /
       Number(feeUnit);
 
+  return feeThreshold && feeDelta ? (
+    <Box
+      sx={{ mt: 2, fontWeight: '400' }}
+      className="text-gray execution-fee-info"
+    >
+      <Typography
+        sx={{
+          display: 'inline',
+        }}
+      >
+        Execution Fee:
+      </Typography>{' '}
+      <Link color="inherit" href="#" onClick={handleClick}>
+        {feeDelta} IST
+      </Link>
+      <Popover
+        open={isOpen}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+      >
+        <Box className="execution-fee-popover" sx={{ p: 2, maxWidth: '480px' }}>
+          <Typography>
+            Fees pay for on-chain execution costs. They accumulate with each
+            transaction and are deducted from your purse balance upon reaching
+            the minimum fee batch of {feeThreshold} IST.
+          </Typography>
+          <Typography sx={{ pt: 1 }} fontWeight={500}>
+            Current Fees Accumulated: {accumulatedFees} / {feeThreshold} IST
+          </Typography>
+        </Box>
+      </Popover>
+    </Box>
+  ) : null;
+};
+
+const Proposal = ({ offer, purses, swingsetParams, beansOwing }) => {
+  const {
+    proposalForDisplay,
+    proposalTemplate,
+    invitationDetails: { fee, feePursePetname, expiry } = {},
+    error,
+    spendAction,
+  } = offer;
   let give = {};
   let want = {};
   let args;
   let hasDisplayInfo = false;
-
   // Proposed offers only have a `proposalTemplate`. Offers from the wallet
   // contract have a `proposalForDisplay`.
   if (proposalForDisplay) {
@@ -189,41 +230,6 @@ const Proposal = ({ offer, purses, swingsetParams, beansOwing }) => {
     </div>
   );
 
-  const executionFeeEntry = feeThreshold && accumulatedFees && feeDelta && (
-    <Box sx={{ mt: 2, fontWeight: '400' }} className="text-gray">
-      <Typography
-        sx={{
-          display: 'inline',
-        }}
-      >
-        Execution Fee:
-      </Typography>{' '}
-      <Link color="inherit" href="#" onClick={handleClick}>
-        {feeDelta} IST
-      </Link>
-      <Popover
-        open={isOpen}
-        anchorEl={anchorEl}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-      >
-        <Box sx={{ p: 2, maxWidth: '480px' }}>
-          <Typography>
-            Fees pay for on-chain execution costs. They accumulate with each
-            transaction and are deducted from your purse balance every{' '}
-            {feeThreshold} IST.
-          </Typography>
-          <Typography sx={{ pt: 1 }} fontWeight={500}>
-            Current Fees Accumulated: {accumulatedFees} / {feeThreshold} IST
-          </Typography>
-        </Box>
-      </Popover>
-    </Box>
-  );
-
   const Gives = sortedEntries(give).map(g =>
     hasDisplayInfo ? GiveFromDisplayInfo(g) : GiveFromTemplate(g, purses),
   );
@@ -236,7 +242,6 @@ const Proposal = ({ offer, purses, swingsetParams, beansOwing }) => {
       {Gives}
       {Wants}
       {feeEntry}
-      {executionFeeEntry}
       {expiry && (
         <div className="OfferEntry">
           <h6>Expiry</h6>
@@ -251,6 +256,11 @@ const Proposal = ({ offer, purses, swingsetParams, beansOwing }) => {
           <pre>{JSON.stringify(args, null, 2)}</pre>
         </div>
       )}
+      <ExecutionFeeInfo
+        beansOwing={beansOwing}
+        swingsetParams={swingsetParams}
+        spendAction={spendAction}
+      />
       {error && (
         <div className="OfferEntry">
           <h6>Error</h6>

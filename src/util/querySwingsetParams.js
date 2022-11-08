@@ -1,4 +1,3 @@
-// @ts-check
 import { QueryClient, createProtobufRpcClient } from '@cosmjs/stargate';
 import { QueryClientImpl } from '@agoric/cosmic-proto/swingset/query.js';
 

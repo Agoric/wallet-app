@@ -6,6 +6,8 @@ import Chip from '@mui/material/Chip';
 import Offer from '../Offer';
 import Request from '../Request';
 import { formatDateNow } from '../../util/Date';
+import Link from '@mui/material/Link';
+import Popover from '@mui/material/Popover';
 
 jest.mock('@endo/eventual-send', () => ({
   E: obj =>
@@ -30,13 +32,22 @@ jest.mock(
 );
 
 jest.mock('../../util/Date', () => ({ formatDateNow: stamp => String(stamp) }));
-
+jest.mock('@mui/material/Popover', () => ({ children }) => <>{children}</>);
 const pendingOffers = new Set();
 const setPendingOffers = jest.fn();
 const declinedOffers = new Set();
 const setDeclinedOffers = jest.fn();
 const setClosedOffers = jest.fn();
 const purses = [];
+const swingsetParams = {
+  beansPerUnit: [
+    { key: 'feeUnit', beans: '1000000000000' },
+    { key: 'minFeeDebit', beans: '200000000000' },
+    { key: 'message', beans: '1000000000' },
+    { key: 'messageByte', beans: '20000000' },
+    { key: 'inboundTx', beans: '10000000000' },
+  ],
+};
 
 const withApplicationContext =
   (Component, _) =>
@@ -49,6 +60,7 @@ const withApplicationContext =
         setDeclinedOffers={setDeclinedOffers}
         setClosedOffers={setClosedOffers}
         purses={purses}
+        swingsetParams={swingsetParams}
         {...props}
       />
     );
@@ -103,6 +115,7 @@ const offer = {
     feePursePetname: 'Zoe fees',
     expiry: 1723014088n,
   },
+  spendAction: ''.padStart(649, 'x'),
 };
 
 test('renders the gives', () => {
@@ -338,4 +351,41 @@ test('renders the dapp origin', () => {
   expect(component.find('.OfferOrigin').text()).toContain(
     'TokenPalace.Installation via https://tokenpalace.app',
   );
+});
+
+test('renders the execution fee', async () => {
+  const component = mount(<Offer offer={offer} />);
+  const feeInfo = component.find('.execution-fee-info').at(0);
+
+  expect(feeInfo.text()).toContain('Execution Fee: 0.02398 IST');
+});
+
+test('renders the execution fee with a different spendAction', async () => {
+  const component = mount(
+    <Offer offer={{ ...offer, spendAction: ''.padStart(651, 'x') }} />,
+  );
+  const feeInfo = component.find('.execution-fee-info').at(0);
+
+  expect(feeInfo.text()).toContain('Execution Fee: 0.02402 IST');
+});
+
+test('renders the fees accumulated with beansOwing null', async () => {
+  const component = mount(<Offer offer={offer} beansOwing={null} />);
+  const popover = component.find(Popover);
+
+  expect(popover.text()).toContain('Current Fees Accumulated: 0 / 0.2 IST');
+});
+
+test('renders the fees accumulated with beansOwing < minFeeDebit', () => {
+  const component = mount(<Offer offer={offer} beansOwing={110000000000} />);
+  const popover = component.find(Popover);
+
+  expect(popover.text()).toContain('Current Fees Accumulated: 0.11 / 0.2 IST');
+});
+
+test('renders the fees accumulated with beansOwing > minFeeDebit', () => {
+  const component = mount(<Offer offer={offer} beansOwing={320000000000} />);
+  const popover = component.find(Popover);
+
+  expect(popover.text()).toContain('Current Fees Accumulated: 0.12 / 0.2 IST');
 });
