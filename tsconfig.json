@@ -9,6 +9,7 @@
     "esModuleInterop": false,
     "downlevelIteration": true,
     "isolatedModules": true,
+    "strict": true,
     "strictNullChecks": true,
     "moduleResolution": "node"
   },

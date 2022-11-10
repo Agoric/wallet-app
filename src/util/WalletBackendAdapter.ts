@@ -10,27 +10,22 @@ import {
   assertHasData,
   NO_SMART_WALLET_ERROR,
 } from '@agoric/smart-wallet/src/utils.js';
-import { E } from '@endo/eventual-send';
+import { E, ERef } from '@endo/eventual-send';
 import { Far, Marshal } from '@endo/marshal';
 import type { querySwingsetParams } from '../util/querySwingsetParams.js';
 import { getDappService } from '../service/Dapps.js';
 import { getIssuerService } from '../service/Issuers.js';
 import { getOfferService } from '../service/Offers.js';
 
-/** @typedef {import('@agoric/cosmic-proto/swingset/swingset.js').Params} SwingsetParams */
-// Ambient types. Needed only for dev but this does a runtime import.
-import '@agoric/ertp/exported.js';
-import '@agoric/ertp/src/types.js';
-import '@agoric/notifier/exported.js';
-
-// eslint-disable-next-line import/no-extraneous-dependencies -- transitive
-import '@agoric/store/exported.js';
-// eslint-disable-next-line import/no-extraneous-dependencies -- transitive
-import '@agoric/zoe/exported.js';
-import '@endo/captp/src/types.js';
-import { Petname } from '@agoric/smart-wallet/src/types.js';
-import { UpdateRecord } from '@agoric/smart-wallet/src/smartWallet.js';
-import { SmartWalletKey } from '../store/Dapps.js';
+import type { Amount, Brand, DisplayInfo } from '@agoric/ertp/src/types.js';
+import type { Notifier } from '@agoric/notifier/exported.js';
+import type { OfferStatus } from '@agoric/smart-wallet/src/offers.js';
+import type { UpdateRecord } from '@agoric/smart-wallet/src/smartWallet.js';
+import type { Petname } from '@agoric/smart-wallet/src/types.js';
+import type { SmartWalletKey } from '../store/Dapps.js';
+import type { ValueFollower } from '@agoric/casting/src/follower-cosmjs';
+import type { CurrentWalletRecord } from '@agoric/smart-wallet/src/smartWallet';
+import { KeplrUtils } from '../contexts/Provider.jsx';
 
 const newId = kind => `${kind}${Math.random()}`;
 
@@ -45,10 +40,7 @@ export const makeBackendFromWalletBridge = (
   // XXX we don't have access to the board yet.
   const { notifier: servicesNotifier } = makeNotifierKit();
 
-  /**
-   * @param {AsyncIterator<any[], any[], undefined>} offersMembers
-   */
-  const wrapOffersIterator = offersMembers =>
+  const wrapOffersIterator = (offersMembers: AsyncIterator<any[], any[]>) =>
     harden({
       next: async () => {
         const { done, value } = await E(offersMembers).next();
@@ -89,6 +81,7 @@ export const makeBackendFromWalletBridge = (
     dapps: iterateNotifier(E(walletBridge).getDappsNotifier()),
     issuers: iterateNotifier(E(walletBridge).getIssuersNotifier()),
     offers: wrapOffersIterator(
+      // @ts-expect-error xxx
       iterateNotifier(E(walletBridge).getOffersNotifier()),
     ),
     payments: iterateNotifier(E(walletBridge).getPaymentsNotifier()),
@@ -114,24 +107,13 @@ export const makeBackendFromWalletBridge = (
   return { backendIt, cancel };
 };
 
-/**
- * @param {SmartWalletKey} smartWalletKey
- * @param {String} rpc
- * @param {ReturnType<import('@endo/marshal').makeMarshal>} marshaller
- * @param {import('@agoric/casting').ValueFollower<import('@agoric/smart-wallet/src/smartWallet').CurrentWalletRecord>} currentFollower
- * @param {import('@agoric/casting').ValueFollower<import('@agoric/smart-wallet/src/smartWallet').UpdateRecord>} updateFollower
- * @param {import('@agoric/casting').ValueFollower<string>} beansOwingFollower
- * @param {import('../contexts/Provider.jsx').KeplrUtils} keplrConnection
- * @param {(e: unknown) => void} [errorHandler]
- * @param {() => void} [firstCallback]
- */
 export const makeWalletBridgeFromFollowers = (
   smartWalletKey: SmartWalletKey,
   marshaller: Marshal<string>,
-  currentFollower,
-  updateFollower,
-  beansOwingFollower,
-  keplrConnection,
+  currentFollower: ValueFollower<CurrentWalletRecord>,
+  updateFollower: ValueFollower<UpdateRecord>,
+  beansOwingFollower: ValueFollower<string>,
+  keplrConnection: KeplrUtils,
   errorHandler = e => {
     // Make an unhandled rejection.
     throw e;
@@ -190,8 +172,8 @@ export const makeWalletBridgeFromFollowers = (
     stateName => () => notifierKits[stateName].notifier,
   );
 
-  /** @type {Notifier<import('@agoric/smart-wallet/src/offers.js').OfferStatus>} */
-  const offersNotifer = getNotifierMethods.getOffersNotifier();
+  const offersNotifer: Notifier<OfferStatus> =
+    getNotifierMethods.getOffersNotifier();
 
   const offerService = getOfferService(
     smartWalletKey,
@@ -220,7 +202,7 @@ export const makeWalletBridgeFromFollowers = (
       // @ts-expect-error xxx param mutation
       firstCallback = undefined;
     }
-    /** @type {import('@agoric/casting').ValueFollowerElement<import('@agoric/smart-wallet/src/smartWallet').CurrentWalletRecord>} */
+    /** @type {ValueFollowerElement<CurrentWalletRecord>} */
     const currentEl = latest.value;
     const wallet = currentEl.value;
     console.log('wallet current', wallet);
@@ -247,7 +229,6 @@ export const makeWalletBridgeFromFollowers = (
   };
 
   const followLatest = async startingHeight => {
-    // @ts-expect-error TODO use newer lib
     for await (const { value } of iterateEach(updateFollower, {
       height: startingHeight,
     })) {
@@ -288,7 +269,6 @@ export const makeWalletBridgeFromFollowers = (
           break;
         }
         default: {
-          // @ts-expect-error exhaustive switch
           throw Error(`Unknown updateRecord ${updateRecord.updated}`);
         }
       }
