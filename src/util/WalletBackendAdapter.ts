@@ -22,6 +22,7 @@ import { getOfferService } from '../service/Offers.js';
 import '@agoric/ertp/exported.js';
 import '@agoric/ertp/src/types.js';
 import '@agoric/notifier/exported.js';
+
 // eslint-disable-next-line import/no-extraneous-dependencies -- transitive
 import '@agoric/store/exported.js';
 // eslint-disable-next-line import/no-extraneous-dependencies -- transitive
@@ -73,8 +74,7 @@ export const makeBackendFromWalletBridge = (
       throw: offersMembers.throw,
     });
 
-  /** @type {BackendSchema} */
-  const firstSchema = harden({
+  const firstSchema: BackendSchema = harden({
     actions: Far('schemaActions', {
       createPurse: (issuer, id = newId('Purse')) =>
         E(walletBridge).makeEmptyPurse(issuer?.issuerPetname, id),
@@ -126,8 +126,8 @@ export const makeBackendFromWalletBridge = (
  * @param {() => void} [firstCallback]
  */
 export const makeWalletBridgeFromFollowers = (
-  smartWalletKey,
-  marshaller,
+  smartWalletKey: SmartWalletKey,
+  marshaller: Marshal<string>,
   currentFollower,
   updateFollower,
   beansOwingFollower,
