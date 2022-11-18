@@ -10,8 +10,8 @@ import TextField from '@mui/material/TextField';
 import { makeStyles } from '@mui/styles';
 import { useMemo, useState } from 'react';
 import { withApplicationContext } from '../contexts/Application';
-import { networkConfigUrl } from '../util/connections.js';
-import isEqual from 'lodash-es/isEqual.js';
+import { networkConfigUrl } from '../util/connections';
+import isEqual from 'lodash-es/isEqual';
 import { maybeSave } from '../util/storage';
 
 const useStyles = makeStyles(_ => ({

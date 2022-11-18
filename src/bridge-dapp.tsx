@@ -1,12 +1,12 @@
 // @ts-check
 import '@endo/eventual-send/shim';
-import './lockdown.js';
+import './lockdown';
 
 import { useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { BridgeProtocol } from '@agoric/web-components';
-import { addOffer, OfferUIStatus } from './store/Offers.js';
-import { loadDapp, upsertDapp, watchDapps } from './store/Dapps.js';
+import { addOffer, OfferUIStatus } from './store/Offers';
+import { loadDapp, upsertDapp, watchDapps } from './store/Dapps';
 
 /** @typedef {import('./store/Dapps').DappKey} DappKey */
 

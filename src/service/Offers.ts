@@ -13,10 +13,10 @@ import {
   watchOffers,
   OfferUIStatus,
   Offer,
-} from '../store/Offers.js';
+} from '../store/Offers';
 
-import { SmartWalletKey } from '../store/Dapps.js';
-import { OfferStatus } from '@agoric/smart-wallet/src/offers.js';
+import { SmartWalletKey } from '../store/Dapps';
+import { OfferStatus } from '@agoric/smart-wallet/src/offers';
 import { Marshal } from '@endo/marshal';
 
 /** @typedef {import('@agoric/smart-wallet/src/types.js').Petname} Petname */

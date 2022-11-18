@@ -4,13 +4,13 @@
 import '@endo/eventual-send/shim';
 
 // Ambient types. Needed only for dev but this does a runtime import.
-import '@agoric/ertp/exported.js';
-import '@agoric/notifier/exported.js';
+import '@agoric/ertp/exported';
+import '@agoric/notifier/exported';
 // eslint-disable-next-line import/no-extraneous-dependencies -- transitive
-import '@agoric/store/exported.js';
+import '@agoric/store/exported';
 // eslint-disable-next-line import/no-extraneous-dependencies -- transitive
-import '@agoric/zoe/exported.js';
-import '@endo/captp/src/types.js';
+import '@agoric/zoe/exported';
+import '@endo/captp/src/types';
 
 import * as React from 'react';
 import ReactDOM from 'react-dom';

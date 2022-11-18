@@ -21,7 +21,7 @@ import {
 import { onLoadP } from '../util/onLoad';
 import { DappWithActions } from '../service/Dapps';
 
-import type { Params as CosmicSwingsetParams } from '@agoric/cosmic-proto/dist/agoric/swingset/swingset.js';
+import type { Params as CosmicSwingsetParams } from '@agoric/cosmic-proto/dist/agoric/swingset/swingset';
 import { BackendSchema } from '../util/WalletBackendAdapter';
 
 export type KeplrUtils = {

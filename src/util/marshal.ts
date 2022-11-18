@@ -1,5 +1,5 @@
 import { makeMarshal } from '@endo/marshal';
-import { decodeToJustin } from '@endo/marshal/src/marshal-justin.js';
+import { decodeToJustin } from '@endo/marshal/src/marshal-justin';
 
 const { serialize } = makeMarshal();
 

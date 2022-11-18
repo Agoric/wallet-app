@@ -9,20 +9,20 @@ import {
 import {
   assertHasData,
   NO_SMART_WALLET_ERROR,
-} from '@agoric/smart-wallet/src/utils.js';
+} from '@agoric/smart-wallet/src/utils';
 import { E, ERef } from '@endo/eventual-send';
 import { Far, Marshal } from '@endo/marshal';
-import { querySwingsetParams } from '../util/querySwingsetParams.js';
-import { getDappService } from '../service/Dapps.js';
-import { getIssuerService } from '../service/Issuers.js';
-import { getOfferService } from '../service/Offers.js';
+import { querySwingsetParams } from '../util/querySwingsetParams';
+import { getDappService } from '../service/Dapps';
+import { getIssuerService } from '../service/Issuers';
+import { getOfferService } from '../service/Offers';
 
-import type { Amount, Brand, DisplayInfo } from '@agoric/ertp/src/types.js';
-import type { Notifier } from '@agoric/notifier/exported.js';
-import type { OfferStatus } from '@agoric/smart-wallet/src/offers.js';
-import type { UpdateRecord } from '@agoric/smart-wallet/src/smartWallet.js';
-import type { Petname } from '@agoric/smart-wallet/src/types.js';
-import type { SmartWalletKey } from '../store/Dapps.js';
+import type { Amount, Brand, DisplayInfo } from '@agoric/ertp/src/types';
+import type { Notifier } from '@agoric/notifier/exported';
+import type { OfferStatus } from '@agoric/smart-wallet/src/offers';
+import type { UpdateRecord } from '@agoric/smart-wallet/src/smartWallet';
+import type { Petname } from '@agoric/smart-wallet/src/types';
+import type { SmartWalletKey } from '../store/Dapps';
 import type { ValueFollower } from '@agoric/casting/src/follower-cosmjs';
 import type { CurrentWalletRecord } from '@agoric/smart-wallet/src/smartWallet';
 import { KeplrUtils } from '../contexts/Provider.jsx';

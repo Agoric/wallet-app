@@ -1,4 +1,4 @@
-import type { NetworkConfig } from '@agoric/casting/src/netconfig.js';
+import type { NetworkConfig } from '@agoric/casting/src/netconfig';
 import type { ChainInfo, Keplr } from '@keplr-wallet/types';
 import { bech32Config, stableCurrency, stakeCurrency } from './chainInfo';
 

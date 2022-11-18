@@ -3,8 +3,8 @@ import {
   maybeSave,
   watchKey,
   OFFERS_STORAGE_KEY,
-} from '../util/storage.js';
-import { SmartWalletKey } from './Dapps.js';
+} from '../util/storage';
+import { SmartWalletKey } from './Dapps';
 
 export enum OfferUIStatus {
   proposed = 'proposed',

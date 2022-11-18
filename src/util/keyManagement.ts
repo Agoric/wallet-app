@@ -25,7 +25,7 @@ import {
   MsgWalletSpendAction,
 } from '@agoric/cosmic-proto/swingset/msgs.js';
 
-import { stableCurrency, bech32Config } from './chainInfo.js';
+import { stableCurrency, bech32Config } from './chainInfo';
 import type { ChainInfo, Keplr } from '@keplr-wallet/types';
 
 export function toAccAddress(address: string): Uint8Array {

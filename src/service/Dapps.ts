@@ -5,9 +5,9 @@ import {
   removeDapp as remove,
   upsertDapp as upsert,
   watchDapps as watch,
-} from '../store/Dapps.js';
+} from '../store/Dapps';
 
-import type { Dapp, SmartWalletKey } from '../store/Dapps.js';
+import type { Dapp, SmartWalletKey } from '../store/Dapps';
 
 type DappActions = {
   enable: () => void;

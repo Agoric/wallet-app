@@ -3,7 +3,7 @@ import {
   maybeSave,
   watchKey,
   DAPPS_STORAGE_KEY,
-} from '../util/storage.js';
+} from '../util/storage';
 
 export type SmartWalletKey = { chainId: string; address: string };
 
