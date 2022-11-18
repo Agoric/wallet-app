@@ -12,11 +12,12 @@ import {
   addOffer as add,
   watchOffers,
   OfferUIStatus,
+  Offer,
 } from '../store/Offers.js';
 
-// Ambient types
-import '@agoric/notifier/exported.js';
-import '@agoric/notifier/src/types-ambient.js';
+import { SmartWalletKey } from './Dapps.js';
+import { OfferStatus } from '@agoric/smart-wallet/src/offers.js';
+import { Marshal } from '@endo/marshal';
 
 /** @typedef {import('@agoric/smart-wallet/src/types.js').Petname} Petname */
 
@@ -25,17 +26,14 @@ import '@agoric/notifier/src/types-ambient.js';
 /** @typedef {import('../store/Offers').Offer} Offer */
 /** @typedef {import('../store/Dapps').SmartWalletKey} SmartWalletKey */
 
-/**
- * @param {SmartWalletKey} smartWalletKey
- * @param {(data: string) => Promise<any>} signSpendAction
- * @param {Notifier<OfferStatus>} chainOffersNotifier
- * @param {Marshaller} boardIdMarshaller
- */
+// TODO export explicit types from @agoric/notifier
+type OfferStatusNotifier = any;
+
 export const getOfferService = (
-  smartWalletKey,
-  signSpendAction,
-  chainOffersNotifier,
-  boardIdMarshaller,
+  smartWalletKey: SmartWalletKey,
+  signSpendAction: (data: string) => Promise<any>,
+  chainOffersNotifier: OfferStatusNotifier,
+  boardIdMarshaller: Marshal<string>,
 ) => {
   /** @type {Map<number, Offer>} */
   const offers = new Map();
@@ -56,6 +54,7 @@ export const getOfferService = (
     const mapPursePetnamesToBrands = paymentProposals =>
       Object.fromEntries(
         Object.entries(paymentProposals).map(
+          // @ts-expect-error xxx
           ([kw, { pursePetname, value }]) => {
             const brand = pursePetnameToBrand.get(pursePetname);
             if (!brand) {
@@ -105,20 +104,20 @@ export const getOfferService = (
     };
   };
 
-  const upsertOffer = (/** @type {Offer} */ offer) => {
+  const upsertOffer = (offer: Offer) => {
     offers.set(offer.id, offer);
     add(smartWalletKey, offer);
     broadcastUpdates();
   };
 
-  const declineOffer = (/** @type {number} */ id) => {
+  const declineOffer = (id: number) => {
     const offer = offers.get(id);
     assert(offer, `Tried to decline undefined offer ${id}`);
     upsertOffer({ ...offer, status: OfferUIStatus.declined });
     broadcastUpdates();
   };
 
-  const acceptOffer = async (/** @type {number} */ id) => {
+  const acceptOffer = async (id: number) => {
     const offer = offers.get(id);
     assert(offer, `Tried to accept undefined offer ${id}`);
     assert(offer.spendAction, 'Missing spendAction');
@@ -175,7 +174,7 @@ export const getOfferService = (
   const start = pursePetnameToBrand => {
     const storedOffers = load(smartWalletKey);
     const storedOffersP = Promise.all(
-      storedOffers.map(async (/** @type {Offer} */ o) => {
+      storedOffers.map(async (o: Offer) => {
         if (o.status === OfferUIStatus.declined) {
           remove(smartWalletKey, o.id);
         }

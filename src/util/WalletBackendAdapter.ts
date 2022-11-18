@@ -12,7 +12,7 @@ import {
 } from '@agoric/smart-wallet/src/utils.js';
 import { E, ERef } from '@endo/eventual-send';
 import { Far, Marshal } from '@endo/marshal';
-import type { querySwingsetParams } from '../util/querySwingsetParams.js';
+import { querySwingsetParams } from '../util/querySwingsetParams.js';
 import { getDappService } from '../service/Dapps.js';
 import { getIssuerService } from '../service/Issuers.js';
 import { getOfferService } from '../service/Offers.js';
