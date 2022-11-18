@@ -1,4 +1,3 @@
-// @ts-check
 import { observeIterator } from '@agoric/notifier';
 import { E } from '@endo/far';
 import * as React from 'react';
@@ -14,17 +13,25 @@ import {
 import { maybeLoad } from '../util/storage';
 import { suggestChain } from '../util/SuggestChain';
 import {
+  BackgroundSigner,
+  InteractiveSigner,
   makeBackgroundSigner,
   makeInteractiveSigner,
 } from '../util/keyManagement';
 import { onLoadP } from '../util/onLoad';
+import { DappWithActions } from '../service/Dapps';
 
-/**
- * @typedef KeplrUtils
- * @property {string} address
- * @property {{ interactiveSigner: import('../util/keyManagement').InteractiveSigner, backgroundSigner: import('../util/keyManagement').BackgroundSigner}} signers
- * @property {string} chainId,
- */
+import type { Params as CosmicSwingsetParams } from '@agoric/cosmic-proto/dist/agoric/swingset/swingset.js';
+import { BackendSchema } from '../util/WalletBackendAdapter';
+
+export type KeplrUtils = {
+  address: string;
+  chainId: string;
+  signers: {
+    interactiveSigner: InteractiveSigner;
+    backgroundSigner: BackgroundSigner;
+  };
+};
 
 const useDebugLogging = (state, watch) => {
   useEffect(() => console.debug('useDebugLogging', { state }), watch);
@@ -69,10 +76,7 @@ const pursesReducer = (_, newPurses) =>
         cmp(a.pursePetname, b.pursePetname),
     ) || null;
 
-const dappsReducer = (
-  _,
-  /** @type {import('../service/Dapps').DappWithActions[] | null} */ newDapps,
-) =>
+const dappsReducer = (_, newDapps: DappWithActions[] | null) =>
   newDapps
     ?.map(dapp => ({ ...dapp, id: dapp.origin }))
     .sort((a, b) => cmp(a.petname, b.petname)) || null;
@@ -140,15 +144,10 @@ const Provider = ({ children }) => {
   const [issuers, setIssuers] = useReducer(issuersReducer, null);
   const [issuerSuggestions, setIssuerSuggestions] = useState(null);
   const [services, setServices] = useState(null);
-  const [swingsetParams, setSwingsetParams] = useState(
-    /** @type {import('@agoric/cosmic-proto/swingset/swingset.js').Params?} */ (
-      null
-    ),
-  );
-  const [beansOwing, setBeansOwing] = useState(/** @type {string?} */ (null));
-  const [backend, setBackend] = useState(
-    /** @type {import('../util/WalletBackendAdapter').BackendSchema?} */ (null),
-  );
+  const [swingsetParams, setSwingsetParams] =
+    useState<CosmicSwingsetParams | null>(null);
+  const [beansOwing, setBeansOwing] = useState<string | null>(null);
+  const [backend, setBackend] = useState<BackendSchema | null>(null);
   const [schemaActions, setSchemaActions] = useState(null);
   const [backendErrorHandler, setBackendErrorHandler] = useState(null);
   const [previewEnabled, setPreviewEnabled] = useState(false);
@@ -178,7 +177,9 @@ const Provider = ({ children }) => {
       ? ConnectionStatus.Connecting
       : ConnectionStatus.Disconnected,
   );
-  const [keplrConnection, setKeplrConnection] = useState(null);
+  const [keplrConnection, setKeplrConnection] = useState<KeplrUtils | null>(
+    null,
+  );
 
   /**
    * NOTE: relies on ambient window.fetch, window.keplr, Random.getBytes
@@ -212,14 +213,15 @@ const Provider = ({ children }) => {
       }),
     ]);
     setKeplrConnection({
-      // @ts-expect-error state typed as null
       address: accounts[0]?.address,
       signers: { interactiveSigner, backgroundSigner },
       chainId: chainInfo.chainId,
+      // @ts-expect-error used?
       rpc: chainInfo.rpc,
     });
   };
 
+  // @ts-expect-error xxx
   const backendSetters = new Map([
     ['services', setServices],
     ['offers', setInbox],
@@ -243,7 +245,7 @@ const Provider = ({ children }) => {
       return () => {};
     }
 
-    let cancelIteration = null;
+    let cancelIteration: Error | null = null;
     const rethrowIfNotCancelled = e => {
       if (e !== cancelIteration) {
         throw e;

@@ -26,7 +26,7 @@ import {
 } from '@agoric/cosmic-proto/swingset/msgs.js';
 
 import { stableCurrency, bech32Config } from './chainInfo.js';
-import { ChainInfo, Keplr } from '@keplr-wallet/types';
+import type { ChainInfo, Keplr } from '@keplr-wallet/types';
 
 export function toAccAddress(address: string): Uint8Array {
   return fromBech32(address).data;
@@ -278,7 +278,8 @@ export const makeBackgroundSigner = async ({
     queryGrants,
   });
 };
-type BackgroundSigner = Awaited<ReturnType<typeof makeBackgroundSigner>>;
+export type BackgroundSigner = Awaited<ReturnType<typeof makeBackgroundSigner>>;
+
 /**
  * @param granter bech32 address
  * @param grantee bech32 address
