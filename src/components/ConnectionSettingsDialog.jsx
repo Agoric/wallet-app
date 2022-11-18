@@ -11,7 +11,7 @@ import { makeStyles } from '@mui/styles';
 import { useMemo, useState } from 'react';
 import { withApplicationContext } from '../contexts/Application';
 import { networkConfigUrl } from '../util/connections.js';
-import { deepEquals } from '../util/DeepEquals';
+import isEqual from 'lodash-es/isEqual.js';
 import { maybeSave } from '../util/storage';
 
 const useStyles = makeStyles(_ => ({
@@ -77,7 +77,7 @@ const ConnectionSettingsDialog = ({
   }
 
   const hasChanges = useMemo(
-    () => !deepEquals(config, connectionConfig),
+    () => !isEqual(config, connectionConfig),
     [config, connectionConfig],
   );
 
