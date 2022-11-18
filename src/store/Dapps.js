@@ -34,7 +34,7 @@ export const upsertDapp = (
 ) => {
   const { origin, isEnabled, petname } = dapp;
 
-  const dapps = loadDapps(chainId, address);
+  const dapps = loadDapps({ chainId, address });
   maybeSave(
     [DAPPS_STORAGE_KEY, chainId, address],
     [...dapps.filter(d => d.origin !== origin), { origin, isEnabled, petname }],
