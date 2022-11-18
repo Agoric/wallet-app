@@ -140,7 +140,6 @@ const Provider = ({ children }) => {
   const [issuerSuggestions, setIssuerSuggestions] = useState(null);
   const [services, setServices] = useState(null);
   const [swingsetParams, setSwingsetParams] = useState(
-    // @ts-ignore UNTIL https://github.com/Agoric/wallet-app/pull/39/
     /** @type {import('@agoric/cosmic-proto/swingset/swingset.js').Params?} */ (
       null
     ),

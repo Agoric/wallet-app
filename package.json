@@ -8,7 +8,7 @@
   "type": "module",
   "dependencies": {
     "@agoric/casting": "dev",
-    "@agoric/cosmic-proto": "dev",
+    "@agoric/cosmic-proto": "0.2.2-dev-a5437cf.0",
     "@agoric/ertp": "^0.15.3",
     "@agoric/internal": "0.2.1",
     "@agoric/nat": "^4.1.0",
@@ -69,6 +69,9 @@
     "rimraf": "^3.0.2",
     "sass": "^1.49.9",
     "typescript": "^4.8.4"
+  },
+  "resolutions": {
+    "@agoric/cosmic-proto": "0.2.2-dev-a5437cf.0"
   },
   "scripts": {
     "start": "yarn build:ses && react-app-rewired start",

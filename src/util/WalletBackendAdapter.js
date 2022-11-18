@@ -17,7 +17,6 @@ import { getDappService } from '../service/Dapps.js';
 import { getIssuerService } from '../service/Issuers.js';
 import { getOfferService } from '../service/Offers.js';
 
-// @ts-ignore UNTIL https://github.com/Agoric/wallet-app/pull/39/
 /** @typedef {import('@agoric/cosmic-proto/swingset/swingset.js').Params} SwingsetParams */
 
 /** @typedef {import('@agoric/smart-wallet/src/types.js').Petname} Petname */
