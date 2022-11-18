@@ -58,8 +58,8 @@ const ConnectionSettingsDialog = ({
   const smartConnectionHrefs = allConnectionConfigs.map(c => c.href);
 
   const [configSource, setConfigSource] = useState(
-    /** @type {keyof KnownNetworkConfigUrls | 'custom'} */ (
-      networkConfigUrl.toSource(connectionConfig.href)
+    /** @type {keyof KnownNetworkConfigUrls | 'custom'} */ networkConfigUrl.toSource(
+      connectionConfig.href,
     ),
   );
 
@@ -181,6 +181,7 @@ const ConnectionSettingsDialog = ({
       </DialogTitle>
       <DialogContent>{smartWalletConfigForm}</DialogContent>
       <DialogActions>
+        {/* @ts-expect-error 'cancel' is part of our theme */}
         <Button color="cancel" onClick={onClose}>
           Cancel
         </Button>

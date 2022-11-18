@@ -50,7 +50,7 @@ const OfferWithoutContext = ({
   const {
     instancePetname,
     instanceHandleBoardId,
-    requestContext: { dappOrigin, origin = 'unknown origin' } = {},
+    requestContext: { dappOrigin = undefined, origin = 'unknown origin' } = {},
     id,
     meta: { creationStamp: date },
   } = offer;
@@ -144,7 +144,7 @@ const OfferWithoutContext = ({
       />
       <span className="Date text-gray">{formatDateNow(date)}</span>
       <div className="OfferOrigin">
-        <Petname name={instancePetname} board={instanceHandleBoardId} />
+        <Petname name={instancePetname} />
         <i> via </i>
         <span className="Blue">{dappOrigin || origin}</span>
       </div>

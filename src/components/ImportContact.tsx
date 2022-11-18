@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import { useEffect, useState } from 'react';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -91,12 +90,13 @@ export const ImportContactWithoutContext = ({
         </div>
       </DialogContent>
       <DialogActions>
+        {/* @ts-expect-error 'cancel' is part of our theme */}
         <Button color="cancel" onClick={close}>
           Cancel
         </Button>
         <Button
           disabled={!isPetnameValid || !petname || !isBoardIdValid || !boardId}
-          onClick={() => doImport(petname, boardId)}
+          onClick={() => doImport()}
         >
           Import
         </Button>

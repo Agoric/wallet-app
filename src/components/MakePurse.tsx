@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import { useEffect, useState } from 'react';
 import { E } from '@endo/eventual-send';
 import Button from '@mui/material/Button';
@@ -81,6 +80,7 @@ export const MakePurseWithoutContext = ({
         </div>
       </DialogContent>
       <DialogActions>
+        {/* @ts-expect-error 'cancel' is part of our theme */}
         <Button color="cancel" onClick={close}>
           Cancel
         </Button>

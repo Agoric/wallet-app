@@ -1,4 +1,3 @@
-// @ts-check
 import CircularProgress from '@mui/material/CircularProgress';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -46,7 +45,7 @@ const ProvisionDialog = ({
   creationFee,
 }) => {
   const [currentStep, setCurrentStep] = useState(steps.INITIAL);
-  const [error, setError] = useState(/** @type {string?} */ (null));
+  const [error, setError] = useState<string | null>(null);
 
   const provisionWallet = async signer => {
     setError(null);

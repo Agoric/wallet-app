@@ -5,7 +5,8 @@ import { makeImportContext } from '@agoric/wallet-backend/src/marshal-contexts.j
 import { Far } from '@endo/marshal';
 import MuiAlert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
-import React, { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import * as React from 'react';
 import { DEFAULT_CONNECTION_CONFIGS } from '../util/connections';
 import { maybeSave } from '../util/storage';
 
@@ -19,8 +20,10 @@ import {
 } from '../util/WalletBackendAdapter';
 import ProvisionDialog from './ProvisionDialog';
 
+// @ts-expect-error xxx forwardRef
 const Alert = React.forwardRef(function Alert({ children, ...props }, ref) {
   return (
+    // @ts-expect-error xxx forwardRef
     <MuiAlert elevation={6} ref={ref} variant="filled" {...props}>
       {children}
     </MuiAlert>
@@ -37,7 +40,7 @@ const Alert = React.forwardRef(function Alert({ children, ...props }, ref) {
  */
 
 export const useProvisionPoolMetrics = (unserializer, leader) => {
-  const [data, setData] = useState(/** @type {ProvisionPoolMetrics?} */ (null));
+  const [data, setData] = useState(/** @type {ProvisionPoolMetrics?} */ null);
 
   useEffect(() => {
     if (!(unserializer && leader)) return;
@@ -88,7 +91,7 @@ const SmartWalletConnection = ({
   tryKeplrConnect,
   swingsetParams,
 }) => {
-  const [snackbarMessages, setSnackbarMessages] = useState([]);
+  const [snackbarMessages, setSnackbarMessages] = useState<any[]>([]);
   const [provisionDialogOpen, setProvisionDialogOpen] = useState(false);
 
   const onProvisionDialogClose = () => {
@@ -143,7 +146,7 @@ const SmartWalletConnection = ({
   useEffect(() => {
     maybeSave('connectionConfig', connectionConfig);
 
-    const updatedConnectionConfigs = [];
+    const updatedConnectionConfigs: any[] = [];
 
     for (const config of allConnectionConfigs) {
       const found = DEFAULT_CONNECTION_CONFIGS.find(
@@ -188,6 +191,7 @@ const SmartWalletConnection = ({
           unserializer: { unserialize: data => data },
         }),
         keplrConnection,
+        // @ts-expect-error xxx
         backendError,
         () => {
           setConnectionStatus(ConnectionStatus.Connected);
@@ -229,6 +233,7 @@ const SmartWalletConnection = ({
   return (
     <div>
       <Snackbar open={snackbarMessages.length > 0}>
+        {/* @ts-expect-error xxx */}
         <Alert
           onClose={handleSnackbarClose}
           severity={snackbarMessages[0]?.severity}

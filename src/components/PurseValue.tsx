@@ -22,7 +22,7 @@ const Item = ({ showDivider, children }) => {
   const [expanded, setExpanded] = useState(false);
   const [collapsible, setCollapsible] = useState(true);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-  const contentEl = useRef(null);
+  const contentEl = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (contentEl.current) {
@@ -63,7 +63,7 @@ const Item = ({ showDivider, children }) => {
       {collapsible && (
         <Box
           component="button"
-          tabIndex="0"
+          tabIndex={0}
           onClick={() => setExpanded(val => !val)}
           sx={{
             fontFamily: 'inherit',
