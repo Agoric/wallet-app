@@ -1,23 +1,20 @@
-// @ts-check
-import * as React from 'react';
-import IconButton from '@mui/material/IconButton';
-import Popover from '@mui/material/Popover';
 import InfoOutlined from '@mui/icons-material/InfoOutlined';
 import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import Popover from '@mui/material/Popover';
+import * as React from 'react';
 
 import './Card.scss';
 
+interface Props {
+  header?: JSX.Element | string;
+  helptip?: JSX.Element | string;
+  children: React.ReactNode;
+}
 /**
- * The params for the Card component. If `header` is not provided, `helptip`
- * will not be rendered.
- * @typedef {{
- *  header?: JSX.Element | string;
- *  helptip?: JSX.Element | string;
- *  children: React.ReactChild;
- * }} CardParams
+ * If `header` is not provided, `helptip` will not be rendered.
  */
-
-const Card = (/** @type {CardParams} */ { children, header, helptip }) => {
+const Card = ({ children, header, helptip }: Props) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
 
   const handleClick = event => {
