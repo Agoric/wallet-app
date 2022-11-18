@@ -7,6 +7,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { useState } from 'react';
 
+// TODO make this work in TypeScript so this file can be converted
 import styles from './TermsDialog.module.scss';
 
 const TermsDialog = ({ onClose, isOpen }) => {
