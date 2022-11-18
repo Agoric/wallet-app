@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import Popover from '@mui/material/Popover';
 import Link from '@mui/material/Link';
 import Box from '@mui/material/Box';
@@ -7,7 +7,7 @@ import { stringifyPurseValue } from '@agoric/ui-components';
 import Petname from './Petname';
 import PurseValue from './PurseValue';
 import { formatDateNow } from '../util/Date';
-import { withApplicationContext } from '../contexts/Application.jsx';
+import { withApplicationContext } from '../contexts/Application.js';
 import BrandIcon from './BrandIcon';
 
 import './Offer.scss';
@@ -186,7 +186,11 @@ const Proposal = ({ offer, purses, swingsetParams, beansOwing }) => {
   const {
     proposalForDisplay,
     proposalTemplate,
-    invitationDetails: { fee, feePursePetname, expiry } = {},
+    invitationDetails: {
+      fee = undefined,
+      feePursePetname = undefined,
+      expiry = undefined,
+    } = {},
     error,
     spendAction,
   } = offer;
