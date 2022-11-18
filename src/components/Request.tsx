@@ -2,8 +2,16 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 
 import './Request.scss';
+import { MouseEventHandler, ReactElement } from 'react';
 
-const Request = ({ close, header, completed, children }) => {
+interface Props {
+  close?: MouseEventHandler;
+  completed?: boolean;
+  header: string;
+  children?: ReactElement;
+}
+
+const Request = ({ close, header, completed, children }: Props) => {
   return (
     <div className="Request">
       <div className="RequestSummary">
