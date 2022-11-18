@@ -7,8 +7,8 @@ export const OFFERS_STORAGE_KEY = 'OFFERS';
 export const TERMS_KEY = 'TERMS';
 
 /**
- * @param {unknown} key
- * @param {unknown} value
+ * @param {any} key
+ * @param {any} value
  */
 export const maybeSave = (key, value) => {
   if (window?.localStorage) {
@@ -24,7 +24,7 @@ export const maybeSave = (key, value) => {
 };
 
 /**
- * @param {unknown} key
+ * @param {any} key
  */
 export const maybeLoad = key => {
   if (window?.localStorage) {
@@ -44,8 +44,8 @@ export const maybeLoad = key => {
 };
 
 /**
- * @param {unknown} key
- * @param {(newValue: unknown) => void} onValueChange
+ * @param {any} key
+ * @param {(newValue: any) => void} onValueChange
  */
 export const watchKey = (key, onValueChange) => {
   window.addEventListener('storage', ev => {

@@ -58,9 +58,7 @@ export const watchOffers = (
   { chainId, address }: SmartWalletKey,
   onChange: (newOffers: Offer[]) => void,
 ) => {
-  watchKey(
-    [OFFERS_STORAGE_KEY, chainId, address],
-    // @ts-expect-error xxx
-    (newOffers: Offer[]) => onChange(newOffers ?? []),
+  watchKey([OFFERS_STORAGE_KEY, chainId, address], (newOffers: Offer[]) =>
+    onChange(newOffers ?? []),
   );
 };
