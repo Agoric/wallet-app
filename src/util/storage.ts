@@ -1,15 +1,9 @@
-// @ts-check
-
 export const DAPPS_STORAGE_KEY = 'DAPPS';
 
 export const OFFERS_STORAGE_KEY = 'OFFERS';
 
 export const TERMS_KEY = 'TERMS';
 
-/**
- * @param {any} key
- * @param {any} value
- */
 export const maybeSave = (key, value) => {
   if (window?.localStorage) {
     try {
@@ -23,9 +17,6 @@ export const maybeSave = (key, value) => {
   }
 };
 
-/**
- * @param {any} key
- */
 export const maybeLoad = key => {
   if (window?.localStorage) {
     try {
@@ -43,11 +34,7 @@ export const maybeLoad = key => {
   return undefined;
 };
 
-/**
- * @param {any} key
- * @param {(newValue: any) => void} onValueChange
- */
-export const watchKey = (key, onValueChange) => {
+export const watchKey = (key, onValueChange: (newValue: any) => void) => {
   window.addEventListener('storage', ev => {
     if (ev.key !== JSON.stringify(key)) return;
 
