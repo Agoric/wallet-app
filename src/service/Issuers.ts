@@ -1,9 +1,8 @@
 import { makeNotifierKit } from '@agoric/notifier';
 
-/**
- * @param {(data: string) => Promise<any>} signSpendAction
- */
-export const getIssuerService = signSpendAction => {
+export const getIssuerService = (
+  signSpendAction: (data: string) => Promise<any>,
+) => {
   const suggestions = new Map();
   // TODO: Upgrade to `makePublishKit`.
   const { notifier, updater } = makeNotifierKit();
