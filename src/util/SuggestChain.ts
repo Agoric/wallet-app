@@ -1,6 +1,6 @@
 import type { NetworkConfig } from '@agoric/casting/src/netconfig.js';
 import type { ChainInfo, Keplr } from '@keplr-wallet/types';
-import { bech32Config, stableCurrency, stakeCurrency } from './chainInfo.js';
+import { bech32Config, stableCurrency, stakeCurrency } from './chainInfo';
 
 export const AGORIC_COIN_TYPE = 564;
 export const COSMOS_COIN_TYPE = 118;

@@ -2,7 +2,7 @@ import {
   agreeToTerms,
   getTermsIndexAccepted,
   LATEST_TERMS_INDEX,
-} from '../store/Terms.js';
+} from '../store/Terms';
 
 export const checkLatestAgreement = () =>
   getTermsIndexAccepted() === LATEST_TERMS_INDEX;

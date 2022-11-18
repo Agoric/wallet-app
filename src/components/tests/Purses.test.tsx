@@ -21,11 +21,12 @@ jest.mock('@endo/eventual-send', () => ({
 }));
 
 jest.mock('@agoric/ui-components', () => ({
-  parseAsValue: str => new BigInt(str),
+  parseAsValue: str => BigInt(str),
 }));
 
 const appTheme = createTheme({
   palette: {
+    // @ts-expect-error in our theme
     cancel: {
       main: '#595959',
     },

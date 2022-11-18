@@ -16,7 +16,7 @@ export const PursesWithoutContext = ({
   purses,
   pendingTransfers,
   previewEnabled,
-}) => {
+}: any) => {
   const [openPurse, setOpenPurse] = useState(null);
 
   const handleClickOpen = purse => {

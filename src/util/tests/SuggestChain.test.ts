@@ -1,4 +1,4 @@
-import { makeChainInfo } from '../SuggestChain.js';
+import { makeChainInfo } from '../SuggestChain';
 
 test('apiAddrs overrides rpcAddrs', () => {
   expect(

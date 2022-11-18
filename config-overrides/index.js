@@ -12,11 +12,11 @@ const bridgeTemplate = path.resolve(
 const multipleEntry = multiEntry([
   {
     template: 'public/index.html',
-    entry: 'src/index.jsx',
+    entry: 'src/index.tsx',
   },
   {
     template: 'public/bridge.html',
-    entry: 'src/bridge-dapp.jsx',
+    entry: 'src/bridge-dapp.tsx',
   },
 ]);
 

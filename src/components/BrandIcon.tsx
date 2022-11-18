@@ -1,5 +1,5 @@
 import Box from '@mui/material/Box';
-import { icons, defaultIcon } from '../util/Icons.js';
+import { icons, defaultIcon } from '../util/Icons';
 
 interface Props {
   brandPetname: string;

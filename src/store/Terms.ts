@@ -1,4 +1,4 @@
-import { TERMS_KEY, maybeSave, maybeLoad } from '../util/storage.js';
+import { TERMS_KEY, maybeSave, maybeLoad } from '../util/storage';
 
 // The index of the current revision of the terms agreement. This should
 // increment every time the terms change.

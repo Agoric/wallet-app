@@ -1,4 +1,4 @@
-/* eslint-disable import/no-extraneous-dependencies */
+import * as React from 'react';
 import { act } from '@testing-library/react';
 import { stringifyPurseValue } from '@agoric/ui-components';
 import { mount } from 'enzyme';
@@ -6,7 +6,6 @@ import Chip from '@mui/material/Chip';
 import Offer from '../Offer';
 import Request from '../Request';
 import { formatDateNow } from '../../util/Date';
-import Link from '@mui/material/Link';
 import Popover from '@mui/material/Popover';
 
 jest.mock('@endo/eventual-send', () => ({

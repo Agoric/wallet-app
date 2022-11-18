@@ -1,4 +1,9 @@
-class ErrorBoundary extends React.Component {
+import * as React from 'react';
+
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { errorInfo: any; error: Error | null }
+> {
   constructor(props) {
     super(props);
     this.state = { error: null, errorInfo: null };
