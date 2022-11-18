@@ -68,6 +68,7 @@ export const watchOffers = (
 ) => {
   watchKey(
     [OFFERS_STORAGE_KEY, chainId, address],
+    // @ts-expect-error xxx
     (/** @type {Offer[]} */ newOffers) => onChange(newOffers ?? []),
   );
 };

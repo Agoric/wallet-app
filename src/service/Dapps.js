@@ -24,7 +24,7 @@ import {
 export const getDappService = (
   /** @type {SmartWalletKey} */ smartWalletKey,
 ) => {
-  /** @type {NotifierRecord<DappWithActions[]>} */
+  /** FIXME type {NotifierRecord<DappWithActions[]>} */
   const { notifier, updater } = makeNotifierKit();
 
   const broadcastUpdates = (

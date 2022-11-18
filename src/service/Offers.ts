@@ -54,7 +54,7 @@ export const getOfferService = (
     const mapPursePetnamesToBrands = paymentProposals =>
       Object.fromEntries(
         Object.entries(paymentProposals).map(
-          // @ts-expect-error xxx
+          // @ts-expect-error
           ([kw, { pursePetname, value }]) => {
             const brand = pursePetnameToBrand.get(pursePetname);
             if (!brand) {

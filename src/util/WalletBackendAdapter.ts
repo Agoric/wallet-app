@@ -98,7 +98,7 @@ export const makeBackendFromWalletBridge = (
 
   // Just produce a single update for the initial backend.
   // TODO: allow further updates.
-  /** @type {NotifierRecord<BackendSchema>} */
+  /** FIXME type {NotifierRecord<BackendSchema>} */
   const { notifier: backendNotifier, updater: backendUpdater } =
     makeNotifierKit(firstSchema);
 
@@ -113,6 +113,7 @@ export const makeBackendFromWalletBridge = (
 
 export const makeWalletBridgeFromFollowers = (
   smartWalletKey: SmartWalletKey,
+  rpc: string,
   marshaller: Marshal<string>,
   currentFollower: ValueFollower<CurrentWalletRecord>,
   updateFollower: ValueFollower<UpdateRecord>,
