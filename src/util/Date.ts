@@ -1,4 +1,4 @@
-export const formatDateNow = stamp => {
+export const formatDateNow = (stamp: number) => {
   if (!stamp) {
     return 'unknown time';
   }
@@ -7,5 +7,6 @@ export const formatDateNow = stamp => {
   const isoDate = new Date(isoStamp);
   const isoStr = isoDate.toISOString();
   const match = isoStr.match(/^(.*)T(.*)\..*/);
+  assert(match);
   return `${match[1]} ${match[2]}`;
 };
