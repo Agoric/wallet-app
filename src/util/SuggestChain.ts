@@ -1,22 +1,16 @@
-// @ts-check
-import { stakeCurrency, stableCurrency, bech32Config } from './chainInfo.js';
+import type { NetworkConfig } from '@agoric/casting/src/netconfig.js';
+import type { ChainInfo, Keplr } from '@keplr-wallet/types';
+import { bech32Config, stableCurrency, stakeCurrency } from './chainInfo.js';
 
 export const AGORIC_COIN_TYPE = 564;
 export const COSMOS_COIN_TYPE = 118;
 
-/**
- * @param {import('@agoric/casting/src/netconfig.js').NetworkConfig} networkConfig
- * @param {string} caption
- * @param {number} randomFloat
- * @param {string} [walletUrlForStaking]
- * @returns {import('@keplr-wallet/types').ChainInfo}
- */
 export const makeChainInfo = (
-  networkConfig,
-  caption,
-  randomFloat,
-  walletUrlForStaking,
-) => {
+  networkConfig: NetworkConfig,
+  caption: string,
+  randomFloat: number,
+  walletUrlForStaking?: string,
+): ChainInfo => {
   const { chainName, rpcAddrs, apiAddrs } = networkConfig;
   const index = Math.floor(randomFloat * rpcAddrs.length);
 
@@ -46,18 +40,18 @@ export const makeChainInfo = (
   };
 };
 
-/**
- * @param {string} networkConfigHref
- * @param {object} io
- * @param {typeof fetch} io.fetch
- * @param {import('@keplr-wallet/types').Keplr} io.keplr
- * @param {typeof Math.random} io.random
- * @param {string} [caption]
- */
 export async function suggestChain(
-  networkConfigHref,
-  { fetch, keplr, random },
-  caption = undefined,
+  networkConfigHref: string,
+  {
+    fetch,
+    keplr,
+    random,
+  }: {
+    fetch: typeof globalThis.fetch;
+    keplr: Keplr;
+    random: typeof globalThis.Math.random;
+  },
+  caption?: string,
 ) {
   console.log('suggestChain: fetch', networkConfigHref); // log net IO
   const url = new URL(networkConfigHref);
