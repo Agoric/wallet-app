@@ -15,7 +15,7 @@ import {
   Offer,
 } from '../store/Offers.js';
 
-import { SmartWalletKey } from './Dapps.js';
+import { SmartWalletKey } from '../store/Dapps.js';
 import { OfferStatus } from '@agoric/smart-wallet/src/offers.js';
 import { Marshal } from '@endo/marshal';
 

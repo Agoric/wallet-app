@@ -1,4 +1,3 @@
-// @ts-check
 import { makeNotifierKit } from '@agoric/notifier';
 import {
   loadDapp as load,
@@ -8,43 +7,34 @@ import {
   watchDapps as watch,
 } from '../store/Dapps.js';
 
-/** @typedef {import("../store/Dapps.js").Dapp} Dapp */
-/** @typedef {import('../store/Dapps.js').SmartWalletKey} SmartWalletKey */
+import type { Dapp, SmartWalletKey } from '../store/Dapps.js';
 
-/**
- * @typedef {{
- *  enable: () => void;
- *  disable: () => void;
- *  setPetname: (petname: string) => void;
- * }} DappActions
- */
+type DappActions = {
+  enable: () => void;
+  disable: () => void;
+  setPetname: (petname: string) => void;
+};
 
-/** @typedef {Dapp & {actions: DappActions}} DappWithActions */
+export type DappWithActions = Dapp & { actions: DappActions };
 
-export const getDappService = (
-  /** @type {SmartWalletKey} */ smartWalletKey,
-) => {
+export const getDappService = (smartWalletKey: SmartWalletKey) => {
   /** FIXME type {NotifierRecord<DappWithActions[]>} */
   const { notifier, updater } = makeNotifierKit();
 
-  const broadcastUpdates = (
-    /** @type {Map<string, DappWithActions>} */ dapps,
-  ) => updater.updateState([...dapps.values()]);
+  const broadcastUpdates = (dapps: Map<string, DappWithActions>) =>
+    updater.updateState([...dapps.values()]);
 
-  const upsertDapp = (/** @type {Dapp} */ dapp) => upsert(smartWalletKey, dapp);
+  const upsertDapp = (dapp: Dapp) => upsert(smartWalletKey, dapp);
 
-  const deleteDapp = (
-    /** @type {string} */ origin,
-    /** @type { () => void } */ updateDapps,
-  ) => {
+  const deleteDapp = (origin: string, updateDapps: () => void) => {
     remove({ smartWalletKey, origin });
     updateDapps();
   };
 
   const setDappPetname = (
-    /** @type {string} */ origin,
-    /** @type {string} */ petname,
-    /** @type {{ (): void; (): void; }} */ updateDapps,
+    origin: string,
+    petname: string,
+    updateDapps: { (): void; (): void },
   ) => {
     const dapp = load({ smartWalletKey, origin });
     assert(dapp, `Tried to set petname on undefined dapp ${origin}`);
@@ -52,10 +42,7 @@ export const getDappService = (
     updateDapps();
   };
 
-  const enableDapp = (
-    /** @type {string} */ origin,
-    /** @type { () => void } */ updateDapps,
-  ) => {
+  const enableDapp = (origin: string, updateDapps: () => void) => {
     const dapp = load({ smartWalletKey, origin });
     assert(dapp, `Tried to enable undefined dapp ${origin}`);
     upsertDapp({ ...dapp, isEnabled: true });
@@ -65,7 +52,7 @@ export const getDappService = (
   const updateDapps = () => {
     const dapps = new Map();
     const storedDapps = loadAll(smartWalletKey);
-    storedDapps.forEach((/** @type {{origin: string}} */ d) => {
+    storedDapps.forEach((d: { origin: string }) => {
       dapps.set(d.origin, {
         ...d,
         actions: {
