@@ -5,7 +5,7 @@ import Select from '@mui/material/Select';
 import TextField from '@mui/material/TextField';
 import Snackbar from '@mui/material/Snackbar';
 import { createTheme, ThemeProvider } from '@mui/material';
-import Transfer from '../Transfer.tsx';
+import Transfer from '../Transfer';
 
 jest.mock('../PurseAmount', () => () => 'PurseAmount');
 

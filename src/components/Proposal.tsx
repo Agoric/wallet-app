@@ -7,7 +7,7 @@ import { stringifyPurseValue } from '@agoric/ui-components';
 import Petname from './Petname';
 import PurseValue from './PurseValue';
 import { formatDateNow } from '../util/Date';
-import { withApplicationContext } from '../contexts/Application.js';
+import { withApplicationContext } from '../contexts/Application';
 import BrandIcon from './BrandIcon';
 
 import './Offer.scss';
