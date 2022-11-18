@@ -54,6 +54,7 @@ const ProvisionDialog = ({
       await signer.submitProvision();
     } catch (e) {
       setCurrentStep(steps.INITIAL);
+      // @ts-expect-error e unknown
       setError(e.message);
       return;
     }

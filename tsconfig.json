@@ -11,6 +11,7 @@
     "isolatedModules": true,
     "strict": true,
     "strictNullChecks": true,
+    "noImplicitAny": false,
     "moduleResolution": "node"
   },
   "include": [

@@ -14,6 +14,10 @@ import {
   OfferUIStatus,
 } from '../store/Offers.js';
 
+// Ambient types
+import '@agoric/notifier/exported.js';
+import '@agoric/notifier/src/types-ambient.js';
+
 /** @typedef {import('@agoric/smart-wallet/src/types.js').Petname} Petname */
 
 /** @typedef {import('@agoric/smart-wallet/src/offers.js').OfferStatus} OfferStatus */
@@ -139,7 +143,6 @@ export const getOfferService = (
             ...oldOffer,
             id: status.id,
             status: OfferUIStatus.rejected,
-            // @ts-expect-error xxx types debt
             error: `${status.error}`,
           });
           remove(smartWalletKey, status.id);

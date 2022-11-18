@@ -26,10 +26,14 @@ import type { SmartWalletKey } from '../store/Dapps.js';
 import type { ValueFollower } from '@agoric/casting/src/follower-cosmjs';
 import type { CurrentWalletRecord } from '@agoric/smart-wallet/src/smartWallet';
 import { KeplrUtils } from '../contexts/Provider.jsx';
+import type { PurseInfo } from '@agoric/web-components/src/keplr-connection/fetchCurrent';
 
 const newId = kind => `${kind}${Math.random()}`;
 
-/** @typedef {{actions: object, issuerSuggestions: Promise<AsyncIterator>}} BackendSchema */
+export type BackendSchema = {
+  actions: object;
+  issuerSuggestions: Promise<AsyncIterator<any, any>>;
+};
 
 export const makeBackendFromWalletBridge = (
   walletBridge: ReturnType<typeof makeWalletBridgeFromFollowers>,
@@ -269,7 +273,7 @@ export const makeWalletBridgeFromFollowers = (
           break;
         }
         default: {
-          throw Error(`Unknown updateRecord ${updateRecord.updated}`);
+          throw Error(`Unknown updateRecord ${updateRecord}`);
         }
       }
     }

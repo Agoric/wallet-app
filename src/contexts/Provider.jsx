@@ -1,7 +1,8 @@
 // @ts-check
 import { observeIterator } from '@agoric/notifier';
 import { E } from '@endo/far';
-import React, { useEffect, useState, useReducer } from 'react';
+import * as React from 'react';
+import { useEffect, useState, useReducer } from 'react';
 import { SigningStargateClient } from '@cosmjs/stargate';
 import { Random } from '@cosmjs/crypto';
 import { ApplicationContext, ConnectionStatus } from './Application';
