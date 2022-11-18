@@ -5,7 +5,7 @@ import Button from '@mui/material/Button';
 import { createTheme, ThemeProvider } from '@mui/material';
 import Purses, { PursesWithoutContext } from '../Purses';
 import PurseAmount from '../PurseAmount';
-import Transfer from '../Transfer';
+import Transfer from '../Transfer.tsx';
 import Loading from '../Loading';
 
 jest.mock('../PurseAmount', () => () => 'PurseAmount');
