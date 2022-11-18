@@ -1,6 +1,12 @@
+import { ReactNode } from 'react';
 import './CardItem.scss';
 
-const CardItem = ({ children, hideDivider }) => {
+interface Props {
+  hideDivider?: boolean;
+  children: ReactNode;
+}
+
+const CardItem = ({ children, hideDivider }: Props) => {
   return (
     <div className="CardItem">
       {hideDivider || <div className="Divider" />}

@@ -1,7 +1,11 @@
 import Box from '@mui/material/Box';
 import { icons, defaultIcon } from '../util/Icons.js';
 
-const BrandIcon = ({ brandPetname }) => {
+interface Props {
+  brandPetname: string;
+}
+
+const BrandIcon = ({ brandPetname }: Props) => {
   const src = icons[brandPetname] ?? defaultIcon;
 
   const icon = src ? (
