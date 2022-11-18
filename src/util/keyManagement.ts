@@ -1,6 +1,9 @@
-// @ts-check
 import { fromBech32, toBech32, fromBase64, toBase64 } from '@cosmjs/encoding';
-import { DirectSecp256k1Wallet, Registry } from '@cosmjs/proto-signing';
+import {
+  DirectSecp256k1Wallet,
+  EncodeObject,
+  Registry,
+} from '@cosmjs/proto-signing';
 import {
   AminoTypes,
   defaultRegistryTypes,
@@ -9,6 +12,8 @@ import {
   assertIsDeliverTxSuccess,
   createBankAminoConverters,
   createAuthzAminoConverters,
+  StdFee,
+  AminoConverters,
 } from '@cosmjs/stargate';
 
 import { GenericAuthorization } from 'cosmjs-types/cosmos/authz/v1beta1/authz.js';
@@ -21,9 +26,9 @@ import {
 } from '@agoric/cosmic-proto/swingset/msgs.js';
 
 import { stableCurrency, bech32Config } from './chainInfo.js';
+import { ChainInfo, Keplr } from '@keplr-wallet/types';
 
-/** @type {(address: string) => Uint8Array} */
-export function toAccAddress(address) {
+export function toAccAddress(address: string): Uint8Array {
   return fromBech32(address).data;
 }
 
@@ -35,9 +40,9 @@ const KEY_SIZE = 32; // as in bech32
  *
  * See also MsgProvision in golang/cosmos/proto/agoric/swingset/msgs.proto
  */
-export const PowerFlags = /** @type {const} */ ({
+export const PowerFlags = /** @type {const} */ {
   SMART_WALLET: 'SMART_WALLET',
-});
+};
 
 /**
  * The typeUrl of a message pairs a package name with a message name.
@@ -51,7 +56,7 @@ export const PowerFlags = /** @type {const} */ ({
  * https://github.com/cosmos/cosmos-sdk/blob/main/proto/cosmos/authz/v1beta1/tx.proto#L34
  * https://github.com/cosmos/cosmos-sdk/blob/00805e564755f696c4696c6abe656cf68678fc83/proto/cosmos/authz/v1beta1/tx.proto#L34
  */
-const CosmosMessages = /** @type {const} */ ({
+const CosmosMessages = /** @type {const} */ {
   bank: {
     MsgSend: {
       typeUrl: '/cosmos.bank.v1beta1.MsgSend',
@@ -76,13 +81,13 @@ const CosmosMessages = /** @type {const} */ ({
       typeUrl: '/cosmos.feegrant.v1beta1.BasicAllowance',
     },
   },
-});
+};
 
 /**
  * `/agoric.swingset.XXX` matches package agoric.swingset in swingset/msgs.proto
  * aminoType taken from Type() in golang/cosmos/x/swingset/types/msgs.go
  */
-export const SwingsetMsgs = /** @type {const} */ ({
+export const SwingsetMsgs = /** @type {const} */ {
   MsgProvision: {
     typeUrl: '/agoric.swingset.MsgProvision',
     aminoType: 'swingset/Provision',
@@ -95,7 +100,7 @@ export const SwingsetMsgs = /** @type {const} */ ({
     typeUrl: '/agoric.swingset.MsgWalletSpendAction',
     aminoType: 'swingset/WalletSpendAction',
   },
-});
+};
 
 // XXX repeating the TS definitions made by protoc
 // TODO define these automatically from those
@@ -127,10 +132,8 @@ export const SwingsetRegistry = new Registry([
 /**
  * TODO: estimate fee? use 'auto' fee?
  * https://github.com/Agoric/agoric-sdk/issues/5888
- *
- * @returns {import('@cosmjs/stargate').StdFee}
  */
-export const zeroFee = () => {
+export const zeroFee = (): StdFee => {
   const { coinMinimalDenom: denom } = stableCurrency;
   const fee = {
     amount: [{ amount: '0', denom }],
@@ -144,8 +147,7 @@ const dbg = label => x => {
   return x;
 };
 
-/** @type {import('@cosmjs/stargate').AminoConverters} */
-export const SwingsetConverters = {
+export const SwingsetConverters: AminoConverters = {
   [SwingsetMsgs.MsgProvision.typeUrl]: {
     aminoType: SwingsetMsgs.MsgProvision.aminoType,
     toAmino: protoVal => {
@@ -207,12 +209,14 @@ export const BROWSER_STORAGE_KEY = 'agoric.wallet.backgroundSignerKey';
  * Maintain a key for signing non-spending messages in localStorage.
  *
  * See also `delegateWalletAction()` below.
- *
- * @param {object} io
- * @param {typeof window.localStorage} io.localStorage
- * @param {typeof import('@cosmjs/crypto').Random.getBytes} io.csprng
  */
-export const makeBackgroundSigner = async ({ localStorage, csprng }) => {
+export const makeBackgroundSigner = async ({
+  localStorage,
+  csprng,
+}: {
+  localStorage: typeof window.localStorage;
+  csprng: typeof import('@cosmjs/crypto').Random.getBytes;
+}) => {
   const provideLocalKey = () => {
     const stored = localStorage.getItem(BROWSER_STORAGE_KEY);
     if (stored) {
@@ -241,11 +245,13 @@ export const makeBackgroundSigner = async ({ localStorage, csprng }) => {
    *
    * For example, to check whether `delegateWalletAction()` is necessary.
    *
-   * @param {string} granter address
-   * @param {import('@cosmjs/tendermint-rpc').Tendermint34Client} rpcClient
-   * @returns {Promise<GenericAuthorization[]>}
+   * @param granter address
+   * @param rpcClient
    */
-  const queryGrants = async (granter, rpcClient) => {
+  const queryGrants = async (
+    granter: string,
+    rpcClient: import('@cosmjs/tendermint-rpc').Tendermint34Client,
+  ): Promise<GenericAuthorization[]> => {
     const base = QueryClient.withExtensions(rpcClient);
     const rpc = createProtobufRpcClient(base);
     const queryService = new QueryClientImpl(rpc);
@@ -272,13 +278,17 @@ export const makeBackgroundSigner = async ({ localStorage, csprng }) => {
     queryGrants,
   });
 };
-/** @typedef {Awaited<ReturnType<typeof makeBackgroundSigner>>} BackgroundSigner */
+type BackgroundSigner = Awaited<ReturnType<typeof makeBackgroundSigner>>;
 /**
- * @param {string} granter bech32 address
- * @param {string} grantee bech32 address
- * @param {number} seconds expiration as seconds (Date.now() / 1000)
+ * @param granter bech32 address
+ * @param grantee bech32 address
+ * @param seconds expiration as seconds (Date.now() / 1000)
  */
-const makeGrantWalletActionMessage = (granter, grantee, seconds) => {
+const makeGrantWalletActionMessage = (
+  granter: string,
+  grantee: string,
+  seconds: number,
+) => {
   return {
     typeUrl: CosmosMessages.authz.MsgGrant.typeUrl,
     value: {
@@ -302,12 +312,17 @@ const makeGrantWalletActionMessage = (granter, grantee, seconds) => {
 /**
  * TODO: test this, once we have a solution for cosmjs/issues/1155
  *
- * @param {string} granter bech32 address
- * @param {string} grantee bech32 address
- * @param {string} allowance number of uist (TODO: fix uist magic string denom)
- * @param {number} seconds expiration as seconds (Date.now() / 1000)
+ * @param granter bech32 address
+ * @param grantee bech32 address
+ * @param allowance number of uist (TODO: fix uist magic string denom)
+ * @param seconds expiration as seconds (Date.now() / 1000)
  */
-const makeFeeGrantMessage = (granter, grantee, allowance, seconds) => {
+const makeFeeGrantMessage = (
+  granter: string,
+  grantee: string,
+  allowance: string,
+  seconds: number,
+) => {
   return {
     typeUrl: CosmosMessages.feegrant.MsgGrantAllowance.typeUrl,
     value: {
@@ -324,13 +339,11 @@ const makeFeeGrantMessage = (granter, grantee, allowance, seconds) => {
   };
 };
 
-/**
- * @param {string} grantee
- * @param {EncodeObject[]} msgObjs
- * @param {import('@cosmjs/proto-signing').Registry} registry
- * @typedef {import('@cosmjs/proto-signing').EncodeObject} EncodeObject
- */
-const makeExecMessage = (grantee, msgObjs, registry) => {
+const makeExecMessage = (
+  grantee: string,
+  msgObjs: EncodeObject[],
+  registry: Registry,
+) => {
   const msgs = msgObjs.map(obj => ({
     typeUrl: obj.typeUrl,
     value: registry.encode(obj),
@@ -343,13 +356,12 @@ const makeExecMessage = (grantee, msgObjs, registry) => {
 
 /**
  * Make Exec messages for grantee to do WalletAction on behalf of granter
- *
- * @param {string} granter in the authz sense
- * @param {string} grantee in the authz sense
- * @param {string} action MsgWalletAction.action
- * @returns {EncodeObject[]}
  */
-export const makeExecActionMessages = (granter, grantee, action) => {
+export const makeExecActionMessages = (
+  granter: string,
+  grantee: string,
+  action: string,
+): EncodeObject[] => {
   const act1 = {
     typeUrl: SwingsetMsgs.MsgWalletAction.typeUrl,
     value: {
@@ -365,16 +377,11 @@ export const makeExecActionMessages = (granter, grantee, action) => {
  * Use Keplr to sign offers and delegate object messaging to local storage key.
  *
  * Ref: https://docs.keplr.app/api/
- *
- * @param {import('@keplr-wallet/types').ChainInfo} chainInfo
- * @param {NonNullable<KeplrWindow['keplr']>} keplr
- * @param {typeof import('@cosmjs/stargate').SigningStargateClient.connectWithSigner} connectWithSigner
- * @typedef {import('@keplr-wallet/types').Window} KeplrWindow
  */
 export const makeInteractiveSigner = async (
-  chainInfo,
-  keplr,
-  connectWithSigner,
+  chainInfo: ChainInfo,
+  keplr: Keplr,
+  connectWithSigner: typeof import('@cosmjs/stargate').SigningStargateClient.connectWithSigner,
 ) => {
   const { chainId } = chainInfo;
 
@@ -435,8 +442,7 @@ export const makeInteractiveSigner = async (
         },
       };
 
-      /** @type {EncodeObject[]} */
-      const msgs = [
+      const msgs: EncodeObject[] = [
         // TODO: makeFeeGrantMessage(address, grantee, allowance, expiration),
         feeGrantWorkAround,
         makeGrantWalletActionMessage(address, grantee, expiration),
@@ -489,12 +495,12 @@ export const makeInteractiveSigner = async (
     /**
      * Sign and broadcast WalletSpendAction
      *
-     * @param {string} spendAction marshaled offer
+     * @param spendAction marshaled offer
      * @throws if account does not exist on chain, user cancels,
      *         RPC connection fails, RPC service fails to broadcast (
      *         for example, if signature verification fails)
      */
-    submitSpendAction: async spendAction => {
+    submitSpendAction: async (spendAction: string) => {
       const { accountNumber, sequence } = await signingClient.getSequence(
         address,
       );
@@ -520,4 +526,7 @@ export const makeInteractiveSigner = async (
     },
   });
 };
-/** @typedef {Awaited<ReturnType<typeof makeInteractiveSigner>>} InteractiveSigner */
+
+export type InteractiveSigner = Awaited<
+  ReturnType<typeof makeInteractiveSigner>
+>;
