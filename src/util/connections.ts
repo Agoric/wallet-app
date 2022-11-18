@@ -1,5 +1,3 @@
-// @ts-check
-
 export const KnownNetworkConfigUrls = {
   main: 'https://main.agoric.net/network-config',
   devnet: 'https://devnet.agoric.net/network-config',
