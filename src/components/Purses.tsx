@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { CircularProgress } from '@mui/material';
 import Button from '@mui/material/Button';
-import Transfer from './Transfer.tsx';
+import Transfer from './Transfer.jsx';
 import PurseAmount from './PurseAmount';
 import { withApplicationContext } from '../contexts/Application';
 import CardItem from './CardItem';

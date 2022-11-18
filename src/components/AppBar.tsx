@@ -19,6 +19,7 @@ const helpUrl = 'https://agoric.com/documentation/guides/wallet/ui.html';
 
 const useStyles = makeStyles(theme => ({
   header: {
+    // @ts-expect-error part of our theme
     backgroundColor: theme.palette.background.default,
     borderBottom: '1px solid #eaecef',
     margin: 'auto',
@@ -26,6 +27,7 @@ const useStyles = makeStyles(theme => ({
     top: 0,
     left: 0,
     width: '100%',
+    // @ts-expect-error part of our theme
     height: theme.appBarHeight,
     display: 'flex',
     alignItems: 'center',
@@ -37,6 +39,8 @@ const useStyles = makeStyles(theme => ({
   connecting: {
     animation: `$throb 2s infinite`,
   },
+  // FIXME several places read this but it wasn't defined before
+  connector: {},
   '@keyframes throb': {
     '0%': {
       opacity: 1,
@@ -109,7 +113,8 @@ export const AppBarWithoutContext = () => {
             <IconButton
               color="primary"
               size="medium"
-              target="_blank"
+              // FIXME there is apparently no target on IconButton
+              // target="_blank"
               onClick={() => setIsConnectionDialogOpen(true)}
             >
               <SettingsIcon fontSize="inherit">Help</SettingsIcon>
