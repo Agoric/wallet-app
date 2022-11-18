@@ -69,12 +69,14 @@
     "react-scripts": "^5.0.1",
     "rimraf": "^3.0.2",
     "sass": "^1.49.9",
+    "source-map-explorer": "^2.5.3",
     "typescript": "^4.8.4"
   },
   "resolutions": {
     "@agoric/cosmic-proto": "0.2.2-dev-a5437cf.0"
   },
   "scripts": {
+    "analyze": "source-map-explorer 'build/static/js/*.js'",
     "start": "yarn build:ses && react-app-rewired start",
     "build": "yarn build:ses && yarn build:react",
     "build:ses": "cp node_modules/ses/dist/lockdown.umd.js public/",
