@@ -27,6 +27,7 @@ import type { ValueFollower } from '@agoric/casting/src/follower-cosmjs';
 import type { CurrentWalletRecord } from '@agoric/smart-wallet/src/smartWallet';
 import { KeplrUtils } from '../contexts/Provider.jsx';
 import type { PurseInfo } from '@agoric/web-components/src/keplr-connection/fetchCurrent';
+import { HttpEndpoint } from '@cosmjs/tendermint-rpc';
 
 const newId = kind => `${kind}${Math.random()}`;
 
@@ -113,7 +114,7 @@ export const makeBackendFromWalletBridge = (
 
 export const makeWalletBridgeFromFollowers = (
   smartWalletKey: SmartWalletKey,
-  rpc: string,
+  rpc: HttpEndpoint,
   marshaller: Marshal<string>,
   currentFollower: ValueFollower<CurrentWalletRecord>,
   updateFollower: ValueFollower<UpdateRecord>,

@@ -1,15 +1,21 @@
 import { QueryClient, createProtobufRpcClient } from '@cosmjs/stargate';
-import { QueryClientImpl } from '@agoric/cosmic-proto/swingset/query.js';
+import {
+  QueryClientImpl,
+  QueryParamsResponse,
+} from '@agoric/cosmic-proto/swingset/query.js';
 
-import { HttpClient, Tendermint34Client } from '@cosmjs/tendermint-rpc';
+import {
+  HttpClient,
+  HttpEndpoint,
+  Tendermint34Client,
+} from '@cosmjs/tendermint-rpc';
 
 /**
  * Query swingset params.
- *
- * @param {String|import('@cosmjs/tendermint-rpc').HttpEndpoint} endpoint
- * @returns {Promise<import('@agoric/cosmic-proto/swingset/query.js').QueryParamsResponse>}
  */
-export const querySwingsetParams = async endpoint => {
+export const querySwingsetParams = async (
+  endpoint: HttpEndpoint,
+): QueryParamsResponse => {
   const http = new HttpClient(endpoint);
   const trpc = await Tendermint34Client.create(http);
   const base = QueryClient.withExtensions(trpc);
