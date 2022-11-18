@@ -1,6 +1,6 @@
 import { createContext, memo, useContext } from 'react';
 
-export const ApplicationContext = createContext();
+export const ApplicationContext = createContext({});
 
 export const ConnectionStatus = {
   Connected: 'connected',

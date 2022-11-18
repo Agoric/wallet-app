@@ -1,14 +1,14 @@
-import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
+import IconButton from '@mui/material/IconButton';
 
+import { MouseEventHandler } from 'react';
 import './Request.scss';
-import { MouseEventHandler, ReactElement } from 'react';
 
 interface Props {
   close?: MouseEventHandler;
   completed?: boolean;
   header: string;
-  children?: ReactElement;
+  children?: React.ReactNode;
 }
 
 const Request = ({ close, header, completed, children }: Props) => {
