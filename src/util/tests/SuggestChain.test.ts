@@ -1,4 +1,3 @@
-// @ts-check
 import { makeChainInfo } from '../SuggestChain.js';
 
 test('apiAddrs overrides rpcAddrs', () => {
