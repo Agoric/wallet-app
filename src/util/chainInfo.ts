@@ -1,7 +1,6 @@
-// @ts-check
+import type { Bech32Config, FeeCurrency } from '@keplr-wallet/types';
 
-/** @type {import('@keplr-wallet/types').FeeCurrency} */
-export const stakeCurrency = {
+export const stakeCurrency: FeeCurrency = {
   coinDenom: 'BLD',
   coinMinimalDenom: 'ubld',
   coinDecimals: 6,
@@ -13,8 +12,7 @@ export const stakeCurrency = {
   },
 };
 
-/** @type {import('@keplr-wallet/types').FeeCurrency} */
-export const stableCurrency = {
+export const stableCurrency: FeeCurrency = {
   coinDenom: 'IST',
   coinMinimalDenom: 'uist',
   coinDecimals: 6,
@@ -26,8 +24,7 @@ export const stableCurrency = {
   },
 };
 
-/** @type {import('@keplr-wallet/types').Bech32Config} */
-export const bech32Config = {
+export const bech32Config: Bech32Config = {
   bech32PrefixAccAddr: 'agoric',
   bech32PrefixAccPub: 'agoricpub',
   bech32PrefixValAddr: 'agoricvaloper',
