@@ -14,7 +14,7 @@ import {
   SwingsetMsgs,
   SwingsetConverters,
   toAccAddress,
-} from '../util/keyManagement.js';
+} from '../util/keyManagement';
 
 const addrToBase64 = a => toBase64(toAccAddress(a));
 

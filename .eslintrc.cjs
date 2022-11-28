@@ -4,9 +4,8 @@ module.exports = {
   parser: '@typescript-eslint/parser',
   parserOptions: {
     sourceType: 'module',
-    project: ['./jsconfig.json'],
+    project: ['./tsconfig.json'],
     tsconfigRootDir: __dirname,
-    extraFileExtensions: ['.cjs'],
   },
   plugins: [
     '@typescript-eslint',
@@ -21,7 +20,7 @@ module.exports = {
   settings: {
     'import/resolver': {
       node: {
-        extensions: ['.js', '.jsx'],
+        extensions: ['.js', '.jsx', '.ts', '.tsx'],
       },
     },
     jsdoc: {
@@ -54,6 +53,8 @@ module.exports = {
         devDependencies: [
           '**/*.test.js',
           '**/*.test.jsx',
+          '**/*.test.ts',
+          '**/*.test.tsx',
           // hard-coded Jest setup path in https://create-react-app.dev/docs/running-tests/#initializing-test-environment
           '**/src/setupTests.js',
         ],
