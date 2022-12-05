@@ -8,6 +8,8 @@ export const icons = {
   USDC_axl: 'tokens/USDC_axl.png',
   USDT_grv: 'tokens/USDT_grv.webp',
   USDT_axl: 'tokens/USDT_axl.png',
+  DAI_axl: 'tokens/DAI_axl.png',
+  DAI_grv: 'tokens/DAI_grv.png',
 };
 
 export const defaultIcon = 'tokens/default.png';
