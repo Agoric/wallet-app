@@ -43,6 +43,7 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "@agoric/vats": "^0.13.1-dev-eb03e0a.0",
     "@keplr-wallet/types": "^0.11.7",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
