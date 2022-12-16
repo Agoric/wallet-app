@@ -10,9 +10,10 @@ import TextField from '@mui/material/TextField';
 import { makeStyles } from '@mui/styles';
 import { useMemo, useState } from 'react';
 import { withApplicationContext } from '../contexts/Application';
-import { networkConfigUrl } from '../util/connections';
+import { NetworkConfigSource, networkConfigUrl } from '../util/connections';
 import isEqual from 'lodash-es/isEqual';
 import { maybeSave } from '../util/storage';
+import type { KnownNetworkConfigUrls } from '../util/connections';
 
 const useStyles = makeStyles(_ => ({
   centeredText: {
@@ -54,13 +55,10 @@ const ConnectionSettingsDialog = ({
   tryKeplrConnect,
 }) => {
   const classes = useStyles();
-  /** @type {string[]} */
-  const smartConnectionHrefs = allConnectionConfigs.map(c => c.href);
+  const smartConnectionHrefs: string[] = allConnectionConfigs.map(c => c.href);
 
-  const [configSource, setConfigSource] = useState(
-    /** @type {keyof KnownNetworkConfigUrls | 'custom'} */ networkConfigUrl.toSource(
-      connectionConfig.href,
-    ),
+  const [configSource, setConfigSource] = useState<NetworkConfigSource>(
+    networkConfigUrl.toSource(connectionConfig.href),
   );
 
   const [config, setConfig] = useState(
@@ -116,7 +114,7 @@ const ConnectionSettingsDialog = ({
           label="Network name"
           onChange={e => {
             const { value } = e.target;
-            setConfigSource(value);
+            setConfigSource(value as NetworkConfigSource);
             switch (value) {
               case 'main':
               case 'testnet':

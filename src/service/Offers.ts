@@ -15,34 +15,27 @@ import {
   Offer,
 } from '../store/Offers';
 
-import { SmartWalletKey } from '../store/Dapps';
-import { OfferStatus } from '@agoric/smart-wallet/src/offers';
+import type { SmartWalletKey } from '../store/Dapps';
+import type { OfferSpec, OfferStatus } from '@agoric/smart-wallet/src/offers';
 import { Marshal } from '@endo/marshal';
 
-/** @typedef {import('@agoric/smart-wallet/src/types.js').Petname} Petname */
-
-/** @typedef {import('@agoric/smart-wallet/src/offers.js').OfferStatus} OfferStatus */
-
-/** @typedef {import('../store/Offers').Offer} Offer */
-/** @typedef {import('../store/Dapps').SmartWalletKey} SmartWalletKey */
-
-// TODO export explicit types from @agoric/notifier
-type OfferStatusNotifier = any;
+import type { Notifier } from '@agoric/notifier/src/types';
+import { Petname } from '@agoric/smart-wallet/src/types';
+import { Brand } from '@agoric/ertp/src/types';
 
 export const getOfferService = (
   smartWalletKey: SmartWalletKey,
   signSpendAction: (data: string) => Promise<any>,
-  chainOffersNotifier: OfferStatusNotifier,
+  chainOffersNotifier: Notifier<OfferStatus>,
   boardIdMarshaller: Marshal<string>,
 ) => {
-  /** @type {Map<number, Offer>} */
-  const offers = new Map();
-  const { notifier, updater } = makeNotifierKit();
+  const offers = new Map<number, Offer>();
+  const { notifier, updater } = makeNotifierKit<OfferStatus>();
   const broadcastUpdates = () => updater.updateState([...offers.values()]);
 
   const addSpendActionAndInstancePetname = async (
-    /** @type {Map<Petname, Brand>} */ pursePetnameToBrand,
-    /** @type {Offer} */ offer,
+    pursePetnameToBrand: Map<Petname, Brand>,
+    offer: Offer,
   ) => {
     const {
       id,
@@ -76,8 +69,7 @@ export const getOfferService = (
       slots: [instanceBoardId],
     } = await E(boardIdMarshaller).serialize(instance);
 
-    /** @type {import('@agoric/smart-wallet/src/offers.js').OfferSpec} */
-    const offerForAction = {
+    const offerForAction: OfferSpec = {
       id,
       invitationSpec: {
         source: 'contract',
@@ -168,10 +160,8 @@ export const getOfferService = (
   /**
    * Call once to load the offers from storage, watch storage and chain for new
    * offers.
-   *
-   * @param {Map<Petname, Brand>} pursePetnameToBrand
    */
-  const start = pursePetnameToBrand => {
+  const start = (pursePetnameToBrand: Map<Petname, Brand>) => {
     const storedOffers = load(smartWalletKey);
     const storedOffersP = Promise.all(
       storedOffers.map(async (o: Offer) => {

@@ -18,7 +18,7 @@ import { getIssuerService } from '../service/Issuers';
 import { getOfferService } from '../service/Offers';
 
 import type { Amount, Brand, DisplayInfo } from '@agoric/ertp/src/types';
-import type { Notifier } from '@agoric/notifier/exported';
+import type { Notifier } from '@agoric/notifier/src/types';
 import type { OfferStatus } from '@agoric/smart-wallet/src/offers';
 import type { UpdateRecord } from '@agoric/smart-wallet/src/smartWallet';
 import type { Petname } from '@agoric/smart-wallet/src/types';
@@ -28,6 +28,7 @@ import type { CurrentWalletRecord } from '@agoric/smart-wallet/src/smartWallet';
 import { KeplrUtils } from '../contexts/Provider.jsx';
 import type { PurseInfo } from '@agoric/web-components/src/keplr-connection/fetchCurrent';
 import { HttpEndpoint } from '@cosmjs/tendermint-rpc';
+import type { ValueFollowerElement } from '@agoric/casting/src/types';
 
 const newId = kind => `${kind}${Math.random()}`;
 
@@ -142,7 +143,7 @@ export const makeWalletBridgeFromFollowers = (
   );
 
   const { notifier: beansOwingNotifier, updater: beansOwingUpdater } =
-    makeNotifierKit(/** @type {Number?} */ null);
+    makeNotifierKit<Number | null>(null);
 
   // We assume just one cosmos purse per brand.
   const brandToPurse = new Map<Brand, PurseInfo>();
@@ -160,8 +161,7 @@ export const makeWalletBridgeFromFollowers = (
     notifierKits.purses.updater.updateState(harden(purses));
   };
 
-  /** @param {string} data */
-  const signSpendAction = async data => {
+  const signSpendAction = async (data: string) => {
     const {
       signers: { interactiveSigner },
     } = keplrConnection;
@@ -208,8 +208,7 @@ export const makeWalletBridgeFromFollowers = (
       // @ts-expect-error xxx param mutation
       firstCallback = undefined;
     }
-    /** @type {ValueFollowerElement<CurrentWalletRecord>} */
-    const currentEl = latest.value;
+    const currentEl: ValueFollowerElement<CurrentWalletRecord> = latest.value;
     const wallet = currentEl.value;
     console.log('wallet current', wallet);
     for (const purse of wallet.purses) {
@@ -218,8 +217,7 @@ export const makeWalletBridgeFromFollowers = (
         bd => purse.brand === bd.brand,
       );
       assert(brandDescriptor, `missing descriptor for brand ${purse.brand}`);
-      /** @type {PurseInfo} */
-      const purseInfo = {
+      const purseInfo: PurseInfo = {
         brand: purse.brand,
         currentAmount: purse.balance,
         brandPetname: brandDescriptor.petname,
