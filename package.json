@@ -12,7 +12,7 @@
     "@agoric/ertp": "dev",
     "@agoric/internal": "0.2.1",
     "@agoric/nat": "^4.1.0",
-    "@agoric/notifier": "dev",
+    "@agoric/notifier": "^0.5.2-dev-ea49c84.0",
     "@agoric/smart-wallet": "dev",
     "@agoric/ui-components": "^0.3.3",
     "@agoric/wallet-backend": "^0.13.3",

@@ -40,6 +40,11 @@
   resolved "https://registry.yarnpkg.com/@agoric/assert/-/assert-0.5.2-dev-e5ed233.0.tgz#cfa11805ed87f1a5f2550e466dea29bae206c6d7"
   integrity sha512-dT2gbCy4fz3r3+XV525aGmTNmlLQYrq8oqIyop/Xn0OpvyNa/k2FYLNRpvzVPiXWEn41Q1EQdSRvAGaoWVvYeQ==
 
+"@agoric/assert@0.5.2-dev-ea49c84.0+ea49c84":
+  version "0.5.2-dev-ea49c84.0"
+  resolved "https://registry.yarnpkg.com/@agoric/assert/-/assert-0.5.2-dev-ea49c84.0.tgz#61d2a80f8046432021360148a32a5d95f08f16b5"
+  integrity sha512-G20Pa2CRAMrbl3kE0hni111+jPfjBdBgxtWzV/S+W67JFSy0BmJQHhrUWuleqQEfTEI1lc9xm7OjUsr9k/EXmg==
+
 "@agoric/assert@^0.5.1":
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/@agoric/assert/-/assert-0.5.1.tgz#f118129c3d091108528dec08a31f5f65c26de0c6"
@@ -388,6 +393,15 @@
     "@endo/marshal" "^0.8.0"
     "@endo/promise-kit" "^0.2.51"
 
+"@agoric/internal@0.2.2-dev-ea49c84.0+ea49c84":
+  version "0.2.2-dev-ea49c84.0"
+  resolved "https://registry.yarnpkg.com/@agoric/internal/-/internal-0.2.2-dev-ea49c84.0.tgz#7ec83481faf9c1f794acbedb38eb4babdb0de7d8"
+  integrity sha512-1bSrpzifTTCVXQb33cMMBiJaVQ3BEn975hpuukD8tR0JkzEGw2UIE7vfCMt219sMj/Qx0ZHVhc89JpqyjIyXPA==
+  dependencies:
+    "@endo/eventual-send" "^0.16.8"
+    "@endo/marshal" "^0.8.1"
+    "@endo/promise-kit" "^0.2.52"
+
 "@agoric/nat@^4.1.0":
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/@agoric/nat/-/nat-4.1.0.tgz#102794e033ffc183a20b0f86031a2e76d204b9f6"
@@ -403,7 +417,7 @@
     "@endo/marshal" "^0.8.0"
     "@endo/promise-kit" "^0.2.51"
 
-"@agoric/notifier@0.5.2-dev-a5437cf.0+a5437cf", "@agoric/notifier@dev":
+"@agoric/notifier@0.5.2-dev-a5437cf.0+a5437cf":
   version "0.5.2-dev-a5437cf.0"
   resolved "https://registry.yarnpkg.com/@agoric/notifier/-/notifier-0.5.2-dev-a5437cf.0.tgz#77aca8cf5645fa640540a9fe20c144421846ef10"
   integrity sha512-H8cKQPvAbyJhVkbjVRDiyP8OPXRKKrCxRjeRmWx08FdYNN22brQvqIbhxXCIAQ2x0VOITxCsMhD1qCD0dVK8Fg==
@@ -432,6 +446,17 @@
     "@endo/eventual-send" "^0.16.5"
     "@endo/marshal" "^0.7.5"
     "@endo/promise-kit" "^0.2.49"
+
+"@agoric/notifier@^0.5.2-dev-ea49c84.0":
+  version "0.5.2-dev-ea49c84.0"
+  resolved "https://registry.yarnpkg.com/@agoric/notifier/-/notifier-0.5.2-dev-ea49c84.0.tgz#04f399b143342c9460850b6d41de9001ce4f8f9f"
+  integrity sha512-xGntzPzNDxtktseC5Ain4qBxwLvqMWgS/ydipHYuldojLFMlA0EnYbl25L/5VtLhnvdV0AdyKqxWoPUW2jhc7g==
+  dependencies:
+    "@agoric/assert" "0.5.2-dev-ea49c84.0+ea49c84"
+    "@agoric/internal" "0.2.2-dev-ea49c84.0+ea49c84"
+    "@endo/eventual-send" "^0.16.8"
+    "@endo/marshal" "^0.8.1"
+    "@endo/promise-kit" "^0.2.52"
 
 "@agoric/pegasus@0.7.7-dev-3101952.0+3101952":
   version "0.7.7-dev-3101952.0"
