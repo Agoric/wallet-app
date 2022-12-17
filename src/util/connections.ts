@@ -19,8 +19,10 @@ export const networkConfigUrl = {
       ([_, url]) => url === href,
     );
     if (matchingEntry) {
-      return matchingEntry[0];
+      return matchingEntry[0] as keyof typeof KnownNetworkConfigUrls;
     }
     return 'custom';
   },
 };
+
+export type NetworkConfigSource = ReturnType<typeof networkConfigUrl.toSource>;

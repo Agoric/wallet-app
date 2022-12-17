@@ -40,9 +40,9 @@ const KEY_SIZE = 32; // as in bech32
  *
  * See also MsgProvision in golang/cosmos/proto/agoric/swingset/msgs.proto
  */
-export const PowerFlags = /** @type {const} */ {
+export const PowerFlags = {
   SMART_WALLET: 'SMART_WALLET',
-};
+} as const;
 
 /**
  * The typeUrl of a message pairs a package name with a message name.
@@ -56,7 +56,7 @@ export const PowerFlags = /** @type {const} */ {
  * https://github.com/cosmos/cosmos-sdk/blob/main/proto/cosmos/authz/v1beta1/tx.proto#L34
  * https://github.com/cosmos/cosmos-sdk/blob/00805e564755f696c4696c6abe656cf68678fc83/proto/cosmos/authz/v1beta1/tx.proto#L34
  */
-const CosmosMessages = /** @type {const} */ {
+const CosmosMessages = {
   bank: {
     MsgSend: {
       typeUrl: '/cosmos.bank.v1beta1.MsgSend',
@@ -81,13 +81,13 @@ const CosmosMessages = /** @type {const} */ {
       typeUrl: '/cosmos.feegrant.v1beta1.BasicAllowance',
     },
   },
-};
+} as const;
 
 /**
  * `/agoric.swingset.XXX` matches package agoric.swingset in swingset/msgs.proto
  * aminoType taken from Type() in golang/cosmos/x/swingset/types/msgs.go
  */
-export const SwingsetMsgs = /** @type {const} */ {
+export const SwingsetMsgs = {
   MsgProvision: {
     typeUrl: '/agoric.swingset.MsgProvision',
     aminoType: 'swingset/Provision',
@@ -100,26 +100,24 @@ export const SwingsetMsgs = /** @type {const} */ {
     typeUrl: '/agoric.swingset.MsgWalletSpendAction',
     aminoType: 'swingset/WalletSpendAction',
   },
-};
+} as const;
 
 // XXX repeating the TS definitions made by protoc
 // TODO define these automatically from those
-/**
- * @typedef {{
- *   nickname: string,
- *   address: string, // base64 of raw bech32 data
- *   powerFlags: string[],
- *   submitter: string, // base64 of raw bech32 data
- * }} Provision
- * @typedef {{
- *   owner: string, // base64 of raw bech32 data
- *   action: string,
- * }} WalletAction
- * @typedef {{
- *   owner: string, // base64 of raw bech32 data
- *   spendAction: string,
- * }} WalletSpendAction
- */
+type Provision = {
+  nickname: string;
+  address: string; // base64 of raw bech32 data
+  powerFlags: string[];
+  submitter: string; // base64 of raw bech32 data
+};
+type WalletAction = {
+  owner: string; // base64 of raw bech32 data
+  action: string;
+};
+type WalletSpendAction = {
+  owner: string; // base64 of raw bech32 data
+  spendAction: string;
+};
 
 export const SwingsetRegistry = new Registry([
   ...defaultRegistryTypes,
@@ -419,10 +417,10 @@ export const makeInteractiveSigner = async (
      * https://github.com/cosmos/cosmjs/issues/1155
      * https://github.com/cosmos/cosmjs/pull/1159
      *
-     * @param {string} grantee
-     * @param {number} t0 current time (as from Date.now()) as basis for 4hr expiration
+     * @param grantee
+     * @param t0 current time (as from Date.now()) as basis for 4hr expiration
      */
-    delegateWalletAction: async (grantee, t0) => {
+    delegateWalletAction: async (grantee: string, t0: number) => {
       const expiration = t0 / 1000 + 4 * 60 * 60;
       // TODO: parameterize allowance?
       const allowance = '250000'; // 0.25 IST
@@ -474,13 +472,12 @@ export const makeInteractiveSigner = async (
 
       const act1 = {
         typeUrl: SwingsetMsgs.MsgProvision.typeUrl,
-        /** @type {Provision} */
         value: {
           address: b64address,
           nickname: 'my wallet',
           powerFlags: [PowerFlags.SMART_WALLET],
           submitter: b64address,
-        },
+        } as Provision,
       };
 
       const msgs = [act1];
@@ -509,11 +506,10 @@ export const makeInteractiveSigner = async (
 
       const act1 = {
         typeUrl: SwingsetMsgs.MsgWalletSpendAction.typeUrl,
-        /** @type {WalletSpendAction} */
         value: {
           owner: toBase64(toAccAddress(address)),
           spendAction,
-        },
+        } as WalletSpendAction,
       };
 
       const msgs = [act1];

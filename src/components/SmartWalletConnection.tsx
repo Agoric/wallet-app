@@ -20,6 +20,8 @@ import {
 } from '../util/WalletBackendAdapter';
 import ProvisionDialog from './ProvisionDialog';
 
+import type { MetricsNotification as ProvisionPoolMetrics } from '@agoric/vats/src/provisionPool';
+
 // @ts-expect-error xxx forwardRef
 const Alert = React.forwardRef(function Alert({ children, ...props }, ref) {
   return (
@@ -30,17 +32,8 @@ const Alert = React.forwardRef(function Alert({ children, ...props }, ref) {
   );
 });
 
-// XXX import from the contract
-/**
- * @typedef {object} ProvisionPoolMetrics
- * @property {bigint} walletsProvisioned  count of new wallets provisioned
- * @property {Amount<'nat'>} totalMintedProvided  running sum of Minted provided to new wallets
- * @property {Amount<'nat'>} totalMintedConverted  running sum of Minted
- * ever received by the contract from PSM
- */
-
 export const useProvisionPoolMetrics = (unserializer, leader) => {
-  const [data, setData] = useState(/** @type {ProvisionPoolMetrics?} */ null);
+  const [data, setData] = useState<ProvisionPoolMetrics | null>(null);
 
   useEffect(() => {
     if (!(unserializer && leader)) return;
@@ -77,9 +70,10 @@ export const useProvisionPoolMetrics = (unserializer, leader) => {
  * Wallet UI doesn't use objects as presences, only as identities.
  * Use this to override the defaultMakePresence of makeImportContext.
  *
- * @param {string} iface
+ * @param iface
  */
-const inertPresence = iface => Far(iface.replace(/^Alleged: /, ''), {});
+const inertPresence = (iface: string) =>
+  Far(iface.replace(/^Alleged: /, ''), {});
 
 const SmartWalletConnection = ({
   connectionConfig,

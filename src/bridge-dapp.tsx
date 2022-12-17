@@ -7,15 +7,13 @@ import ReactDOM from 'react-dom';
 import { BridgeProtocol } from '@agoric/web-components';
 import { addOffer, OfferUIStatus } from './store/Offers';
 import { loadDapp, upsertDapp, watchDapps } from './store/Dapps';
-
-/** @typedef {import('./store/Dapps').DappKey} DappKey */
+import type { DappKey } from './store/Dapps';
+import type { OfferConfig } from '@agoric/web-components/src/dapp-wallet-bridge/DappWalletBridge';
 
 Error.stackTraceLimit = Infinity;
 
 /**
  * Sends a message to the dapp in the parent window.
- *
- * @param {*} payload
  */
 const sendMessage = payload => window.parent.postMessage(payload, '*');
 
@@ -35,11 +33,11 @@ const checkParentWindow = () => {
  * prompt the user to accept the dapp in the wallet and allow it to propose
  * offers if accepted.
  *
- * @param {DappKey} dappKey
- * @param {string} proposedPetname - The suggested petname if the wallet does
+ * @param dappKey
+ * @param proposedPetname - The suggested petname if the wallet does
  * not already know about the dapp.
  */
-const requestDappConnection = (dappKey, proposedPetname) => {
+const requestDappConnection = (dappKey: DappKey, proposedPetname: string) => {
   const dapp = loadDapp(dappKey);
   if (dapp) {
     return;
@@ -53,11 +51,8 @@ const requestDappConnection = (dappKey, proposedPetname) => {
 /**
  * Watches for changes in local storage to the dapp's approval status and
  * notifies the dapp.
- *
- * @param {DappKey} dappKey
- * @param {boolean} currentlyApproved
  */
-const watchDappApproval = (dappKey, currentlyApproved) => {
+const watchDappApproval = (dappKey: DappKey, currentlyApproved: boolean) => {
   watchDapps(dappKey.smartWalletKey, dapps => {
     const dapp = dapps.find(d => d.origin === dappKey.origin);
     const isDappApproved = !!dapp?.isEnabled;
@@ -71,14 +66,10 @@ const watchDappApproval = (dappKey, currentlyApproved) => {
   });
 };
 
-/** @typedef {import('@agoric/web-components/src/dapp-wallet-bridge/DappWalletBridge').OfferConfig} OfferConfig */
 /**
  * Propose an offer from the dapp to the wallet UI.
- *
- * @param {DappKey} dappKey
- * @param {OfferConfig} offerConfig
  */
-const createAndAddOffer = (dappKey, offerConfig) => {
+const createAndAddOffer = (dappKey: DappKey, offerConfig: OfferConfig) => {
   const dapp = loadDapp(dappKey);
   const isDappApproved = !!dapp?.isEnabled;
   if (!isDappApproved) return;
@@ -105,9 +96,9 @@ const createAndAddOffer = (dappKey, offerConfig) => {
  * Notifies the dapp about whether it's approved or not and watches for changes
  * to its approval status.
  *
- * @param {DappKey} dappKey
+ * @param dappKey
  */
-const checkAndWatchDappApproval = dappKey => {
+const checkAndWatchDappApproval = (dappKey: DappKey) => {
   // Dapps are keyed by origin. A dapp is basically an origin with a petname
   // and an approval status.
   const dapp = loadDapp(dappKey);
@@ -120,8 +111,7 @@ const checkAndWatchDappApproval = dappKey => {
 };
 
 const handleIncomingMessages = () => {
-  /** @type {DappKey=} */
-  let dappKey;
+  let dappKey: DappKey | undefined;
 
   window.addEventListener('message', ev => {
     const type = ev.data?.type;
