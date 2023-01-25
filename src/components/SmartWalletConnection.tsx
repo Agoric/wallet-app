@@ -172,6 +172,7 @@ const SmartWalletConnection = ({
         makeFollower(`:published.${path}`, leader, {
           unserializer: context.fromMyWallet,
         });
+
       const bridge = makeWalletBridgeFromFollowers(
         {
           chainId: keplrConnection.chainId,
@@ -184,6 +185,8 @@ const SmartWalletConnection = ({
         makeFollower(`:beansOwing.${publicAddress}`, leader, {
           unserializer: { unserialize: data => data },
         }),
+        followPublished('agoricNames.vbankAsset'),
+        followPublished('agoricNames.brand'),
         keplrConnection,
         // @ts-expect-error xxx
         backendError,
