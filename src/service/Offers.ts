@@ -5,7 +5,6 @@ import {
   makeAsyncIterableFromNotifier,
 } from '@agoric/notifier';
 import { E } from '@endo/eventual-send';
-
 import {
   loadOffers as load,
   removeOffer as remove,
@@ -17,11 +16,10 @@ import {
 
 import type { SmartWalletKey } from '../store/Dapps';
 import type { OfferSpec, OfferStatus } from '@agoric/smart-wallet/src/offers';
-import { Marshal } from '@endo/marshal';
-
+import type { Marshal } from '@endo/marshal';
 import type { Notifier } from '@agoric/notifier/src/types';
-import { Petname } from '@agoric/smart-wallet/src/types';
-import { Brand } from '@agoric/ertp/src/types';
+import type { Petname } from '@agoric/smart-wallet/src/types';
+import type { Brand } from '@agoric/ertp/src/types';
 
 export const getOfferService = (
   smartWalletKey: SmartWalletKey,
@@ -41,15 +39,18 @@ export const getOfferService = (
       id,
       instanceHandle,
       publicInvitationMaker,
-      proposalTemplate: { give, want },
+      proposalTemplate: { give: giveTemplate, want: wantTemplate },
     } = offer;
 
-    const mapPursePetnamesToBrands = paymentProposals =>
-      Object.fromEntries(
+    const convertProposals = async paymentProposals => {
+      const entries = await Promise.all(
         Object.entries(paymentProposals).map(
           // @ts-expect-error
-          ([kw, { pursePetname, value }]) => {
-            const brand = pursePetnameToBrand.get(pursePetname);
+          async ([kw, { pursePetname, value, brand: serializedBrand }]) => {
+            const brand = serializedBrand
+              ? await E(boardIdMarshaller).unserialize(serializedBrand)
+              : pursePetnameToBrand.get(pursePetname);
+
             if (!brand) {
               return [];
             }
@@ -63,11 +64,23 @@ export const getOfferService = (
           },
         ),
       );
+      return Object.fromEntries(entries);
+    };
 
-    const instance = await E(boardIdMarshaller).unserialize(instanceHandle);
-    const {
-      slots: [instanceBoardId],
-    } = await E(boardIdMarshaller).serialize(instance);
+    const deconstructInstance = async () => {
+      const instance = await E(boardIdMarshaller).unserialize(instanceHandle);
+      const {
+        slots: [instanceBoardId],
+      } = await E(boardIdMarshaller).serialize(instance);
+
+      return { instance, instanceBoardId };
+    };
+
+    const [{ instance, instanceBoardId }, give, want] = await Promise.all([
+      deconstructInstance(),
+      convertProposals(giveTemplate),
+      convertProposals(wantTemplate),
+    ]);
 
     const offerForAction: OfferSpec = {
       id,
@@ -77,8 +90,8 @@ export const getOfferService = (
         publicInvitationMaker,
       },
       proposal: {
-        give: mapPursePetnamesToBrands(give),
-        want: mapPursePetnamesToBrands(want),
+        give,
+        want,
       },
     };
 
