@@ -20,6 +20,7 @@ import type { Marshal } from '@endo/marshal';
 import type { Notifier } from '@agoric/notifier/src/types';
 import type { Petname } from '@agoric/smart-wallet/src/types';
 import type { Brand } from '@agoric/ertp/src/types';
+import { AmountMath } from '@agoric/ertp';
 
 export const getOfferService = (
   smartWalletKey: SmartWalletKey,
@@ -47,14 +48,18 @@ export const getOfferService = (
         Object.entries(paymentProposals).map(
           // @ts-expect-error
           async ([kw, { pursePetname, value, amount: serializedAmount }]) => {
+            if (!serializedAmount && !pursePetnameToBrand.get(pursePetname)) {
+              return [];
+            }
+
             /// XXX test e2e with dapp inter once feasible.
             const amount = serializedAmount
               ? await E(boardIdMarshaller).unserialize(serializedAmount)
-              : { brand: pursePetnameToBrand.get(pursePetname), value };
+              : AmountMath.make(
+                  pursePetnameToBrand.get(pursePetname),
+                  BigInt(value),
+                );
 
-            if (!(amount.brand && amount.value)) {
-              return [];
-            }
             return [kw, amount];
           },
         ),
