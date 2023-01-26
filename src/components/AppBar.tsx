@@ -13,9 +13,8 @@ import SmartWalletConnection from './SmartWalletConnection';
 import TermsDialog from './TermsDialog';
 import { checkLatestAgreement, acceptTerms } from '../service/Terms';
 
-const logoUrl =
-  'https://agoric.com/wp-content/themes/agoric_2021_theme/assets/img/logo.svg';
-const helpUrl = 'https://agoric.com/documentation/guides/wallet/ui.html';
+const logoUrl = 'agoric-logo.png';
+const helpUrl = 'https://docs.agoric.com/guides/wallet/ui.html';
 
 const useStyles = makeStyles(theme => ({
   header: {
