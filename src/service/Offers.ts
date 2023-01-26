@@ -46,21 +46,16 @@ export const getOfferService = (
       const entries = await Promise.all(
         Object.entries(paymentProposals).map(
           // @ts-expect-error
-          async ([kw, { pursePetname, value, brand: serializedBrand }]) => {
-            const brand = serializedBrand
-              ? await E(boardIdMarshaller).unserialize(serializedBrand)
-              : pursePetnameToBrand.get(pursePetname);
+          async ([kw, { pursePetname, value, amount: serializedAmount }]) => {
+            /// XXX test e2e with dapp inter once feasible.
+            const amount = serializedAmount
+              ? await E(boardIdMarshaller).unserialize(serializedAmount)
+              : { brand: pursePetnameToBrand.get(pursePetname), value };
 
-            if (!brand) {
+            if (!(amount.brand && amount.value)) {
               return [];
             }
-            return [
-              kw,
-              {
-                brand,
-                value: BigInt(value),
-              },
-            ];
+            return [kw, amount];
           },
         ),
       );
