@@ -29,7 +29,7 @@ export const getOfferService = (
   boardIdMarshaller: Marshal<string>,
 ) => {
   const offers = new Map<number, Offer>();
-  const { notifier, updater } = makeNotifierKit<OfferStatus>();
+  const { notifier, updater } = makeNotifierKit<Offer[]>();
   const broadcastUpdates = () => updater.updateState([...offers.values()]);
 
   const addSpendActionAndInstancePetname = async (
@@ -138,29 +138,30 @@ export const getOfferService = (
       chainOffersNotifier,
     )) {
       console.log('offerStatus', { status, offers });
-      const oldOffer = offers.get(status?.id);
+      const id = status && Number(status?.id);
+      const oldOffer = offers.get(id);
       if (!oldOffer) {
         console.warn('Update for unknown offer, doing nothing.');
       } else {
         if (status.error !== undefined) {
-          offers.set(status.id, {
+          offers.set(id, {
             ...oldOffer,
-            id: status.id,
+            id,
             status: OfferUIStatus.rejected,
             error: `${status.error}`,
           });
-          remove(smartWalletKey, status.id);
+          remove(smartWalletKey, id);
         } else if (status.numWantsSatisfied !== undefined) {
-          offers.set(status.id, {
+          offers.set(id, {
             ...oldOffer,
-            id: status.id,
+            id,
             status: OfferUIStatus.accepted,
           });
-          remove(smartWalletKey, status.id);
+          remove(smartWalletKey, id);
         } else if (status.numWantsSatisfied === undefined) {
-          offers.set(status.id, {
+          offers.set(id, {
             ...oldOffer,
-            id: status.id,
+            id,
             status: OfferUIStatus.pending,
           });
           upsertOffer({ ...oldOffer, status: OfferUIStatus.pending });

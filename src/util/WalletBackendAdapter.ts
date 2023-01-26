@@ -268,7 +268,9 @@ export const makeWalletBridgeFromFollowers = (
   const fetchAgoricBrands = async () => {
     for await (const { value } of iterateLatest(agoricBrandsFollower)) {
       if (value) {
-        return new Map(value.map(([k, v]) => [v, k]));
+        return new Map(
+          (value as Array<[string, unknown]>).map(([k, v]) => [v, k]),
+        );
       }
     }
   };
@@ -311,7 +313,7 @@ export const makeWalletBridgeFromFollowers = (
         continue;
       }
       const brandDescriptor = {
-        petname: agoricBrands.get(purse.brand),
+        petname: agoricBrands.get(purse.brand) as Petname,
         displayInfo: { assetKind: 'set' },
       };
       const purseInfo: PurseInfo = {

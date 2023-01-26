@@ -52,7 +52,7 @@ export const useProvisionPoolMetrics = (unserializer, leader) => {
           break;
         }
         console.log('provisionPoolData', value);
-        setData(value);
+        setData(value as ProvisionPoolMetrics);
       }
     };
     fetchData().catch(e =>
