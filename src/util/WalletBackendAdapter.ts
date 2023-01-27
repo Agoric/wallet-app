@@ -5,7 +5,6 @@ import { objectMap } from '@agoric/internal';
 import {
   makeAsyncIterableFromNotifier,
   makeNotifierKit,
-  observeNotifier,
 } from '@agoric/notifier';
 import {
   assertHasData,
@@ -118,6 +117,16 @@ export const makeBackendFromWalletBridge = (
   return { backendIt, cancel };
 };
 
+type VbankInfo = {
+  brand: Brand;
+  displayInfo: DisplayInfo<'nat'>;
+  issuerName: string;
+};
+
+type VbankUpdate = [string, VbankInfo][];
+
+type AgoricBrandsUpdate = [string, Brand][];
+
 export const makeWalletBridgeFromFollowers = (
   smartWalletKey: SmartWalletKey,
   rpc: HttpEndpoint,
@@ -125,8 +134,8 @@ export const makeWalletBridgeFromFollowers = (
   currentFollower: ValueFollower<CurrentWalletRecord>,
   updateFollower: ValueFollower<UpdateRecord>,
   beansOwingFollower: ValueFollower<string>,
-  vbankAssetsFollower: ValueFollower<unknown>,
-  agoricBrandsFollower: ValueFollower<unknown>,
+  vbankAssetsFollower: ValueFollower<VbankUpdate>,
+  agoricBrandsFollower: ValueFollower<AgoricBrandsUpdate>,
   keplrConnection: KeplrUtils,
   errorHandler = e => {
     // Make an unhandled rejection.
@@ -215,12 +224,11 @@ export const makeWalletBridgeFromFollowers = (
     }
   };
 
-  // Reads purses from the cosmos bank module. These are not necessarily real
-  // "purses" in the smart wallet contract, because those are lazily
-  // instantiated, but we still need to show the balances.
+  // Infers purse balances from cosmos bank module balances since purses are
+  // lazily instantiated in the smart wallet.
   const watchChainBalances = () => {
-    let vbankAssets;
-    let bank;
+    let vbankAssets: VbankUpdate;
+    let bank: Coin[];
 
     const possiblyUpdateBankPurses = () => {
       if (!vbankAssets || !bank) return;
@@ -230,7 +238,11 @@ export const makeWalletBridgeFromFollowers = (
       );
 
       vbankAssets.forEach(([denom, info]) => {
+        // Show the vbank asset as a purse with 0 balance if the user doesn't
+        // have any. This way it will show up on their asset list with the
+        // deposit action available.
         const amount = bankMap.get(denom) ?? 0n;
+
         const purseInfo: PurseInfo = {
           brand: info.brand,
           currentAmount: AmountMath.make(info.brand, BigInt(amount)),
@@ -247,8 +259,7 @@ export const makeWalletBridgeFromFollowers = (
 
     const watchBank = async () => {
       if (isHalted) return;
-      const balances = await queryBankBalances(keplrConnection.address, rpc);
-      bank = balances;
+      bank = await queryBankBalances(keplrConnection.address, rpc);
       possiblyUpdateBankPurses();
       setTimeout(watchBank, POLL_INTERVAL_MS);
     };
@@ -267,11 +278,8 @@ export const makeWalletBridgeFromFollowers = (
 
   const fetchAgoricBrands = async () => {
     for await (const { value } of iterateLatest(agoricBrandsFollower)) {
-      if (value) {
-        return new Map(
-          (value as Array<[string, unknown]>).map(([k, v]) => [v, k]),
-        );
-      }
+      // Invert so we have a map of brands to petnames.
+      return new Map((value as AgoricBrandsUpdate).map(([k, v]) => [v, k]));
     }
   };
 
@@ -299,17 +307,19 @@ export const makeWalletBridgeFromFollowers = (
     assert(agoricBrands, 'Failed to fetch agoric brands');
 
     for (const purse of wallet.purses) {
-      // We only care about the zoe invite purse, which has asset kind 'set'.
       // Non 'set' amounts need to be fetched from vbank to know their
-      // decimalPlaces.
+      // decimalPlaces, so we can skip them. Currently this means all assets
+      // except zoe invites are read via `watchChainBalances`.
       //
-      // If we have add non 'set' amount purses that aren't in the vbank, it's
+      // If we ever add non 'set' amount purses that aren't in the vbank, it's
       // not currently possible to read their decimalPlaces, so this code
       // will need updating.
-      if (
-        !Array.isArray(purse.balance.value) ||
-        !agoricBrands.has(purse.brand)
-      ) {
+      if (!Array.isArray(purse.balance.value)) {
+        console.debug('skipping non-set amount', purse.balance.value);
+        continue;
+      }
+      if (!agoricBrands.has(purse.brand)) {
+        console.warn('skipping unknown brand', purse.brand);
         continue;
       }
       const brandDescriptor = {

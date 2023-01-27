@@ -52,7 +52,7 @@ export const getOfferService = (
               return [];
             }
 
-            /// XXX test e2e with dapp inter once feasible.
+            /// TODO: test e2e with dapp inter once feasible.
             const amount = serializedAmount
               ? await E(boardIdMarshaller).unserialize(serializedAmount)
               : AmountMath.make(
@@ -67,17 +67,8 @@ export const getOfferService = (
       return Object.fromEntries(entries);
     };
 
-    const deconstructInstance = async () => {
-      const instance = await E(boardIdMarshaller).unserialize(instanceHandle);
-      const {
-        slots: [instanceBoardId],
-      } = await E(boardIdMarshaller).serialize(instance);
-
-      return { instance, instanceBoardId };
-    };
-
-    const [{ instance, instanceBoardId }, give, want] = await Promise.all([
-      deconstructInstance(),
+    const [instance, give, want] = await Promise.all([
+      E(boardIdMarshaller).unserialize(instanceHandle),
       convertProposals(giveTemplate),
       convertProposals(wantTemplate),
     ]);
@@ -95,12 +86,20 @@ export const getOfferService = (
       },
     };
 
-    const spendAction = await E(boardIdMarshaller).serialize(
-      harden({
-        method: 'executeOffer',
-        offer: offerForAction,
-      }),
-    );
+    const [
+      {
+        slots: [instanceBoardId],
+      },
+      spendAction,
+    ] = await Promise.all([
+      E(boardIdMarshaller).serialize(instance),
+      E(boardIdMarshaller).serialize(
+        harden({
+          method: 'executeOffer',
+          offer: offerForAction,
+        }),
+      ),
+    ]);
 
     return {
       ...offer,
