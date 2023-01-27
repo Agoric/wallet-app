@@ -27,6 +27,7 @@ export type Offer = {
   status: OfferUIStatus;
   instancePetname?: string;
   spendAction?: string;
+  error?: unknown;
 } & OfferConfig;
 
 export const loadOffers = ({ chainId, address }: SmartWalletKey) =>

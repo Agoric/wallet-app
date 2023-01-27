@@ -5,7 +5,6 @@ import {
   makeAsyncIterableFromNotifier,
 } from '@agoric/notifier';
 import { E } from '@endo/eventual-send';
-
 import {
   loadOffers as load,
   removeOffer as remove,
@@ -17,11 +16,11 @@ import {
 
 import type { SmartWalletKey } from '../store/Dapps';
 import type { OfferSpec, OfferStatus } from '@agoric/smart-wallet/src/offers';
-import { Marshal } from '@endo/marshal';
-
+import type { Marshal } from '@endo/marshal';
 import type { Notifier } from '@agoric/notifier/src/types';
-import { Petname } from '@agoric/smart-wallet/src/types';
-import { Brand } from '@agoric/ertp/src/types';
+import type { Petname } from '@agoric/smart-wallet/src/types';
+import type { Brand } from '@agoric/ertp/src/types';
+import { AmountMath } from '@agoric/ertp';
 
 export const getOfferService = (
   smartWalletKey: SmartWalletKey,
@@ -30,7 +29,7 @@ export const getOfferService = (
   boardIdMarshaller: Marshal<string>,
 ) => {
   const offers = new Map<number, Offer>();
-  const { notifier, updater } = makeNotifierKit<OfferStatus>();
+  const { notifier, updater } = makeNotifierKit<Offer[]>();
   const broadcastUpdates = () => updater.updateState([...offers.values()]);
 
   const addSpendActionAndInstancePetname = async (
@@ -41,33 +40,38 @@ export const getOfferService = (
       id,
       instanceHandle,
       publicInvitationMaker,
-      proposalTemplate: { give, want },
+      proposalTemplate: { give: giveTemplate, want: wantTemplate },
     } = offer;
 
-    const mapPursePetnamesToBrands = paymentProposals =>
-      Object.fromEntries(
+    const convertProposals = async paymentProposals => {
+      const entries = await Promise.all(
         Object.entries(paymentProposals).map(
           // @ts-expect-error
-          ([kw, { pursePetname, value }]) => {
-            const brand = pursePetnameToBrand.get(pursePetname);
-            if (!brand) {
+          async ([kw, { pursePetname, value, amount: serializedAmount }]) => {
+            if (!serializedAmount && !pursePetnameToBrand.get(pursePetname)) {
               return [];
             }
-            return [
-              kw,
-              {
-                brand,
-                value: BigInt(value),
-              },
-            ];
+
+            /// TODO: test e2e with dapp inter once feasible.
+            const amount = serializedAmount
+              ? await E(boardIdMarshaller).unserialize(serializedAmount)
+              : AmountMath.make(
+                  pursePetnameToBrand.get(pursePetname),
+                  BigInt(value),
+                );
+
+            return [kw, amount];
           },
         ),
       );
+      return Object.fromEntries(entries);
+    };
 
-    const instance = await E(boardIdMarshaller).unserialize(instanceHandle);
-    const {
-      slots: [instanceBoardId],
-    } = await E(boardIdMarshaller).serialize(instance);
+    const [instance, give, want] = await Promise.all([
+      E(boardIdMarshaller).unserialize(instanceHandle),
+      convertProposals(giveTemplate),
+      convertProposals(wantTemplate),
+    ]);
 
     const offerForAction: OfferSpec = {
       id,
@@ -77,17 +81,25 @@ export const getOfferService = (
         publicInvitationMaker,
       },
       proposal: {
-        give: mapPursePetnamesToBrands(give),
-        want: mapPursePetnamesToBrands(want),
+        give,
+        want,
       },
     };
 
-    const spendAction = await E(boardIdMarshaller).serialize(
-      harden({
-        method: 'executeOffer',
-        offer: offerForAction,
-      }),
-    );
+    const [
+      {
+        slots: [instanceBoardId],
+      },
+      spendAction,
+    ] = await Promise.all([
+      E(boardIdMarshaller).serialize(instance),
+      E(boardIdMarshaller).serialize(
+        harden({
+          method: 'executeOffer',
+          offer: offerForAction,
+        }),
+      ),
+    ]);
 
     return {
       ...offer,
@@ -125,29 +137,30 @@ export const getOfferService = (
       chainOffersNotifier,
     )) {
       console.log('offerStatus', { status, offers });
-      const oldOffer = offers.get(status?.id);
+      const id = status && Number(status?.id);
+      const oldOffer = offers.get(id);
       if (!oldOffer) {
         console.warn('Update for unknown offer, doing nothing.');
       } else {
         if (status.error !== undefined) {
-          offers.set(status.id, {
+          offers.set(id, {
             ...oldOffer,
-            id: status.id,
+            id,
             status: OfferUIStatus.rejected,
             error: `${status.error}`,
           });
-          remove(smartWalletKey, status.id);
+          remove(smartWalletKey, id);
         } else if (status.numWantsSatisfied !== undefined) {
-          offers.set(status.id, {
+          offers.set(id, {
             ...oldOffer,
-            id: status.id,
+            id,
             status: OfferUIStatus.accepted,
           });
-          remove(smartWalletKey, status.id);
+          remove(smartWalletKey, id);
         } else if (status.numWantsSatisfied === undefined) {
-          offers.set(status.id, {
+          offers.set(id, {
             ...oldOffer,
-            id: status.id,
+            id,
             status: OfferUIStatus.pending,
           });
           upsertOffer({ ...oldOffer, status: OfferUIStatus.pending });

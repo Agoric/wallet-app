@@ -15,7 +15,7 @@ import {
  */
 export const querySwingsetParams = async (
   endpoint: HttpEndpoint,
-): QueryParamsResponse => {
+): Promise<QueryParamsResponse> => {
   const http = new HttpClient(endpoint);
   const trpc = await Tendermint34Client.create(http);
   const base = QueryClient.withExtensions(trpc);
