@@ -23,14 +23,12 @@ import type { Petname } from '@agoric/smart-wallet/src/types';
 import type { Brand } from '@agoric/ertp/src/types';
 import type { PurseInfo } from '@agoric/web-components/src/keplr-connection/fetchCurrent';
 
-type Entry = {
-  value?: number | string; // Localstorage cannot serialize BigInt.
-  pursePetname?: Petname;
-  amount?: CapData<string>;
-};
-
 type GiveOrWantEntries = {
-  [keyword: string]: Entry;
+  [keyword: string]: {
+    value?: number | string; // Localstorage cannot serialize BigInt.
+    pursePetname?: Petname;
+    amount?: CapData<string>;
+  };
 };
 
 export const getOfferService = (
@@ -64,25 +62,24 @@ export const getOfferService = (
       const entries = await Promise.all(
         Object.entries(paymentProposals).map(
           async ([kw, { pursePetname, value, amount: serializedAmount }]) => {
-            if (
-              !serializedAmount &&
-              !(pursePetname && pursePetnameToBrand.get(pursePetname))
-            ) {
-              return [];
+            // First try using serializedAmount.
+            if (serializedAmount) {
+              const amount = await E(boardIdMarshaller).unserialize(
+                serializedAmount,
+              );
+              return [kw, amount];
             }
 
-            let amount =
-              serializedAmount &&
-              (await E(boardIdMarshaller).unserialize(serializedAmount));
-            if (!amount) {
-              assert(pursePetname);
+            // Next try getting by petname. Look up brand just once.
+            const brand = pursePetname && pursePetnameToBrand.get(pursePetname);
+            if (brand) {
               assert(typeof value !== 'undefined');
-              amount = AmountMath.make(
-                pursePetnameToBrand.get(pursePetname),
-                BigInt(value),
-              );
+              const amount = AmountMath.make(brand, BigInt(value));
+              return [kw, amount];
             }
-            return [kw, amount];
+
+            // Can't find it.
+            return [];
           },
         ),
       );
