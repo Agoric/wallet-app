@@ -17,7 +17,7 @@ import { getDappService } from '../service/Dapps';
 import { getIssuerService } from '../service/Issuers';
 import { getOfferService } from '../service/Offers';
 
-import type { Amount, Brand, DisplayInfo } from '@agoric/ertp/src/types';
+import type { Brand, DisplayInfo } from '@agoric/ertp/src/types';
 import type { Notifier } from '@agoric/notifier/src/types';
 import type { OfferStatus } from '@agoric/smart-wallet/src/offers';
 import type { UpdateRecord } from '@agoric/smart-wallet/src/smartWallet';
@@ -183,7 +183,7 @@ export const makeWalletBridgeFromFollowers = (
     // wallet chainstorage.
     if (!isOfferServiceStarted && isBankLoaded && isSmartWalletLoaded) {
       isOfferServiceStarted = true;
-      offerService.start(pursePetnameToBrand);
+      offerService.start(pursePetnameToBrand, brandToPurse);
     }
   };
 
