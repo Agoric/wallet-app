@@ -25,7 +25,7 @@ export type Offer = {
     origin: string;
   };
   status: OfferUIStatus;
-  instancePetname?: string;
+  sourceDescription?: string;
   spendAction?: string;
   error?: unknown;
 } & OfferConfig;

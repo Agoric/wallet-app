@@ -52,6 +52,7 @@ export const getOfferService = (
       id,
       instanceHandle,
       publicInvitationMaker,
+      invitationSpec,
       proposalTemplate: { give: giveTemplate, want: wantTemplate },
     } = offer;
 
@@ -108,47 +109,47 @@ export const getOfferService = (
         ),
       );
 
-    const [
-      instance,
-      give,
-      want,
-      displayableGiveTemplate,
-      displayableWantTemplate,
-    ] = await Promise.all([
-      E(boardIdMarshaller).unserialize(instanceHandle),
-      convertProposals(giveTemplate),
-      convertProposals(wantTemplate),
-      makeProposalTemplateDisplayable(giveTemplate),
-      makeProposalTemplateDisplayable(wantTemplate),
-    ]);
+    const [give, want, displayableGiveTemplate, displayableWantTemplate] =
+      await Promise.all([
+        convertProposals(giveTemplate),
+        convertProposals(wantTemplate),
+        makeProposalTemplateDisplayable(giveTemplate),
+        makeProposalTemplateDisplayable(wantTemplate),
+      ]);
 
-    const offerForAction: OfferSpec = {
-      id,
-      invitationSpec: {
+    const [invitationSpecToUse, sourceDescription] = await (async () => {
+      if (invitationSpec) {
+        return [invitationSpec, 'Continuing Invitation'];
+      }
+
+      const instance = await E(boardIdMarshaller).unserialize(instanceHandle);
+      const invitationSpecToUse = {
         source: 'contract',
         instance,
         publicInvitationMaker,
-      },
+      };
+      const instanceBoardId = `instance@${
+        (await E(boardIdMarshaller).serialize(instance)).slots[0]
+      }`;
+
+      return [invitationSpecToUse, instanceBoardId];
+    })();
+
+    const offerForAction: OfferSpec = {
+      id,
+      invitationSpec: invitationSpecToUse,
       proposal: {
         give,
         want,
       },
     };
 
-    const [
-      {
-        slots: [instanceBoardId],
-      },
-      spendAction,
-    ] = await Promise.all([
-      E(boardIdMarshaller).serialize(instance),
-      E(boardIdMarshaller).serialize(
-        harden({
-          method: 'executeOffer',
-          offer: offerForAction,
-        }),
-      ),
-    ]);
+    const spendAction = await E(boardIdMarshaller).serialize(
+      harden({
+        method: 'executeOffer',
+        offer: offerForAction,
+      }),
+    );
 
     return {
       ...offer,
@@ -156,7 +157,7 @@ export const getOfferService = (
         give: displayableGiveTemplate,
         want: displayableWantTemplate,
       },
-      instancePetname: `instance@${instanceBoardId}`,
+      sourceDescription,
       spendAction: JSON.stringify(spendAction),
     };
   };

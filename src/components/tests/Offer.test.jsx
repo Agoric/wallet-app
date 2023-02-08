@@ -73,7 +73,7 @@ const offer = {
   status: 'proposed',
   id: '123',
   offerId: 'https://tokenpalace.app#555',
-  instancePetname: ['TokenPalace', 'Installation'],
+  sourceDescription: ['TokenPalace', 'Installation'],
   instanceHandleBoardId: '123',
   requestContext: {
     dappOrigin: 'https://tokenpalace.app',
