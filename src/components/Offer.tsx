@@ -48,8 +48,7 @@ const OfferWithoutContext = ({
   const [signingError, setSigningError] = useState(null);
 
   const {
-    instancePetname,
-    instanceHandleBoardId,
+    sourceDescription,
     requestContext: { dappOrigin = undefined, origin = 'unknown origin' } = {},
     id,
     meta: { creationStamp: date },
@@ -144,7 +143,7 @@ const OfferWithoutContext = ({
       />
       <span className="Date text-gray">{formatDateNow(date)}</span>
       <div className="OfferOrigin">
-        <Petname name={instancePetname} />
+        <Petname name={sourceDescription} />
         <i> via </i>
         <span className="Blue">{dappOrigin || origin}</span>
       </div>

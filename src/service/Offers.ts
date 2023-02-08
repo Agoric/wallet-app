@@ -117,20 +117,23 @@ export const getOfferService = (
         makeProposalTemplateDisplayable(wantTemplate),
       ]);
 
-    let invitationSpecToUse = invitationSpec;
-    let instanceBoardId = 'Continuing Invitation';
+    const [invitationSpecToUse, sourceDescription] = await (async () => {
+      if (invitationSpec) {
+        return [invitationSpec, 'Continuing Invitation'];
+      }
 
-    if (!invitationSpecToUse) {
       const instance = await E(boardIdMarshaller).unserialize(instanceHandle);
-      invitationSpecToUse = {
+      const invitationSpecToUse = {
         source: 'contract',
         instance,
         publicInvitationMaker,
       };
-      instanceBoardId = `instance@${
+      const instanceBoardId = `instance@${
         (await E(boardIdMarshaller).serialize(instance)).slots[0]
       }`;
-    }
+
+      return [invitationSpecToUse, instanceBoardId];
+    })();
 
     const offerForAction: OfferSpec = {
       id,
@@ -154,7 +157,7 @@ export const getOfferService = (
         give: displayableGiveTemplate,
         want: displayableWantTemplate,
       },
-      instancePetname: instanceBoardId,
+      sourceDescription,
       spendAction: JSON.stringify(spendAction),
     };
   };
