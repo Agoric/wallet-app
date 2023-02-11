@@ -13,7 +13,6 @@ import { withApplicationContext } from '../contexts/Application';
 import { NetworkConfigSource, networkConfigUrl } from '../util/connections';
 import isEqual from 'lodash-es/isEqual';
 import { maybeSave } from '../util/storage';
-import type { KnownNetworkConfigUrls } from '../util/connections';
 
 const useStyles = makeStyles(_ => ({
   centeredText: {
@@ -154,17 +153,22 @@ const ConnectionSettingsDialog = ({
             href: newValue,
           })
         }
-        filterOptions={(options, params) => {
-          const { inputValue } = params;
-          const isExisting = options.some(option => inputValue === option);
-          if (inputValue && !isExisting) {
-            options.unshift(inputValue);
-          }
-          return options;
-        }}
         renderOption={(props, option) => <li {...props}>{option}</li>}
         freeSolo
-        renderInput={params => <TextField {...params} label="Network URL" />}
+        selectOnFocus
+        handleHomeEndKeys
+        renderInput={params => (
+          <TextField
+            {...params}
+            label="Network URL"
+            onChange={ev =>
+              ev.target.value !== config.href &&
+              setConfig({
+                href: ev.target.value,
+              })
+            }
+          />
+        )}
       />
       <ErrorLabel>
         {errors.has(Errors.INVALID_URL) ? 'Enter a valid URL' : ''}

@@ -34,7 +34,7 @@ const DappWithoutContext = ({ dapp, dapps }) => {
       <div style={{ marginBottom: '8px', fontWeight: '700' }}>
         <span>{petname}</span>{' '}
       </div>
-      <div className="text-gray">
+      <div className="text-gray" style={{ wordBreak: 'break-word' }}>
         {isEnabled ? 'User' : 'Alleged user'} interface:{' '}
         <span className="Blue">{dappOrigin || origin}</span>
       </div>

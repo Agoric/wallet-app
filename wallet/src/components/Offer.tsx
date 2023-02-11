@@ -142,7 +142,7 @@ const OfferWithoutContext = ({
         label={statusText[status]}
       />
       <span className="Date text-gray">{formatDateNow(date)}</span>
-      <div className="OfferOrigin">
+      <div className="OfferOrigin" style={{ wordBreak: 'break-word' }}>
         <Petname name={sourceDescription} />
         <i> via </i>
         <span className="Blue">{dappOrigin || origin}</span>
