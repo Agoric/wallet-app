@@ -1,0 +1,10 @@
+diff --git a/node_modules/@agoric/casting/src/follower-cosmjs.js b/node_modules/@agoric/casting/src/follower-cosmjs.js
+index cf63645..477f9b1 100644
+--- a/node_modules/@agoric/casting/src/follower-cosmjs.js
++++ b/node_modules/@agoric/casting/src/follower-cosmjs.js
+@@ -1,4 +1,4 @@
+-// @ts-check
++// @ts-nocheck
+ /// <reference types="ses"/>
+ /* eslint-disable no-await-in-loop, no-continue, @jessie.js/no-nested-await */
+ 

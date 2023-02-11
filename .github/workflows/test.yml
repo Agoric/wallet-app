@@ -15,9 +15,10 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: '14'
+          node-version: '18.x'
           cache: 'yarn'
       - run: yarn install --frozen-lockfile # optional, --immutable
-      - run: yarn prettier --check .
-      - run: yarn lint
       - run: yarn test
+      - run: cd wallet
+      - run: yarn lint
+      - run: yarn prettier --check .
