@@ -1,9 +1,15 @@
-# Web Solo
+# Agoric Wallet Site
 
-This is an experiment to see if it's possible to run SwingSet in the browser.
-Caveat Emptor.
+## Development
+See [wallet/README.md](wallet/README.md)
 
-```sh
-yarn start
-open file://$(pwd)/demo/index.html
-```
+## Production
+### Manual testing
+`yarn && yarn build && yarn preview`
+
+### Deploying
+https://wallet.agoric.app/ serves the latest build of the production branch.
+
+To deploy, push to that branch. e.g. if you've qualified main:
+
+`git push origin main:production`
