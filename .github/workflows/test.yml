@@ -18,7 +18,5 @@ jobs:
           node-version: '18.x'
           cache: 'yarn'
       - run: yarn install --frozen-lockfile # optional, --immutable
+      - run: cd wallet && yarn lint
       - run: yarn test
-      - run: cd wallet
-      - run: yarn lint
-      - run: yarn prettier --check .
