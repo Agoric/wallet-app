@@ -21,6 +21,7 @@ import type { CapData, Marshal } from '@endo/marshal';
 import type { Notifier } from '@agoric/notifier/src/types';
 import type { Petname } from '@agoric/smart-wallet/src/types';
 import type { Amount, Brand, DisplayInfo } from '@agoric/ertp/src/types';
+import type { InvitationSpec } from '@agoric/smart-wallet/src/invitations';
 
 // XXX These should be imported from @agoric/web-components.
 export type PurseInfo = {
@@ -37,6 +38,17 @@ type GiveOrWantEntries = {
     pursePetname?: Petname;
     amount?: CapData<string>;
   };
+};
+
+const sourceDescriptionForSpec = (spec: InvitationSpec) => {
+  switch (spec.source) {
+    case 'continuing':
+      return `${spec.invitationMakerName} on ${spec.previousOffer}`;
+    case 'agoricContract':
+      return `${spec.instancePath.join('.')}`;
+    default:
+      return spec.source;
+  }
 };
 
 export const getOfferService = (
@@ -127,7 +139,12 @@ export const getOfferService = (
 
     const [invitationSpecToUse, sourceDescription] = await (async () => {
       if (invitationSpec) {
-        return [invitationSpec, 'Continuing Invitation'];
+        const unserializedSpec = await E(boardIdMarshaller).unserialize(
+          invitationSpec,
+        );
+        const source = sourceDescriptionForSpec(unserializedSpec);
+
+        return [unserializedSpec, `Source: ${source}`];
       }
 
       const instance = await E(boardIdMarshaller).unserialize(instanceHandle);
@@ -136,11 +153,10 @@ export const getOfferService = (
         instance,
         publicInvitationMaker,
       };
-      const instanceBoardId = `instance@${
-        (await E(boardIdMarshaller).serialize(instance)).slots[0]
-      }`;
+      const instanceBoardId = (await E(boardIdMarshaller).serialize(instance))
+        .slots[0];
 
-      return [invitationSpecToUse, instanceBoardId];
+      return [invitationSpecToUse, `Source: instance at ${instanceBoardId}`];
     })();
 
     const offerForAction: OfferSpec = {
