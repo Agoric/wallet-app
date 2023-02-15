@@ -43,7 +43,7 @@ type GiveOrWantEntries = {
 const sourceDescriptionForSpec = (spec: InvitationSpec) => {
   switch (spec.source) {
     case 'continuing':
-      return `${spec.invitationMakerName} on ${spec.previousOffer}`;
+      return `${spec.invitationMakerName} from offer result ${spec.previousOffer}`;
     case 'agoricContract':
       return `${spec.instancePath.join('.')}`;
     default:
