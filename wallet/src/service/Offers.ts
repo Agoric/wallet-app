@@ -247,8 +247,10 @@ export const getOfferService = (
             id,
             status: OfferUIStatus.rejected,
             error: `${status.error}`,
-            isSeated: true,
           });
+          if (!oldOffer.isSeated) {
+            remove(smartWalletKey, id);
+          }
         }
         broadcastUpdates();
       }

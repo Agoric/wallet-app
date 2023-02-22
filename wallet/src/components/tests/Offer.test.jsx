@@ -264,6 +264,9 @@ test('renders the request as completed when appropriate', () => {
   const rejectedOffer = { ...offer };
   rejectedOffer.status = 'rejected';
   component = mount(<Offer offer={rejectedOffer} />);
+  expect(component.find(Request).props().completed).toEqual(true);
+  rejectedOffer.isSeated = true;
+  component = mount(<Offer offer={rejectedOffer} />);
   expect(component.find(Request).props().completed).toEqual(false);
 
   const cancelledOffer = { ...offer };

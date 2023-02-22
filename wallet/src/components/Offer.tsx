@@ -124,13 +124,8 @@ const OfferWithoutContext = ({
     </div>
   );
 
-  const isOfferCompleted = [
-    'accept',
-    'decline',
-    'complete',
-    'cancel',
-    'refunded',
-  ].includes(status);
+  const isOfferCompleted =
+    !['proposed', 'pending'].includes(status) && !isSeated;
 
   return (
     <Request header="Offer" completed={isOfferCompleted} close={close}>
