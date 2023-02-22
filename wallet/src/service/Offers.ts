@@ -55,7 +55,8 @@ const sourceDescriptionForSpec = (spec: InvitationSpec) => {
 export const getOfferService = (
   smartWalletKey: SmartWalletKey,
   signSpendAction: (data: string) => Promise<any>,
-  chainOffersNotifier: Notifier<OfferStatus>,
+  offerUpdatesNotifier: Notifier<OfferStatus>,
+  pendingOffersNotifier: Notifier<OfferStatus>,
   boardIdMarshaller: Marshal<string>,
 ) => {
   const offers = new Map<number, Offer>();
@@ -207,13 +208,20 @@ export const getOfferService = (
     return signSpendAction(offer.spendAction);
   };
 
-  const cancelOffer = _id => {
-    console.log('TODO: cancel offer');
+  const cancelOffer = async (id: number) => {
+    const action = await E(boardIdMarshaller).serialize(
+      harden({
+        method: 'tryExitOffer',
+        offerId: id,
+      }),
+    );
+
+    return signSpendAction(JSON.stringify(action));
   };
 
-  const watchChainOffers = async () => {
+  const watchOfferUpdates = async () => {
     for await (const status of makeAsyncIterableFromNotifier(
-      chainOffersNotifier,
+      offerUpdatesNotifier,
     )) {
       console.log('offerStatus', { status, offers });
       const id = status && Number(status?.id);
@@ -221,31 +229,72 @@ export const getOfferService = (
       if (!oldOffer) {
         console.warn('Update for unknown offer, doing nothing.');
       } else {
-        if (status.error !== undefined) {
+        if (status.numWantsSatisfied !== undefined) {
+          offers.set(id, {
+            ...oldOffer,
+            id,
+            status:
+              status.numWantsSatisfied === 0
+                ? OfferUIStatus.refunded
+                : OfferUIStatus.accepted,
+            isSeated: false,
+            error: `${status.error}`,
+          });
+          remove(smartWalletKey, id);
+        } else if (status.error !== undefined) {
           offers.set(id, {
             ...oldOffer,
             id,
             status: OfferUIStatus.rejected,
             error: `${status.error}`,
+            isSeated: true,
           });
-          remove(smartWalletKey, id);
-        } else if (status.numWantsSatisfied !== undefined) {
-          offers.set(id, {
-            ...oldOffer,
-            id,
-            status: OfferUIStatus.accepted,
-          });
-          remove(smartWalletKey, id);
-        } else if (status.numWantsSatisfied === undefined) {
-          offers.set(id, {
-            ...oldOffer,
-            id,
-            status: OfferUIStatus.pending,
-          });
-          upsertOffer({ ...oldOffer, status: OfferUIStatus.pending });
         }
         broadcastUpdates();
       }
+    }
+  };
+
+  const watchPendingOffers = async (brandToPurse: Map<Brand, PurseInfo>) => {
+    const makeProposalEntriesDisplayable = (proposalEntries: {
+      [key: string]: Amount;
+    }) =>
+      Object.fromEntries(
+        Object.entries(proposalEntries).map(([kw, entry]) => {
+          const pursePetname = brandToPurse.get(entry.brand)?.pursePetname;
+          const value = String(entry.value);
+          return [kw, { pursePetname, value }];
+        }),
+      );
+
+    for await (const pendingOffers of makeAsyncIterableFromNotifier(
+      pendingOffersNotifier,
+    )) {
+      console.log('pending offers', pendingOffers);
+      Object.values(pendingOffers).forEach((o: any) => {
+        const id = Number(o.id);
+        const oldOffer = offers.get(id);
+        if (!oldOffer) {
+          offers.set(id, {
+            ...o,
+            proposalTemplate: {
+              give: makeProposalEntriesDisplayable(o.proposal.give),
+              want: makeProposalEntriesDisplayable(o.proposal.want),
+            },
+            sourceDescription:
+              'Source: ' + sourceDescriptionForSpec(o.invitationSpec),
+            status: OfferUIStatus.pending,
+            isSeated: true,
+          });
+        } else {
+          offers.set(id, {
+            ...oldOffer,
+            status: OfferUIStatus.pending,
+            isSeated: true,
+          });
+        }
+      });
+      broadcastUpdates();
     }
   };
 
@@ -275,7 +324,8 @@ export const getOfferService = (
     );
     storedOffersP.then(() => broadcastUpdates()).catch(console.error);
 
-    watchChainOffers().catch(console.error);
+    watchOfferUpdates().catch(console.error);
+    watchPendingOffers(brandToPurse).catch(console.error);
 
     watchOffers(smartWalletKey, newOffers => {
       const newOffersP = Promise.all(

@@ -79,9 +79,6 @@ const offer = {
     dappOrigin: 'https://tokenpalace.app',
     origin: 'unknown origin',
   },
-  meta: {
-    creationStamp: 1636614038901,
-  },
   proposalForDisplay: {
     arguments: [],
     give: {
@@ -181,14 +178,6 @@ test('renders the arguments', () => {
   expect(args.text()).toContain('Arguments');
   expect(args.text()).toContain(
     JSON.stringify(offer.proposalForDisplay.arguments, null, 2),
-  );
-});
-
-test('renders the timestamp', () => {
-  const component = mount(<Offer offer={offer} />);
-
-  expect(component.find('.Date').text()).toContain(
-    formatDateNow(offer.meta.creationStamp),
   );
 });
 

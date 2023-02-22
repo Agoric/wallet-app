@@ -5,20 +5,17 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useState } from 'react';
 import Request from './Request';
 import PetnameSpan from './PetnameSpan';
-import { formatDateNow } from '../util/Date';
 import { withApplicationContext } from '../contexts/Application';
 import ErrorBoundary from './ErrorBoundary';
 import Proposal from './Proposal';
 
 import './Offer.scss';
 
-// XXX this isn't implemented yet so hide the button.
-const ALLOW_EXIT_OFFER = false;
-
 const statusText = {
   decline: 'Declined',
   rejected: 'Rejected',
   accept: 'Accepted',
+  refunded: 'Refunded',
   complete: 'Accepted',
   pending: 'Pending',
   proposed: 'Proposed',
@@ -27,6 +24,7 @@ const statusText = {
 
 const statusColors = {
   accept: 'success',
+  refunded: 'error',
   rejected: 'error',
   decline: 'error',
   pending: 'warning',
@@ -49,9 +47,9 @@ const OfferWithoutContext = ({
 
   const {
     sourceDescription,
-    requestContext: { dappOrigin = undefined, origin = 'unknown origin' } = {},
+    requestContext: { dappOrigin = undefined, origin = undefined } = {},
     id,
-    meta: { creationStamp: date },
+    isSeated,
   } = offer;
   let status = offer.status || 'proposed';
 
@@ -95,7 +93,7 @@ const OfferWithoutContext = ({
 
   const controls = (
     <div className="Controls">
-      {ALLOW_EXIT_OFFER && status === 'pending' && (
+      {isSeated && (
         <Chip
           onClick={exit}
           variant="outlined"
@@ -130,8 +128,8 @@ const OfferWithoutContext = ({
     'accept',
     'decline',
     'complete',
-    'rejected',
     'cancel',
+    'refunded',
   ].includes(status);
 
   return (
@@ -141,11 +139,14 @@ const OfferWithoutContext = ({
         color={statusColors[status]}
         label={statusText[status]}
       />
-      <span className="Date text-gray">{formatDateNow(date)}</span>
       <div className="OfferOrigin" style={{ wordBreak: 'break-word' }}>
         <PetnameSpan name={sourceDescription} />
-        <i> via </i>
-        <span className="Blue">{dappOrigin || origin}</span>
+        {(dappOrigin || origin) && (
+          <>
+            <i> via </i>
+            <span className="Blue">{dappOrigin || origin}</span>
+          </>
+        )}
       </div>
       <ErrorBoundary>
         <Proposal

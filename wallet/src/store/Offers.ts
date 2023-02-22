@@ -12,15 +12,12 @@ export enum OfferUIStatus {
   rejected = 'rejected',
   pending = 'pending',
   declined = 'decline',
+  refunded = 'refunded',
 }
 
 import { OfferConfig } from '@agoric/web-components/src/dapp-wallet-bridge/DappWalletBridge';
 export type Offer = {
   id: number;
-  meta: {
-    id: number;
-    creationStamp: number;
-  };
   requestContext: {
     origin: string;
   };

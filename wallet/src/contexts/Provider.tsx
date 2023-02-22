@@ -61,7 +61,6 @@ const inboxReducer = (_, newInbox) => {
       ?.map(tx => ({
         ...tx,
         offerId: tx.id,
-        id: tx.meta.id,
       }))
       .sort((a, b) => a.id - b.id) || null
   );
