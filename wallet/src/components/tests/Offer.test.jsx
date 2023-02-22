@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { act } from '@testing-library/react';
 import { stringifyPurseValue } from '@agoric/ui-components';
 import { mount } from 'enzyme';
@@ -112,6 +111,7 @@ const offer = {
     expiry: 1723014088n,
   },
   spendAction: ''.padStart(649, 'x'),
+  isSeated: false,
 };
 
 test('renders the gives', () => {
@@ -190,8 +190,8 @@ test('renders the controls', () => {
   expect(controls.find(Chip).at(1).text()).toContain('Decline');
 });
 
-test.skip('renders the exit button while pending', () => {
-  const pendingOffer = { ...offer };
+test('renders the exit button while seated', () => {
+  const pendingOffer = { ...offer, isSeated: true };
   pendingOffer.status = 'pending';
 
   const component = mount(<Offer offer={pendingOffer} />);
@@ -264,11 +264,16 @@ test('renders the request as completed when appropriate', () => {
   const rejectedOffer = { ...offer };
   rejectedOffer.status = 'rejected';
   component = mount(<Offer offer={rejectedOffer} />);
-  expect(component.find(Request).props().completed).toEqual(true);
+  expect(component.find(Request).props().completed).toEqual(false);
 
   const cancelledOffer = { ...offer };
   cancelledOffer.status = 'cancel';
   component = mount(<Offer offer={cancelledOffer} />);
+  expect(component.find(Request).props().completed).toEqual(true);
+
+  const refundedOffer = { ...offer };
+  refundedOffer.status = 'refunded';
+  component = mount(<Offer offer={refundedOffer} />);
   expect(component.find(Request).props().completed).toEqual(true);
 });
 
@@ -323,14 +328,19 @@ test('declines the offer', () => {
   expect(decline).toHaveBeenCalledWith();
 });
 
-test.skip('cancels the offer', () => {
-  const pendingOffer = { ...offer };
-  pendingOffer.status = 'pending';
+test('cancels the offer', () => {
+  const cancel = jest.fn(() => Promise.resolve());
+  const pendingOffer = {
+    ...offer,
+    isSeated: true,
+    status: 'pending',
+    actions: { cancel },
+  };
   const component = mount(<Offer offer={pendingOffer} />);
 
   act(() => component.find(Chip).at(1).props().onClick());
 
-  expect(offer.actions.cancel).toHaveBeenCalledWith();
+  expect(cancel).toHaveBeenCalledWith();
 });
 
 test('renders the dapp origin', () => {
