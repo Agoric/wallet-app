@@ -238,7 +238,7 @@ export const getOfferService = (
                 ? OfferUIStatus.refunded
                 : OfferUIStatus.accepted,
             isSeated: false,
-            error: `${status.error}`,
+            error: status.error && `${status.error}`,
           });
           remove(smartWalletKey, id);
         } else if (status.error !== undefined) {
