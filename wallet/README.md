@@ -4,7 +4,7 @@
 
 The UI deps and scripts were bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-`yarn start` to start a local MMR server.
+`yarn start` to start a local HMR server.
 
 `yarn test` to run unit tests.
 
