@@ -1,30 +1,38 @@
 import { useState } from 'react';
-import { CircularProgress } from '@mui/material';
+import ArrowDownward from '@mui/icons-material/ArrowDownward';
+import ArrowUpward from '@mui/icons-material/ArrowUpward';
 import Button from '@mui/material/Button';
-import Transfer from './Transfer';
+import IbcTransfer, { IbcDirection } from './IbcTransfer';
 import PurseAmount from './PurseAmount';
 import { withApplicationContext } from '../contexts/Application';
 import CardItem from './CardItem';
 import Card from './Card';
 import ErrorBoundary from './ErrorBoundary';
 import Loading from './Loading';
+import { ibcAssets } from '../util/ibc-assets';
+import type { PurseInfo } from '../service/Offers';
 
 import './Purses.scss';
 
-// Exported for testing only.
-export const PursesWithoutContext = ({
-  purses,
-  pendingTransfers,
-  previewEnabled,
-}: any) => {
-  const [openPurse, setOpenPurse] = useState(null);
+interface TransferPurse {
+  purse?: PurseInfo;
+  direction?: IbcDirection;
+}
 
-  const handleClickOpen = purse => {
-    setOpenPurse(purse);
+// Exported for testing only.
+export const PursesWithoutContext = ({ purses }: any) => {
+  const [transferPurse, setTransferPurse] = useState<TransferPurse>({});
+
+  const handleClickDeposit = purse => {
+    setTransferPurse({ purse, direction: IbcDirection.Deposit });
+  };
+
+  const handleClickWithdraw = purse => {
+    setTransferPurse({ purse, direction: IbcDirection.Withdrawal });
   };
 
   const handleClose = () => {
-    setOpenPurse(null);
+    setTransferPurse({});
   };
 
   const Purse = purse => {
@@ -40,21 +48,24 @@ export const PursesWithoutContext = ({
             />
           </ErrorBoundary>
         </div>
-        {previewEnabled && (
+        {ibcAssets[purse.brandPetname] && (
           <div className="Right">
-            {pendingTransfers.has(purse.id) ? (
-              <div className="PurseProgressWrapper">
-                <CircularProgress size={30} />
-              </div>
-            ) : (
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={() => handleClickOpen(purse)}
-              >
-                Send
-              </Button>
-            )}
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => handleClickDeposit(purse)}
+            >
+              <ArrowDownward fontSize="small" />
+              Deposit
+            </Button>
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => handleClickWithdraw(purse)}
+            >
+              <ArrowUpward fontSize="small" />
+              Withdraw
+            </Button>
           </div>
         )}
       </CardItem>
@@ -83,13 +94,15 @@ export const PursesWithoutContext = ({
       <Card header="Purses" helptip={helptip}>
         {purseItems}
       </Card>
-      <Transfer purse={openPurse} handleClose={handleClose} />
+      <IbcTransfer
+        purse={transferPurse.purse}
+        direction={transferPurse.direction}
+        handleClose={handleClose}
+      />
     </div>
   );
 };
 
 export default withApplicationContext(PursesWithoutContext, context => ({
   purses: context.purses,
-  pendingTransfers: context.pendingTransfers,
-  previewEnabled: context.previewEnabled,
 }));

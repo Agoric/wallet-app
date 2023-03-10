@@ -251,6 +251,7 @@ export const makeWalletBridgeFromFollowers = (
           brandPetname: info.issuerName,
           pursePetname: info.issuerName,
           displayInfo: info.displayInfo,
+          denom,
         };
         brandToPurse.set(info.brand, purseInfo);
       });

@@ -1,4 +1,5 @@
 import clsx from 'clsx';
+import { wellKnownPetnames } from '../util/well-known-petnames';
 
 import './Petname.scss';
 
@@ -17,7 +18,7 @@ const Petname = ({ name, plural = false, color = true }) => {
 
   return (
     <span>
-      {name}
+      {wellKnownPetnames[name] ?? name}
       {plural && 's'}
     </span>
   );

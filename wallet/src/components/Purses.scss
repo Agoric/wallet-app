@@ -12,6 +12,9 @@
 
 .Right {
   float: right;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
 }
 
 .PurseProgressWrapper {

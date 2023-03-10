@@ -30,6 +30,7 @@ export type PurseInfo = {
   brandPetname?: Petname;
   pursePetname?: Petname;
   displayInfo?: DisplayInfo;
+  denom?: string;
 };
 
 type GiveOrWantEntries = {

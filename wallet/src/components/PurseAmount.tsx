@@ -3,9 +3,10 @@ import PurseValue from './PurseValue';
 import BrandIcon from './BrandIcon';
 
 import type { AdditionalDisplayInfo } from '@agoric/ertp/src/types';
+import type { Petname as PetnameType } from '@agoric/smart-wallet/src/types';
 
 interface Props {
-  brandPetname: string;
+  brandPetname: PetnameType;
   pursePetname: string;
   value: any;
   displayInfo: AdditionalDisplayInfo;
