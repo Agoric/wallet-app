@@ -15,7 +15,7 @@ import ArrowDownward from '@mui/icons-material/ArrowDownward';
 import { Box } from '@mui/system';
 import { fromBech32 } from '@cosmjs/encoding';
 import { queryBankBalances } from '../util/queryBankBalances';
-import { assertIsDeliverTxSuccess } from '@cosmjs/stargate';
+import { isDeliverTxSuccess } from '@cosmjs/stargate';
 import { CircularProgress, Link, Snackbar, Typography } from '@mui/material';
 import PetnameSpan from './PetnameSpan';
 import { sendIbcTokens, withdrawIbcTokens } from '../util/ibcTransfer';
@@ -273,12 +273,11 @@ export const IbcTransferInternal = ({
         );
 
         close();
-        try {
-          assertIsDeliverTxSuccess(res);
-          showSnackbar(true, explorerPath, res.transactionHash);
-        } catch {
-          showSnackbar(false, explorerPath, res.transactionHash);
-        }
+        showSnackbar(
+          isDeliverTxSuccess(res),
+          explorerPath,
+          res.transactionHash,
+        );
       } else if (direction === IbcDirection.Withdrawal) {
         const { withdraw } = ibcAsset;
 
@@ -290,12 +289,11 @@ export const IbcTransferInternal = ({
         );
 
         close();
-        try {
-          assertIsDeliverTxSuccess(res);
-          showSnackbar(true, agoricExplorerPath, res.transactionHash);
-        } catch {
-          showSnackbar(false, agoricExplorerPath, res.transactionHash);
-        }
+        showSnackbar(
+          isDeliverTxSuccess(res),
+          agoricExplorerPath,
+          res.transactionHash,
+        );
       } else {
         throw new Error('Unrecognized IBC transfer direction', direction);
       }
