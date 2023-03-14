@@ -35,6 +35,7 @@ const unmodifiableAddressStyle = {
   },
   '& input.Mui-disabled': {
     color: 'rgba(0,0,0,0.86)',
+    '-webkit-text-fill-color': 'inherit',
   },
 };
 
