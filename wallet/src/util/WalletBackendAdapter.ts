@@ -31,6 +31,7 @@ import type { ValueFollowerElement } from '@agoric/casting/src/types';
 import { queryBankBalances } from './queryBankBalances';
 import type { Coin } from '@cosmjs/stargate';
 import type { PurseInfo } from '../service/Offers';
+import { wellKnownPetnames } from './well-known-petnames';
 
 const newId = kind => `${kind}${Math.random()}`;
 const POLL_INTERVAL_MS = 6000;
@@ -244,12 +245,13 @@ export const makeWalletBridgeFromFollowers = (
         // have any. This way it will show up on their asset list with the
         // deposit action available.
         const amount = bankMap.get(denom) ?? 0n;
+        const petname = wellKnownPetnames[info.issuerName] ?? info.issuerName;
 
         const purseInfo: PurseInfo = {
           brand: info.brand,
           currentAmount: AmountMath.make(info.brand, BigInt(amount)),
-          brandPetname: info.issuerName,
-          pursePetname: info.issuerName,
+          brandPetname: petname,
+          pursePetname: petname,
           displayInfo: info.displayInfo,
           denom,
         };

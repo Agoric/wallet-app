@@ -11,16 +11,28 @@ import ErrorBoundary from './ErrorBoundary';
 import Loading from './Loading';
 import { ibcAssets } from '../util/ibc-assets';
 import type { PurseInfo } from '../service/Offers';
+import type { KeplrUtils } from '../contexts/Provider';
 
 import './Purses.scss';
+import { agoricChainId } from '../util/ibcTransfer';
 
 interface TransferPurse {
   purse?: PurseInfo;
   direction?: IbcDirection;
 }
 
+interface Props {
+  purses: PurseInfo[] | null;
+  previewEnabled: boolean;
+  keplrConnection: KeplrUtils | null;
+}
+
 // Exported for testing only.
-export const PursesWithoutContext = ({ purses }: any) => {
+export const PursesWithoutContext = ({
+  purses,
+  previewEnabled,
+  keplrConnection,
+}: Props) => {
   const [transferPurse, setTransferPurse] = useState<TransferPurse>({});
 
   const handleClickDeposit = purse => {
@@ -36,6 +48,10 @@ export const PursesWithoutContext = ({ purses }: any) => {
   };
 
   const Purse = purse => {
+    const shouldShowIbcTransferButtons =
+      (keplrConnection?.chainId === agoricChainId || previewEnabled) &&
+      ibcAssets[purse.brandPetname];
+
     return (
       <CardItem key={purse.id}>
         <div className="Left">
@@ -48,7 +64,7 @@ export const PursesWithoutContext = ({ purses }: any) => {
             />
           </ErrorBoundary>
         </div>
-        {ibcAssets[purse.brandPetname] && (
+        {shouldShowIbcTransferButtons && (
           <div className="Right">
             <Button
               variant="outlined"
@@ -96,7 +112,7 @@ export const PursesWithoutContext = ({ purses }: any) => {
       </Card>
       <IbcTransfer
         purse={transferPurse.purse}
-        direction={transferPurse.direction}
+        direction={transferPurse.direction ?? IbcDirection.Deposit}
         handleClose={handleClose}
       />
     </div>
@@ -105,4 +121,5 @@ export const PursesWithoutContext = ({ purses }: any) => {
 
 export default withApplicationContext(PursesWithoutContext, context => ({
   purses: context.purses,
+  previewEnabled: context.previewEnabled,
 }));

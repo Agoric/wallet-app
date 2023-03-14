@@ -91,7 +91,11 @@ test('renders the purse amounts', () => {
 test('renders a loading indicator when purses is null', () => {
   const component = mount(
     <ThemeProvider theme={appTheme}>
-      <PursesWithoutContext />
+      <PursesWithoutContext
+        previewEnabled={false}
+        purses={null}
+        keplrConnection={null}
+      />
     </ThemeProvider>,
   );
 

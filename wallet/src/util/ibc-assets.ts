@@ -4,38 +4,37 @@ type ChainInfo = {
   rpc: string;
   addressPrefix: string;
   explorerPath: string;
+  gas: string;
 };
 
-type AssetInfo = {
+export type AssetInfo = {
   sourcePort: string;
   sourceChannel: string;
   denom: string;
-  gas?: string;
 };
 
-type IbcAssets = Record<
-  string,
-  {
-    chainInfo: ChainInfo;
-    deposit: AssetInfo;
-    withdraw: AssetInfo;
-  }
->;
+export type IbcAsset = {
+  chainInfo: ChainInfo;
+  deposit: AssetInfo;
+  withdraw: AssetInfo;
+};
+
+type IbcAssets = Record<string, IbcAsset>;
 
 export const ibcAssets: IbcAssets = {
-  IbcATOM: {
+  ATOM: {
     chainInfo: {
       chainName: 'Cosmos Hub',
       chainId: 'cosmoshub-4',
       rpc: 'https://cosmoshub-rpc.stakely.io/',
       addressPrefix: 'cosmos',
       explorerPath: 'cosmos',
+      gas: '100000',
     },
     deposit: {
       sourcePort: 'transfer',
       sourceChannel: 'channel-405',
       denom: 'uatom',
-      gas: '100000',
     },
     withdraw: {
       sourcePort: 'transfer',

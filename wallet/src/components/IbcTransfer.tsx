@@ -9,22 +9,34 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { parseAsValue } from '@agoric/ui-components';
 import { withApplicationContext } from '../contexts/Application';
-import Petname from './Petname';
 import { ibcAssets } from '../util/ibc-assets';
 import { stringifyPurseValue } from '@agoric/ui-components';
 import ArrowDownward from '@mui/icons-material/ArrowDownward';
 import { Box } from '@mui/system';
 import { fromBech32 } from '@cosmjs/encoding';
 import { queryBankBalances } from '../util/queryBankBalances';
+import { assertIsDeliverTxSuccess } from '@cosmjs/stargate';
+import { CircularProgress, Link, Snackbar, Typography } from '@mui/material';
+import Petname from './Petname';
 import type { PurseInfo } from '../service/Offers';
 import type { KeplrUtils } from '../contexts/Provider';
-import { SigningStargateClient } from '@cosmjs/stargate';
-import { CircularProgress, Link, Snackbar, Typography } from '@mui/material';
+import type { Petname as PetnameType } from '@agoric/smart-wallet/src/types';
+import { sendIbcTokens, withdrawIbcTokens } from '../util/ibcTransfer';
 
 export enum IbcDirection {
   Deposit,
   Withdrawal,
 }
+
+const unmodifiableAddressStyle = {
+  width: 420,
+  '& .Mui-disabled': {
+    color: 'rgba(0,0,0,0.6)',
+  },
+  '& input.Mui-disabled': {
+    color: 'rgba(0,0,0,0.86)',
+  },
+};
 
 const titlePreposition = {
   [IbcDirection.Deposit]: 'from',
@@ -48,13 +60,81 @@ interface Params {
   keplrConnection: KeplrUtils;
 }
 
-const secondsUntilTimeout = 300;
+const agoricExplorerPath = 'agoric';
 
-const timeoutTimestampSeconds = () =>
-  Math.round(Date.now() / 1000) + secondsUntilTimeout;
+const useRemoteChainAccount = (brandPetname?: PetnameType) => {
+  const ibcAsset =
+    typeof brandPetname === 'string' ? ibcAssets[brandPetname] : undefined;
 
-const agoricChainId = 'agoric-3';
-const agoricRpc = 'https://agoric-rpc.stakely.io/';
+  const [remoteChainAddress, setRemoteChainAddress] = useState('');
+  const [remoteChainSigner, setRemoteChainSigner] = useState(null);
+  const [remoteChainBalance, setRemoteChainBalance] = useState<bigint | null>(
+    null,
+  );
+
+  const connectWithKeplr = async () => {
+    assert(ibcAsset);
+    // @ts-expect-error window keys
+    const { keplr } = window;
+    const offlineSigner = await keplr.getOfflineSignerOnlyAmino(
+      ibcAsset.chainInfo.chainId,
+    );
+    const accounts = await offlineSigner.getAccounts();
+    setRemoteChainAddress(accounts[0].address);
+    setRemoteChainSigner(offlineSigner);
+  };
+
+  const isRemoteChainAddressInvalid = useMemo(() => {
+    if (!remoteChainAddress) return true;
+
+    try {
+      const { prefix } = fromBech32(remoteChainAddress);
+      return prefix !== ibcAsset?.chainInfo.addressPrefix;
+    } catch {
+      return true;
+    }
+  }, [remoteChainAddress, ibcAsset]);
+
+  useEffect(() => {
+    setRemoteChainBalance(null);
+    if (isRemoteChainAddressInvalid || !ibcAsset) return;
+
+    let isCancelled = false;
+
+    const loadRemoteChainBalance = async () => {
+      const balances = await queryBankBalances(
+        remoteChainAddress,
+        /* @ts-expect-error rpc string */
+        ibcAsset.chainInfo.rpc,
+      );
+      if (isCancelled) return;
+
+      const balance = balances.find(
+        ({ denom }) => denom === ibcAsset.deposit.denom,
+      );
+
+      setRemoteChainBalance(balance ? BigInt(balance.amount) : 0n);
+    };
+
+    void loadRemoteChainBalance();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [remoteChainAddress, isRemoteChainAddressInvalid, ibcAsset]);
+
+  return {
+    remoteChainBalance,
+    isRemoteChainAddressInvalid,
+    connectWithKeplr,
+    remoteChainAddress,
+    remoteChainSigner,
+    setRemoteChainAddress: (address: string) => {
+      setRemoteChainAddress(address);
+      setRemoteChainSigner(null);
+    },
+  };
+};
 
 // Exported for testing only.
 export const IbcTransferInternal = ({
@@ -73,74 +153,45 @@ export const IbcTransferInternal = ({
   const [inProgress, setInProgress] = useState(false);
   const [error, setError] = useState('');
   const [amount, setAmount] = useState('');
-  const [remoteChainAddress, setRemoteChainAddress] = useState('');
-  const [remoteChainBalance, setRemoteChainBalance] = useState<bigint | null>(
-    null,
-  );
-  const [remoteChainSigner, setRemoteChainSigner] = useState(null);
-
   const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
+
   const handleCloseSnackbar = _ => {
     setIsSnackbarOpen(false);
   };
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const showSnackbar = msg => {
-    setSnackbarMessage(msg);
+
+  const [snackbarMessage, setSnackbarMessage] = useState(<></>);
+
+  const showSnackbar = (
+    isSuccess: boolean,
+    explorerPath: string,
+    transactionHash: string,
+  ) => {
+    setSnackbarMessage(
+      <>
+        Transaction {isSuccess ? 'succeeded' : 'failed'}:{' '}
+        <Link
+          color="rgb(0, 176, 255)"
+          href={`https://bigdipper.live/${explorerPath}/transactions/${transactionHash}`}
+          target={transactionHash}
+        >
+          ...{transactionHash.slice(transactionHash.length - 12)}
+        </Link>
+      </>,
+    );
     setIsSnackbarOpen(true);
   };
 
-  const isRemoteChainAddressInvalid = useMemo(() => {
-    if (!remoteChainAddress) return true;
-
-    try {
-      const { prefix } = fromBech32(remoteChainAddress);
-      return prefix !== ibcAsset?.chainInfo.addressPrefix;
-    } catch (e) {
-      return true;
-    }
-  }, [remoteChainAddress, ibcAsset]);
-
-  useEffect(() => {
-    setRemoteChainBalance(null);
-    if (isRemoteChainAddressInvalid || !ibcAsset) return;
-
-    let isCancelled = false;
-
-    const doQuery = async () => {
-      const balances = await queryBankBalances(
-        remoteChainAddress,
-        /* @ts-expect-error rpc string */
-        ibcAsset.chainInfo.rpc,
-      );
-      if (isCancelled) return;
-
-      const balance = balances.find(
-        ({ denom }) => denom === ibcAsset.deposit.denom,
-      );
-      setRemoteChainBalance(balance ? BigInt(balance.amount) : 0n);
-    };
-
-    void doQuery();
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [remoteChainAddress, isRemoteChainAddressInvalid, ibcAsset]);
+  const {
+    connectWithKeplr,
+    setRemoteChainAddress,
+    isRemoteChainAddressInvalid,
+    remoteChainBalance,
+    remoteChainAddress,
+    remoteChainSigner,
+  } = useRemoteChainAccount(purse?.brandPetname);
 
   const handleAmountChange = e => {
     setAmount(e.target.value);
-  };
-
-  const fillFromKeplr = async () => {
-    assert(ibcAsset);
-    // @ts-expect-error window keys
-    const { keplr } = window;
-    const offlineSigner = await keplr.getOfflineSignerOnlyAmino(
-      ibcAsset.chainInfo.chainId,
-    );
-    const accounts = await offlineSigner.getAccounts();
-    setRemoteChainAddress(accounts[0].address);
-    setRemoteChainSigner(offlineSigner);
   };
 
   const isAmountInvalid = useMemo(() => {
@@ -171,18 +222,19 @@ export const IbcTransferInternal = ({
   }, [amount, purse, purseBalance]);
 
   const close = () => {
+    setInProgress(false);
+    setError('');
     setAmount('');
     setRemoteChainAddress('');
-    setRemoteChainSigner(null);
-    setError('');
     handleClose();
   };
 
   const send = async () => {
     setError('');
 
-    let val;
+    let val: string;
     try {
+      assert(ibcAsset);
       val = String(
         parseAsValue(
           amount,
@@ -192,120 +244,73 @@ export const IbcTransferInternal = ({
       );
     } catch (e) {
       setError(String(e));
+      return;
     }
 
-    assert(ibcAsset);
+    setInProgress(true);
+    try {
+      if (direction === IbcDirection.Deposit) {
+        assert(remoteChainSigner && keplrConnection);
+        const {
+          chainInfo: { rpc, gas, explorerPath },
+          deposit,
+        } = ibcAsset;
 
-    if (direction === IbcDirection.Deposit) {
-      assert(remoteChainSigner && keplrConnection);
-      const { chainInfo, deposit } = ibcAsset;
-      const { sourceChannel, sourcePort, denom, gas } = deposit;
-      assert(gas);
-
-      setInProgress(true);
-      const signer = await SigningStargateClient.connectWithSigner(
-        chainInfo.rpc,
-        remoteChainSigner,
-      );
-      try {
-        const res = await signer.sendIbcTokens(
+        const res = await sendIbcTokens(
+          deposit,
+          rpc,
+          remoteChainSigner,
+          val,
           remoteChainAddress,
           keplrConnection.address,
-          {
-            amount: val,
-            denom: denom,
-          },
-          sourcePort,
-          sourceChannel,
-          undefined,
-          timeoutTimestampSeconds(),
-          {
-            amount: [{ amount: '0', denom }],
-            gas,
-          },
+          gas,
         );
+
         close();
-        showSnackbar(
-          <>
-            Successfully executed transaction{' '}
-            <Link
-              color="rgb(0, 176, 255)"
-              href={`https://bigdipper.live/${chainInfo.explorerPath}/transactions/${res.transactionHash}`}
-              target={res.transactionHash}
-            >
-              ...{res.transactionHash.slice(res.transactionHash.length - 12)}
-            </Link>
-          </>,
-        );
-      } catch (e) {
-        setError(String(e));
-      } finally {
-        setInProgress(false);
-      }
-    } else {
-      /* Is Withdrawal */
-      setInProgress(true);
-      const {
-        withdraw: { denom, sourceChannel, sourcePort },
-      } = ibcAsset;
+        try {
+          assertIsDeliverTxSuccess(res);
+          showSnackbar(true, explorerPath, res.transactionHash);
+        } catch {
+          showSnackbar(false, explorerPath, res.transactionHash);
+        }
+      } else {
+        // Is withdrawal.
+        const { withdraw } = ibcAsset;
 
-      // @ts-expect-error window keys
-      const { keplr } = window;
-      const offlineSigner = await keplr.getOfflineSignerOnlyAmino(
-        agoricChainId,
-      );
-      const client = await SigningStargateClient.connectWithSigner(
-        agoricRpc,
-        offlineSigner,
-      );
-
-      try {
-        const res = await client.sendIbcTokens(
+        const res = await withdrawIbcTokens(
+          withdraw,
+          val,
           keplrConnection.address,
           remoteChainAddress,
-          {
-            amount: val,
-            denom,
-          },
-          sourcePort,
-          sourceChannel,
-          undefined,
-          timeoutTimestampSeconds(),
-          {
-            amount: [{ amount: '0', denom: 'uist' }],
-            gas: '300000',
-          },
         );
+
         close();
-        showSnackbar(
-          <>
-            Successfully executed transaction{' '}
-            <Link
-              color="rgb(0, 176, 255)"
-              href={`https://bigdipper.live/agoric/transactions/${res.transactionHash}`}
-              target={res.transactionHash}
-            >
-              ...{res.transactionHash.slice(res.transactionHash.length - 12)}
-            </Link>
-          </>,
-        );
-      } catch (e) {
-        console.log('error', e);
-        setError(String(e));
-      } finally {
-        setInProgress(false);
+        try {
+          assertIsDeliverTxSuccess(res);
+          showSnackbar(true, agoricExplorerPath, res.transactionHash);
+        } catch {
+          showSnackbar(false, agoricExplorerPath, res.transactionHash);
+        }
       }
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setInProgress(false);
     }
   };
 
   const agoricAddressInfo = (
     <TextField
-      sx={{ width: 420, marginBottom: 2 }}
+      sx={{
+        marginBottom: 2,
+        ...unmodifiableAddressStyle,
+      }}
       margin="dense"
       label={agoricAddressLabel[direction]}
       fullWidth
       variant="standard"
       value={keplrConnection?.address}
+      disabled
       helperText={
         <>
           Balance Available:{' '}
@@ -322,12 +327,13 @@ export const IbcTransferInternal = ({
 
   const remoteChainAddressInfo = remoteChainSigner ? (
     <TextField
-      sx={{ width: 420 }}
+      sx={unmodifiableAddressStyle}
       margin="dense"
       label={remoteChainAddressLabel[direction]}
       fullWidth
       variant="standard"
       value={remoteChainAddress}
+      disabled
       helperText={
         remoteChainBalance !== null ? (
           <>
@@ -346,7 +352,7 @@ export const IbcTransferInternal = ({
     />
   ) : (
     <Box sx={{ marginY: 3 }}>
-      <Button onClick={() => fillFromKeplr()} variant="contained">
+      <Button onClick={() => connectWithKeplr()} variant="contained">
         Connect With Keplr
       </Button>
     </Box>
@@ -394,7 +400,7 @@ export const IbcTransferInternal = ({
         autoComplete: 'off',
         endAdornment: isRemoteChainAddressInvalid && (
           <InputAdornment position="end">
-            <Button size="small" onClick={() => fillFromKeplr()}>
+            <Button size="small" onClick={() => connectWithKeplr()}>
               Use Keplr
             </Button>
           </InputAdornment>
