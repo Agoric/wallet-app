@@ -15,7 +15,7 @@ import {
   Collapse,
 } from '@mui/material';
 import { useState, useEffect, useRef } from 'react';
-import Petname from './Petname';
+import PetnameSpan from './PetnameSpan';
 import { stringify } from '../util/marshal';
 
 const Item = ({ showDivider, children }) => {
@@ -201,7 +201,7 @@ const PurseValue = ({ value, displayInfo, brandPetname }) => {
         value,
         displayInfo,
       })}{' '}
-      <Petname name={brandPetname} />
+      <PetnameSpan name={brandPetname} />
     </>
   );
 

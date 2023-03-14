@@ -4,7 +4,7 @@ import Link from '@mui/material/Link';
 import Box from '@mui/material/Box';
 import { Nat } from '@agoric/nat';
 import { stringifyPurseValue } from '@agoric/ui-components';
-import Petname from './Petname';
+import PetnameSpan from './PetnameSpan';
 import PurseValue from './PurseValue';
 import { formatDateNow } from '../util/Date';
 import { withApplicationContext } from '../contexts/Application';
@@ -36,7 +36,7 @@ const OfferEntryFromTemplate = (
             displayInfo={purse.displayInfo}
             brandPetname={purse.brandPetname}
           />
-          {type.move} <Petname name={purse.pursePetname} />
+          {type.move} <PetnameSpan name={purse.pursePetname} />
         </div>
       </div>
     </div>
@@ -59,7 +59,7 @@ const OfferEntryFromDisplayInfo = (type, [role, { amount, pursePetname }]) => {
             displayInfo={amount.displayInfo}
             brandPetname={amount.brand.petname}
           />
-          {type.move} <Petname name={pursePetname} />
+          {type.move} <PetnameSpan name={pursePetname} />
         </div>
       </div>
     </div>
@@ -226,9 +226,9 @@ const Proposal = ({ offer, purses, swingsetParams, beansOwing }) => {
               value: fee.value,
               displayInfo: fee.displayInfo,
             })}{' '}
-            <Petname name={fee.brand.petname} />
+            <PetnameSpan name={fee.brand.petname} />
           </div>
-          from <Petname name={feePursePetname} />
+          from <PetnameSpan name={feePursePetname} />
         </div>
       </div>
     </div>

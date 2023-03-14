@@ -17,11 +17,11 @@ import { fromBech32 } from '@cosmjs/encoding';
 import { queryBankBalances } from '../util/queryBankBalances';
 import { assertIsDeliverTxSuccess } from '@cosmjs/stargate';
 import { CircularProgress, Link, Snackbar, Typography } from '@mui/material';
-import Petname from './Petname';
+import PetnameSpan from './PetnameSpan';
+import { sendIbcTokens, withdrawIbcTokens } from '../util/ibcTransfer';
 import type { PurseInfo } from '../service/Offers';
 import type { KeplrUtils } from '../contexts/Provider';
-import type { Petname as PetnameType } from '@agoric/smart-wallet/src/types';
-import { sendIbcTokens, withdrawIbcTokens } from '../util/ibcTransfer';
+import type { Petname } from '@agoric/smart-wallet/src/types';
 
 export enum IbcDirection {
   Deposit,
@@ -63,7 +63,7 @@ interface Params {
 
 const agoricExplorerPath = 'agoric';
 
-const useRemoteChainAccount = (brandPetname?: PetnameType) => {
+const useRemoteChainAccount = (brandPetname?: Petname) => {
   const ibcAsset =
     typeof brandPetname === 'string' ? ibcAssets[brandPetname] : undefined;
 
@@ -452,7 +452,7 @@ export const IbcTransferInternal = ({
                 autoComplete: 'off',
                 endAdornment: (
                   <InputAdornment position="end">
-                    <Petname name={purse?.brandPetname} />
+                    <PetnameSpan name={purse?.brandPetname} />
                   </InputAdornment>
                 ),
               }}

@@ -3,7 +3,7 @@ import { wellKnownPetnames } from '../util/well-known-petnames';
 
 import './Petname.scss';
 
-const Petname = ({ name, plural = false, color = true }) => {
+const PetnameSpan = ({ name, plural = false, color = true }) => {
   if (Array.isArray(name)) {
     return (
       <span>
@@ -24,4 +24,4 @@ const Petname = ({ name, plural = false, color = true }) => {
   );
 };
 
-export default Petname;
+export default PetnameSpan;
