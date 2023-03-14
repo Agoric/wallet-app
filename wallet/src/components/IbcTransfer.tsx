@@ -80,7 +80,12 @@ const useRemoteChainAccount = (brandPetname?: Petname) => {
     const offlineSigner = await keplr.getOfflineSignerOnlyAmino(
       ibcAsset.chainInfo.chainId,
     );
+
     const accounts = await offlineSigner.getAccounts();
+    if (accounts.length > 1) {
+      // Currently, Keplr extension manages only one address/public key pair.
+      console.warn('Got multiple accounts from Keplr. Using first of list.');
+    }
     setRemoteChainAddress(accounts[0].address);
     setRemoteChainSigner(offlineSigner);
   };
