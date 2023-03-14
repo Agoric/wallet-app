@@ -58,20 +58,12 @@ const purses = [
   },
 ];
 
-const pendingTransfers = new Set([0]);
-
 const withApplicationContext =
   (Component, _) =>
   ({ ...props }) => {
     // Test the preview features
     props.previewEnabled = true;
-    return (
-      <Component
-        purses={purses}
-        pendingTransfers={pendingTransfers}
-        {...props}
-      />
-    );
+    return <Component purses={purses} {...props} />;
   };
 
 jest.mock('../../contexts/Application', () => {
@@ -96,17 +88,6 @@ test('renders the purse amounts', () => {
   expect(component.find(PurseAmount)).toHaveLength(2);
 });
 
-test('renders a loading indicator over pending transfers', () => {
-  const component = mount(
-    <ThemeProvider theme={appTheme}>
-      <Purses />
-    </ThemeProvider>,
-  );
-
-  expect(component.find(CircularProgress)).toHaveLength(1);
-  expect(component.find(Button)).toHaveLength(1);
-});
-
 test('renders a loading indicator when purses is null', () => {
   const component = mount(
     <ThemeProvider theme={appTheme}>
@@ -116,19 +97,4 @@ test('renders a loading indicator when purses is null', () => {
 
   expect(component.find(Loading)).toHaveLength(1);
   expect(component.find(Button)).toHaveLength(0);
-});
-
-test('opens the transfer dialog when the button is clicked', async () => {
-  const component = mount(
-    <ThemeProvider theme={appTheme}>
-      <Purses />
-    </ThemeProvider>,
-  );
-
-  const firstSendButton = component.find(Button).get(0);
-  await act(async () => firstSendButton.props.onClick());
-  component.update();
-
-  const transfer = component.find(Transfer);
-  expect(transfer.props().purse).toEqual(purses[1]);
 });
