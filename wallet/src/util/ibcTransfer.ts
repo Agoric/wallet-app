@@ -29,7 +29,7 @@ export const sendIbcTokens = async (
     to,
     {
       amount,
-      denom: denom,
+      denom,
     },
     sourcePort,
     sourceChannel,
