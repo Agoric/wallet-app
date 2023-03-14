@@ -90,20 +90,20 @@ const useRemoteChainAccount = (brandPetname?: Petname) => {
     setRemoteChainSigner(offlineSigner);
   };
 
-  const isRemoteChainAddressInvalid = useMemo(() => {
-    if (!remoteChainAddress) return true;
+  const isRemoteChainAddressValid = useMemo(() => {
+    if (!remoteChainAddress) return false;
 
     try {
       const { prefix } = fromBech32(remoteChainAddress);
-      return prefix !== ibcAsset?.chainInfo.addressPrefix;
+      return prefix === ibcAsset?.chainInfo.addressPrefix;
     } catch {
-      return true;
+      return false;
     }
   }, [remoteChainAddress, ibcAsset]);
 
   useEffect(() => {
     setRemoteChainBalance(null);
-    if (isRemoteChainAddressInvalid || !ibcAsset) return;
+    if (!isRemoteChainAddressValid || !ibcAsset) return;
 
     let isCancelled = false;
 
@@ -127,11 +127,11 @@ const useRemoteChainAccount = (brandPetname?: Petname) => {
     return () => {
       isCancelled = true;
     };
-  }, [remoteChainAddress, isRemoteChainAddressInvalid, ibcAsset]);
+  }, [remoteChainAddress, isRemoteChainAddressValid, ibcAsset]);
 
   return {
     remoteChainBalance,
-    isRemoteChainAddressInvalid,
+    isRemoteChainAddressValid,
     connectWithKeplr,
     remoteChainAddress,
     remoteChainSigner,
@@ -190,7 +190,7 @@ export const IbcTransferInternal = ({
   const {
     connectWithKeplr,
     setRemoteChainAddress,
-    isRemoteChainAddressInvalid,
+    isRemoteChainAddressValid,
     remoteChainBalance,
     remoteChainAddress,
     remoteChainSigner,
@@ -279,8 +279,7 @@ export const IbcTransferInternal = ({
         } catch {
           showSnackbar(false, explorerPath, res.transactionHash);
         }
-      } else {
-        // Is withdrawal.
+      } else if (direction === IbcDirection.Withdrawal) {
         const { withdraw } = ibcAsset;
 
         const res = await withdrawIbcTokens(
@@ -297,6 +296,8 @@ export const IbcTransferInternal = ({
         } catch {
           showSnackbar(false, agoricExplorerPath, res.transactionHash);
         }
+      } else {
+        throw new Error('Unrecognized IBC transfer direction', direction);
       }
     } catch (e) {
       setError(String(e));
@@ -383,28 +384,30 @@ export const IbcTransferInternal = ({
       value={remoteChainAddress}
       onChange={e => setRemoteChainAddress(e.target.value)}
       disabled={direction === IbcDirection.Deposit}
-      error={!!isRemoteChainAddressInvalid}
+      error={!isRemoteChainAddressValid}
       helperText={
-        isRemoteChainAddressInvalid ? (
-          'Invalid Address'
-        ) : remoteChainBalance !== null ? (
-          <>
-            Balance Available:{' '}
-            {purse?.currentAmount &&
-              purse?.displayInfo &&
-              stringifyPurseValue({
-                value: remoteChainBalance,
-                displayInfo: purse?.displayInfo,
-              })}
-          </>
+        isRemoteChainAddressValid ? (
+          remoteChainBalance !== null ? (
+            <>
+              Balance Available:{' '}
+              {purse?.currentAmount &&
+                purse?.displayInfo &&
+                stringifyPurseValue({
+                  value: remoteChainBalance,
+                  displayInfo: purse?.displayInfo,
+                })}
+            </>
+          ) : (
+            'Fetching balance...'
+          )
         ) : (
-          'Fetching balance...'
+          'Invalid Address'
         )
       }
       InputProps={{
         type: 'text',
         autoComplete: 'off',
-        endAdornment: isRemoteChainAddressInvalid && (
+        endAdornment: !isRemoteChainAddressValid && (
           <InputAdornment position="end">
             <Button size="small" onClick={() => connectWithKeplr()}>
               Use Keplr
@@ -480,7 +483,7 @@ export const IbcTransferInternal = ({
               </Button>
               <Button
                 onClick={send}
-                disabled={isAmountInvalid || isRemoteChainAddressInvalid}
+                disabled={isAmountInvalid || !isRemoteChainAddressValid}
               >
                 Send
               </Button>
