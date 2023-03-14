@@ -48,6 +48,10 @@ export const PursesWithoutContext = ({
   };
 
   const Purse = purse => {
+    // Only enable IBC transfer when connected to mainnet since it only makes
+    // transactions on mainnet. Otherwise, you can force it to appear by
+    // typing setPreviewEnabled(true) in the console, but be cautious when
+    // signing transactions!
     const shouldShowIbcTransferButtons =
       (keplrConnection?.chainId === agoricChainId || previewEnabled) &&
       ibcAssets[purse.brandPetname];

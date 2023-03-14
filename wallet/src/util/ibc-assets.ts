@@ -39,6 +39,7 @@ export const ibcAssets: IbcAssets = {
     withdraw: {
       sourcePort: 'transfer',
       sourceChannel: 'channel-5',
+      // XXX This will be redundant once `agoricNames.vbankAssets` is published.
       denom:
         'ibc/BA313C4A19DFBF943586C0387E6B11286F9E416B4DD27574E6909CABE0E342FA',
     },
