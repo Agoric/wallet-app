@@ -1,33 +1,61 @@
 import { useState } from 'react';
-import { CircularProgress } from '@mui/material';
+import ArrowDownward from '@mui/icons-material/ArrowDownward';
+import ArrowUpward from '@mui/icons-material/ArrowUpward';
 import Button from '@mui/material/Button';
-import Transfer from './Transfer';
+import IbcTransfer, { IbcDirection } from './IbcTransfer';
 import PurseAmount from './PurseAmount';
 import { withApplicationContext } from '../contexts/Application';
 import CardItem from './CardItem';
 import Card from './Card';
 import ErrorBoundary from './ErrorBoundary';
 import Loading from './Loading';
+import { ibcAssets } from '../util/ibc-assets';
+import type { PurseInfo } from '../service/Offers';
+import type { KeplrUtils } from '../contexts/Provider';
 
 import './Purses.scss';
+import { agoricChainId } from '../util/ibcTransfer';
+
+interface TransferPurse {
+  purse?: PurseInfo;
+  direction?: IbcDirection;
+}
+
+interface Props {
+  purses: PurseInfo[] | null;
+  previewEnabled: boolean;
+  keplrConnection: KeplrUtils | null;
+}
 
 // Exported for testing only.
 export const PursesWithoutContext = ({
   purses,
-  pendingTransfers,
   previewEnabled,
-}: any) => {
-  const [openPurse, setOpenPurse] = useState(null);
+  keplrConnection,
+}: Props) => {
+  const [transferPurse, setTransferPurse] = useState<TransferPurse>({});
 
-  const handleClickOpen = purse => {
-    setOpenPurse(purse);
+  const handleClickDeposit = purse => {
+    setTransferPurse({ purse, direction: IbcDirection.Deposit });
+  };
+
+  const handleClickWithdraw = purse => {
+    setTransferPurse({ purse, direction: IbcDirection.Withdrawal });
   };
 
   const handleClose = () => {
-    setOpenPurse(null);
+    setTransferPurse({});
   };
 
   const Purse = purse => {
+    // Only enable IBC transfer when connected to mainnet since it only makes
+    // transactions on mainnet. Otherwise, you can force it to appear by
+    // typing setPreviewEnabled(true) in the console, but be cautious when
+    // signing transactions!
+    const shouldShowIbcTransferButtons =
+      (keplrConnection?.chainId === agoricChainId || previewEnabled) &&
+      ibcAssets[purse.brandPetname];
+
     return (
       <CardItem key={purse.id}>
         <div className="Left">
@@ -40,21 +68,24 @@ export const PursesWithoutContext = ({
             />
           </ErrorBoundary>
         </div>
-        {previewEnabled && (
+        {shouldShowIbcTransferButtons && (
           <div className="Right">
-            {pendingTransfers.has(purse.id) ? (
-              <div className="PurseProgressWrapper">
-                <CircularProgress size={30} />
-              </div>
-            ) : (
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={() => handleClickOpen(purse)}
-              >
-                Send
-              </Button>
-            )}
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => handleClickDeposit(purse)}
+            >
+              <ArrowDownward fontSize="small" />
+              Deposit
+            </Button>
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => handleClickWithdraw(purse)}
+            >
+              <ArrowUpward fontSize="small" />
+              Withdraw
+            </Button>
           </div>
         )}
       </CardItem>
@@ -83,13 +114,16 @@ export const PursesWithoutContext = ({
       <Card header="Purses" helptip={helptip}>
         {purseItems}
       </Card>
-      <Transfer purse={openPurse} handleClose={handleClose} />
+      <IbcTransfer
+        purse={transferPurse.purse}
+        direction={transferPurse.direction ?? IbcDirection.Deposit}
+        handleClose={handleClose}
+      />
     </div>
   );
 };
 
 export default withApplicationContext(PursesWithoutContext, context => ({
   purses: context.purses,
-  pendingTransfers: context.pendingTransfers,
   previewEnabled: context.previewEnabled,
 }));

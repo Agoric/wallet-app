@@ -4,7 +4,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import { useState } from 'react';
 import Request from './Request';
-import Petname from './Petname';
+import PetnameSpan from './PetnameSpan';
 import { formatDateNow } from '../util/Date';
 import { withApplicationContext } from '../contexts/Application';
 import ErrorBoundary from './ErrorBoundary';
@@ -143,7 +143,7 @@ const OfferWithoutContext = ({
       />
       <span className="Date text-gray">{formatDateNow(date)}</span>
       <div className="OfferOrigin" style={{ wordBreak: 'break-word' }}>
-        <Petname name={sourceDescription} />
+        <PetnameSpan name={sourceDescription} />
         <i> via </i>
         <span className="Blue">{dappOrigin || origin}</span>
       </div>

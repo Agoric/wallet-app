@@ -1,12 +1,14 @@
 import Box from '@mui/material/Box';
 import { icons, defaultIcon } from '../util/Icons';
+import type { Petname } from '@agoric/smart-wallet/src/types';
 
 interface Props {
-  brandPetname: string;
+  brandPetname: Petname;
 }
 
 const BrandIcon = ({ brandPetname }: Props) => {
-  const src = icons[brandPetname] ?? defaultIcon;
+  const src =
+    (typeof brandPetname === 'string' && icons[brandPetname]) || defaultIcon;
 
   const icon = src ? (
     <img alt="icon" src={src} height="32px" width="32px" />
