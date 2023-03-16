@@ -17,11 +17,14 @@ import { fromBech32 } from '@cosmjs/encoding';
 import { queryBankBalances } from '../util/queryBankBalances';
 import { isDeliverTxSuccess } from '@cosmjs/stargate';
 import { CircularProgress, Link, Snackbar, Typography } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
 import PetnameSpan from './PetnameSpan';
 import { sendIbcTokens, withdrawIbcTokens } from '../util/ibcTransfer';
 import type { PurseInfo } from '../service/Offers';
 import type { KeplrUtils } from '../contexts/Provider';
 import type { Petname } from '@agoric/smart-wallet/src/types';
+import * as React from 'react';
 
 export enum IbcDirection {
   Deposit,
@@ -32,10 +35,10 @@ const unmodifiableAddressStyle = {
   width: 420,
   '& .Mui-disabled': {
     color: 'rgba(0,0,0,0.6)',
+    '-webkit-text-fill-color': 'inherit',
   },
   '& input.Mui-disabled': {
     color: 'rgba(0,0,0,0.86)',
-    '-webkit-text-fill-color': 'inherit',
   },
 };
 
@@ -142,6 +145,47 @@ const useRemoteChainAccount = (brandPetname?: Petname) => {
   };
 };
 
+const useSnackbar = () => {
+  const [{ isSnackbarOpen, snackbarMessage }, setSnackbarState] = useState({
+    isSnackbarOpen: false,
+    snackbarMessage: <></>,
+  });
+
+  const handleCloseSnackbar = (
+    _event: React.SyntheticEvent | Event,
+    reason?: string,
+  ) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setSnackbarState(state => ({ ...state, isSnackbarOpen: false }));
+  };
+
+  const showSnackbar = (
+    isSuccess: boolean,
+    explorerPath: string,
+    transactionHash: string,
+  ) =>
+    setSnackbarState({
+      snackbarMessage: (
+        <>
+          Transaction {isSuccess ? 'succeeded' : 'failed'}:{' '}
+          <Link
+            color="rgb(0, 176, 255)"
+            href={`https://bigdipper.live/${explorerPath}/transactions/${transactionHash}`}
+            target={transactionHash}
+          >
+            ...{transactionHash.slice(transactionHash.length - 12)}
+          </Link>
+        </>
+      ),
+      isSnackbarOpen: true,
+    });
+
+  return { isSnackbarOpen, snackbarMessage, handleCloseSnackbar, showSnackbar };
+};
+
 // Exported for testing only.
 export const IbcTransferInternal = ({
   purse,
@@ -159,33 +203,8 @@ export const IbcTransferInternal = ({
   const [inProgress, setInProgress] = useState(false);
   const [error, setError] = useState('');
   const [amount, setAmount] = useState('');
-  const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
-
-  const handleCloseSnackbar = _ => {
-    setIsSnackbarOpen(false);
-  };
-
-  const [snackbarMessage, setSnackbarMessage] = useState(<></>);
-
-  const showSnackbar = (
-    isSuccess: boolean,
-    explorerPath: string,
-    transactionHash: string,
-  ) => {
-    setSnackbarMessage(
-      <>
-        Transaction {isSuccess ? 'succeeded' : 'failed'}:{' '}
-        <Link
-          color="rgb(0, 176, 255)"
-          href={`https://bigdipper.live/${explorerPath}/transactions/${transactionHash}`}
-          target={transactionHash}
-        >
-          ...{transactionHash.slice(transactionHash.length - 12)}
-        </Link>
-      </>,
-    );
-    setIsSnackbarOpen(true);
-  };
+  const { showSnackbar, handleCloseSnackbar, isSnackbarOpen, snackbarMessage } =
+    useSnackbar();
 
   const {
     connectWithKeplr,
@@ -494,6 +513,18 @@ export const IbcTransferInternal = ({
         anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
         onClose={handleCloseSnackbar}
         message={snackbarMessage}
+        action={
+          <React.Fragment>
+            <IconButton
+              size="small"
+              aria-label="close"
+              color="inherit"
+              onClick={handleCloseSnackbar}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          </React.Fragment>
+        }
       />
     </>
   );
