@@ -463,6 +463,7 @@ export const IbcTransferInternal = ({
         From
       </Typography>
       <Button
+        aria-disabled={isKeplrConnectionInProgress}
         onClick={() => isKeplrConnectionInProgress || connectWithKeplr()}
         variant="outlined"
         sx={{ marginTop: '10px', marginBottom: '12px' }}
@@ -470,6 +471,7 @@ export const IbcTransferInternal = ({
         Use Keplr{' '}
         {isKeplrConnectionInProgress && (
           <CircularProgress
+            aria-label="connection in progress"
             sx={{ marginLeft: 1 }}
             size="16px"
           ></CircularProgress>
