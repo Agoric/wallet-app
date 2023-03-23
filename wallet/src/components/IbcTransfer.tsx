@@ -34,11 +34,13 @@ export enum IbcDirection {
 const unmodifiableAddressStyle = {
   width: 420,
   '& .Mui-disabled': {
-    color: 'rgba(0,0,0,0.6)',
+    // XXX last resort to override internal component styles.
+    color: 'rgba(0,0,0,0.6) !important',
     '-webkit-text-fill-color': 'inherit',
   },
   '& input.Mui-disabled': {
-    color: 'rgba(0,0,0,0.86)',
+    // XXX last resort to override internal component styles.
+    color: 'rgba(0,0,0,0.86) !important',
   },
 };
 
@@ -57,7 +59,13 @@ const remoteChainAddressLabel = {
   [IbcDirection.Withdrawal]: 'To',
 };
 
+const actionName = {
+  [IbcDirection.Deposit]: 'Deposit',
+  [IbcDirection.Withdrawal]: 'Withdraw',
+};
+
 interface Params {
+  isShowing: boolean;
   purse?: PurseInfo;
   direction: IbcDirection;
   handleClose: () => void;
@@ -66,32 +74,100 @@ interface Params {
 
 const agoricExplorerPath = 'agoric';
 
-const useRemoteChainAccount = (brandPetname?: Petname) => {
-  const ibcAsset =
-    typeof brandPetname === 'string' ? ibcAssets[brandPetname] : undefined;
+const useRemoteChainAccount = (
+  direction: IbcDirection,
+  isShowing: boolean,
+  brandPetname?: Petname,
+) => {
+  const brandPetnameAsKey = Array.isArray(brandPetname)
+    ? brandPetname.join('.')
+    : brandPetname;
+  const ibcAsset = brandPetnameAsKey ? ibcAssets[brandPetnameAsKey] : undefined;
 
-  const [remoteChainAddress, setRemoteChainAddress] = useState('');
-  const [remoteChainSigner, setRemoteChainSigner] = useState(null);
-  const [remoteChainBalance, setRemoteChainBalance] = useState<bigint | null>(
-    null,
-  );
+  const [
+    brandsWithKeplrConnectionsInProgress,
+    setBrandsWithKeplrConnectionsInProgress,
+  ] = useState(new Set());
+  const isKeplrConnectionInProgress =
+    brandsWithKeplrConnectionsInProgress.has(brandPetnameAsKey);
+
+  const setBrandKeplrConnectionInProgress = (inProgress: boolean) => {
+    setBrandsWithKeplrConnectionsInProgress(brandKeys => {
+      if (inProgress) {
+        return new Set([...brandKeys, brandPetnameAsKey]);
+      }
+
+      return new Set([...brandKeys].filter(k => k !== brandPetnameAsKey));
+    });
+  };
+
+  const [remoteChainSigners, setRemoteChainSigners] = useState({});
+  const remoteChainSigner = brandPetnameAsKey
+    ? remoteChainSigners[brandPetnameAsKey] ?? null
+    : null;
+
+  const setRemoteChainSigner = signer =>
+    brandPetnameAsKey &&
+    setRemoteChainSigners(signers => ({
+      ...signers,
+      [brandPetnameAsKey]: signer,
+    }));
+
+  const [remoteChainAddresses, setRemoteChainAddresses] = useState({});
+  const remoteChainAddress = brandPetnameAsKey
+    ? remoteChainAddresses[brandPetnameAsKey] ?? ''
+    : '';
+
+  const setRemoteChainAddress = address =>
+    brandPetnameAsKey &&
+    setRemoteChainAddresses(addresses => ({
+      ...addresses,
+      [brandPetnameAsKey]: address,
+    }));
+
+  const [remoteChainBalances, setRemoteChainBalances] = useState({});
+  const remoteChainBalance = brandPetnameAsKey
+    ? remoteChainBalances[brandPetnameAsKey] ?? null
+    : null;
+
+  const setRemoteChainBalance = balance =>
+    brandPetnameAsKey &&
+    setRemoteChainBalances(balances => ({
+      ...balances,
+      [brandPetnameAsKey]: balance,
+    }));
 
   const connectWithKeplr = async () => {
-    assert(ibcAsset);
+    assert(ibcAsset && brandPetnameAsKey);
+    if (isKeplrConnectionInProgress) return;
+
     // @ts-expect-error window keys
     const { keplr } = window;
-    const offlineSigner = await keplr.getOfflineSignerOnlyAmino(
-      ibcAsset.chainInfo.chainId,
-    );
+    setBrandKeplrConnectionInProgress(true);
+    try {
+      const offlineSigner = await keplr.getOfflineSignerOnlyAmino(
+        ibcAsset.chainInfo.chainId,
+      );
 
-    const accounts = await offlineSigner.getAccounts();
-    if (accounts.length > 1) {
-      // Currently, Keplr extension manages only one address/public key pair.
-      console.warn('Got multiple accounts from Keplr. Using first of list.');
+      const accounts = await offlineSigner.getAccounts();
+      if (accounts.length > 1) {
+        // Currently, Keplr extension manages only one address/public key pair.
+        console.warn('Got multiple accounts from Keplr. Using first of list.');
+      }
+      setRemoteChainAddress(accounts[0].address);
+      setRemoteChainSigner(offlineSigner);
+    } catch (e) {
+      console.error('Keplr connection error', e);
+    } finally {
+      setBrandKeplrConnectionInProgress(false);
     }
-    setRemoteChainAddress(accounts[0].address);
-    setRemoteChainSigner(offlineSigner);
   };
+
+  useEffect(() => {
+    if (isShowing && brandPetname && direction === IbcDirection.Deposit) {
+      void connectWithKeplr();
+    }
+  }, [brandPetname, isShowing, direction]);
 
   const isRemoteChainAddressValid = useMemo(() => {
     if (!remoteChainAddress) return false;
@@ -138,9 +214,9 @@ const useRemoteChainAccount = (brandPetname?: Petname) => {
     connectWithKeplr,
     remoteChainAddress,
     remoteChainSigner,
+    isKeplrConnectionInProgress,
     setRemoteChainAddress: (address: string) => {
       setRemoteChainAddress(address);
-      setRemoteChainSigner(null);
     },
   };
 };
@@ -188,6 +264,7 @@ const useSnackbar = () => {
 
 // Exported for testing only.
 export const IbcTransferInternal = ({
+  isShowing,
   purse,
   handleClose,
   direction,
@@ -213,7 +290,8 @@ export const IbcTransferInternal = ({
     remoteChainBalance,
     remoteChainAddress,
     remoteChainSigner,
-  } = useRemoteChainAccount(purse?.brandPetname);
+    isKeplrConnectionInProgress,
+  } = useRemoteChainAccount(direction, isShowing, purse?.brandPetname);
 
   const handleAmountChange = e => {
     setAmount(e.target.value);
@@ -246,11 +324,16 @@ export const IbcTransferInternal = ({
     }
   }, [amount, purse, purseBalance]);
 
+  useEffect(() => {
+    if (isShowing) {
+      setInProgress(false);
+      setError('');
+      setAmount('');
+      setRemoteChainAddress('');
+    }
+  }, [isShowing]);
+
   const close = () => {
-    setInProgress(false);
-    setError('');
-    setAmount('');
-    setRemoteChainAddress('');
     handleClose();
   };
 
@@ -375,9 +458,25 @@ export const IbcTransferInternal = ({
       }
     />
   ) : (
-    <Box sx={{ marginY: 3 }}>
-      <Button onClick={() => connectWithKeplr()} variant="contained">
-        Connect With Keplr
+    <Box sx={{ marginTop: '6px' }}>
+      <Typography fontSize={12} sx={{ color: 'rgba(0,0,0,0.6)' }}>
+        From
+      </Typography>
+      <Button
+        // So we can keep the non-disabled styling.
+        aria-disabled={isKeplrConnectionInProgress}
+        onClick={() => isKeplrConnectionInProgress || connectWithKeplr()}
+        variant="outlined"
+        sx={{ marginTop: '10px', marginBottom: '12px' }}
+      >
+        Use Keplr{' '}
+        {isKeplrConnectionInProgress && (
+          <CircularProgress
+            aria-label="connection in progress"
+            sx={{ marginLeft: 1 }}
+            size="16px"
+          ></CircularProgress>
+        )}
       </Button>
     </Box>
   );
@@ -417,8 +516,10 @@ export const IbcTransferInternal = ({
           ) : (
             'Fetching balance...'
           )
-        ) : (
+        ) : remoteChainAddress ? (
           'Invalid Address'
+        ) : (
+          'Enter Address'
         )
       }
       InputProps={{
@@ -449,7 +550,7 @@ export const IbcTransferInternal = ({
 
   return (
     <>
-      <Dialog open={!!purse} onClose={close}>
+      <Dialog open={isShowing} onClose={close}>
         <DialogTitle>
           IBC Transfer {titlePreposition[direction]}{' '}
           {ibcAsset?.chainInfo.chainName}
@@ -467,7 +568,9 @@ export const IbcTransferInternal = ({
               value={amount}
               helperText={
                 !isAmountInputDisabled && isAmountInvalid
-                  ? 'Invalid amount'
+                  ? amount
+                    ? 'Invalid Amount'
+                    : 'Enter Amount'
                   : ''
               }
               onChange={handleAmountChange}
@@ -502,7 +605,8 @@ export const IbcTransferInternal = ({
                 onClick={send}
                 disabled={isAmountInvalid || !isRemoteChainAddressValid}
               >
-                Send
+                {actionName[direction]}{' '}
+                {typeof purse?.brandPetname === 'string' && purse.brandPetname}
               </Button>
             </>
           )}
