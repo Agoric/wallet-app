@@ -34,17 +34,20 @@ export const PursesWithoutContext = ({
   keplrConnection,
 }: Props) => {
   const [transferPurse, setTransferPurse] = useState<TransferPurse>({});
+  const [isIbcTransferShowing, setIsIbcTransferShowing] = useState(false);
 
   const handleClickDeposit = purse => {
     setTransferPurse({ purse, direction: IbcDirection.Deposit });
+    setIsIbcTransferShowing(true);
   };
 
   const handleClickWithdraw = purse => {
     setTransferPurse({ purse, direction: IbcDirection.Withdrawal });
+    setIsIbcTransferShowing(true);
   };
 
   const handleClose = () => {
-    setTransferPurse({});
+    setIsIbcTransferShowing(false);
   };
 
   const Purse = purse => {
@@ -115,6 +118,7 @@ export const PursesWithoutContext = ({
         {purseItems}
       </Card>
       <IbcTransfer
+        isShowing={isIbcTransferShowing}
         purse={transferPurse.purse}
         direction={transferPurse.direction ?? IbcDirection.Deposit}
         handleClose={handleClose}

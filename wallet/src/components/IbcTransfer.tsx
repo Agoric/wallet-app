@@ -34,11 +34,11 @@ export enum IbcDirection {
 const unmodifiableAddressStyle = {
   width: 420,
   '& .Mui-disabled': {
-    color: 'rgba(0,0,0,0.6)',
+    color: 'rgba(0,0,0,0.6) !important',
     '-webkit-text-fill-color': 'inherit',
   },
   '& input.Mui-disabled': {
-    color: 'rgba(0,0,0,0.86)',
+    color: 'rgba(0,0,0,0.86) !important',
   },
 };
 
@@ -58,6 +58,7 @@ const remoteChainAddressLabel = {
 };
 
 interface Params {
+  isShowing: boolean;
   purse?: PurseInfo;
   direction: IbcDirection;
   handleClose: () => void;
@@ -66,7 +67,11 @@ interface Params {
 
 const agoricExplorerPath = 'agoric';
 
-const useRemoteChainAccount = (brandPetname?: Petname) => {
+const useRemoteChainAccount = (
+  direction: IbcDirection,
+  isShowing: boolean,
+  brandPetname?: Petname,
+) => {
   const ibcAsset =
     typeof brandPetname === 'string' ? ibcAssets[brandPetname] : undefined;
 
@@ -92,6 +97,12 @@ const useRemoteChainAccount = (brandPetname?: Petname) => {
     setRemoteChainAddress(accounts[0].address);
     setRemoteChainSigner(offlineSigner);
   };
+
+  useEffect(() => {
+    if (isShowing && brandPetname && direction === IbcDirection.Deposit) {
+      void connectWithKeplr();
+    }
+  }, [brandPetname, isShowing, direction]);
 
   const isRemoteChainAddressValid = useMemo(() => {
     if (!remoteChainAddress) return false;
@@ -188,6 +199,7 @@ const useSnackbar = () => {
 
 // Exported for testing only.
 export const IbcTransferInternal = ({
+  isShowing,
   purse,
   handleClose,
   direction,
@@ -213,7 +225,7 @@ export const IbcTransferInternal = ({
     remoteChainBalance,
     remoteChainAddress,
     remoteChainSigner,
-  } = useRemoteChainAccount(purse?.brandPetname);
+  } = useRemoteChainAccount(direction, isShowing, purse?.brandPetname);
 
   const handleAmountChange = e => {
     setAmount(e.target.value);
@@ -246,11 +258,16 @@ export const IbcTransferInternal = ({
     }
   }, [amount, purse, purseBalance]);
 
+  useEffect(() => {
+    if (isShowing) {
+      setInProgress(false);
+      setError('');
+      setAmount('');
+      setRemoteChainAddress('');
+    }
+  }, [isShowing]);
+
   const close = () => {
-    setInProgress(false);
-    setError('');
-    setAmount('');
-    setRemoteChainAddress('');
     handleClose();
   };
 
@@ -417,8 +434,10 @@ export const IbcTransferInternal = ({
           ) : (
             'Fetching balance...'
           )
-        ) : (
+        ) : remoteChainAddress ? (
           'Invalid Address'
+        ) : (
+          'Enter Address'
         )
       }
       InputProps={{
@@ -449,7 +468,7 @@ export const IbcTransferInternal = ({
 
   return (
     <>
-      <Dialog open={!!purse} onClose={close}>
+      <Dialog open={isShowing} onClose={close}>
         <DialogTitle>
           IBC Transfer {titlePreposition[direction]}{' '}
           {ibcAsset?.chainInfo.chainName}
@@ -467,7 +486,9 @@ export const IbcTransferInternal = ({
               value={amount}
               helperText={
                 !isAmountInputDisabled && isAmountInvalid
-                  ? 'Invalid amount'
+                  ? amount
+                    ? 'Invalid Amount'
+                    : 'Enter Amount'
                   : ''
               }
               onChange={handleAmountChange}
