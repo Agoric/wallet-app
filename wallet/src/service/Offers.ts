@@ -273,7 +273,7 @@ export const getOfferService = (
       pendingOffersNotifier,
     )) {
       console.log('pending offers', pendingOffers);
-      Object.values(pendingOffers).forEach((o: any) => {
+      pendingOffers.forEach(([_, o]) => {
         const id = Number(o.id);
         const oldOffer = offers.get(id);
         if (!oldOffer) {
