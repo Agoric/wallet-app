@@ -463,6 +463,7 @@ export const IbcTransferInternal = ({
         From
       </Typography>
       <Button
+        // So we can keep the non-disabled styling.
         aria-disabled={isKeplrConnectionInProgress}
         onClick={() => isKeplrConnectionInProgress || connectWithKeplr()}
         variant="outlined"
