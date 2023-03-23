@@ -23,6 +23,8 @@ import { DappWithActions } from '../service/Dapps';
 
 import type { Params as CosmicSwingsetParams } from '@agoric/cosmic-proto/dist/agoric/swingset/swingset';
 import { BackendSchema } from '../util/WalletBackendAdapter';
+import { PurseInfo } from '../service/Offers';
+import { AssetKind } from '@agoric/ertp';
 
 export type KeplrUtils = {
   address: string;
@@ -67,14 +69,31 @@ const inboxReducer = (_, newInbox) => {
   );
 };
 
-const pursesReducer = (_, newPurses) =>
-  newPurses
-    ?.map(purse => kv({ pursePetname: purse.pursePetname }, purse))
-    .sort(
-      (a, b) =>
-        cmp(a.brandPetname, b.brandPetname) ||
-        cmp(a.pursePetname, b.pursePetname),
-    ) || null;
+const pursesReducer = (
+  _currentPurses: PurseInfo[] | null,
+  newPurses: PurseInfo[] | null,
+) => {
+  if (newPurses === null) return null;
+
+  const natPurses = newPurses.filter(
+    p => p.displayInfo?.assetKind === AssetKind.NAT,
+  );
+
+  const otherPurses = newPurses.filter(
+    p => p.displayInfo?.assetKind !== AssetKind.NAT,
+  );
+
+  const sortByPetname = (purses: PurseInfo[]) =>
+    purses
+      .map(purse => kv({ pursePetname: purse.pursePetname }, purse))
+      .sort(
+        (a, b) =>
+          cmp(a.brandPetname, b.brandPetname) ||
+          cmp(a.pursePetname, b.pursePetname),
+      ) || null;
+
+  return [...sortByPetname(natPurses), ...sortByPetname(otherPurses)];
+};
 
 const dappsReducer = (_, newDapps: DappWithActions[] | null) =>
   newDapps
