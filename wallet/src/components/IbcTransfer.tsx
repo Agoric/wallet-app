@@ -57,6 +57,11 @@ const remoteChainAddressLabel = {
   [IbcDirection.Withdrawal]: 'To',
 };
 
+const actionName = {
+  [IbcDirection.Deposit]: 'Deposit',
+  [IbcDirection.Withdrawal]: 'Withdraw',
+};
+
 interface Params {
   isShowing: boolean;
   purse?: PurseInfo;
@@ -595,7 +600,8 @@ export const IbcTransferInternal = ({
                 onClick={send}
                 disabled={isAmountInvalid || !isRemoteChainAddressValid}
               >
-                Send
+                {actionName[direction]}{' '}
+                {typeof purse?.brandPetname === 'string' && purse.brandPetname}
               </Button>
             </>
           )}

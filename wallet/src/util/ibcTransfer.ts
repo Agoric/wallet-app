@@ -9,7 +9,7 @@ const timeoutTimestampSeconds = () =>
 
 export const agoricChainId = 'agoric-3';
 const agoricRpc = 'https://agoric-rpc.stakely.io/';
-const agoricGas = '300000';
+const agoricGas = '500000';
 
 export const sendIbcTokens = async (
   assetInfo: AssetInfo,
