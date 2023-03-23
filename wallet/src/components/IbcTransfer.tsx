@@ -34,10 +34,12 @@ export enum IbcDirection {
 const unmodifiableAddressStyle = {
   width: 420,
   '& .Mui-disabled': {
+    // XXX last resort to override internal component styles.
     color: 'rgba(0,0,0,0.6) !important',
     '-webkit-text-fill-color': 'inherit',
   },
   '& input.Mui-disabled': {
+    // XXX last resort to override internal component styles.
     color: 'rgba(0,0,0,0.86) !important',
   },
 };
