@@ -224,7 +224,7 @@ export const getOfferService = (
       offerUpdatesNotifier,
     )) {
       console.log('offerStatus', { status, offers });
-      const id = status && Number(status?.id);
+      const id = status?.id;
       const oldOffer = offers.get(id);
       if (!oldOffer) {
         console.warn('Update for unknown offer, doing nothing.');
@@ -274,14 +274,18 @@ export const getOfferService = (
     )) {
       console.log('pending offers', pendingOffers);
       pendingOffers?.forEach(([_, o]) => {
-        const id = Number(o.id);
+        const { id } = o;
         const oldOffer = offers.get(id);
         if (!oldOffer) {
           offers.set(id, {
             ...o,
             proposalTemplate: {
-              give: makeProposalEntriesDisplayable(o.proposal.give),
-              want: makeProposalEntriesDisplayable(o.proposal.want),
+              give:
+                o.proposal.give &&
+                makeProposalEntriesDisplayable(o.proposal.give),
+              want:
+                o.proposal.want &&
+                makeProposalEntriesDisplayable(o.proposal.want),
             },
             sourceDescription:
               'Source: ' + sourceDescriptionForSpec(o.invitationSpec),

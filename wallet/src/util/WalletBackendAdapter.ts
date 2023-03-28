@@ -301,6 +301,7 @@ export const makeWalletBridgeFromFollowers = (
     for await (const { value } of iterateLatest<{ value: any }>(
       currentFollower,
     )) {
+      console.debug('current', value);
       notifierKits.pendingOffers.updater.updateState(value.liveOffers);
     }
   };
