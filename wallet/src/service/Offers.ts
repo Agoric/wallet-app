@@ -273,7 +273,8 @@ export const getOfferService = (
       pendingOffersNotifier,
     )) {
       console.log('pending offers', pendingOffers);
-      pendingOffers?.forEach(([_, o]) => {
+      if (!pendingOffers) continue;
+      for (const [_, o] of pendingOffers) {
         const { id } = o;
         const oldOffer = offers.get(id);
         if (!oldOffer) {
@@ -299,7 +300,7 @@ export const getOfferService = (
             isSeated: true,
           });
         }
-      });
+      }
       broadcastUpdates();
     }
   };

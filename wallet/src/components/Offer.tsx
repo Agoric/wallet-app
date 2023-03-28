@@ -52,6 +52,7 @@ const OfferWithoutContext = ({
     isSeated,
   } = offer;
   let status = offer.status || 'proposed';
+  const actualOrigin = dappOrigin || origin;
 
   // Update context if component was rendered while pending.
   if (status === 'pending' && !pendingOffers.has(id)) {
@@ -136,10 +137,10 @@ const OfferWithoutContext = ({
       />
       <div className="OfferOrigin" style={{ wordBreak: 'break-word' }}>
         <PetnameSpan name={sourceDescription} />
-        {(dappOrigin || origin) && (
+        {actualOrigin && (
           <>
             <i> via </i>
-            <span className="Blue">{dappOrigin || origin}</span>
+            <span className="Blue">{actualOrigin}</span>
           </>
         )}
       </div>
