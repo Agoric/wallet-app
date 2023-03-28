@@ -17,7 +17,7 @@ import { getDappService } from '../service/Dapps';
 import { getIssuerService } from '../service/Issuers';
 import { getOfferService } from '../service/Offers';
 
-import type { Amount, Brand, DisplayInfo } from '@agoric/ertp/src/types';
+import type { Brand, DisplayInfo } from '@agoric/ertp/src/types';
 import type { Notifier } from '@agoric/notifier/src/types';
 import type { OfferStatus } from '@agoric/smart-wallet/src/offers';
 import type { UpdateRecord } from '@agoric/smart-wallet/src/smartWallet';
@@ -66,7 +66,7 @@ export const makeBackendFromWalletBridge = (
                   // Provide these synthetic actions since offers don't have any yet.
                   accept: () => E(walletBridge).acceptOffer(id),
                   decline: () => E(walletBridge).declineOffer(id),
-                  cancel: () => E(walletBridge).cancelOffer(id),
+                  tryExit: () => E(walletBridge).tryExitOffer(id),
                 },
               }),
             ),
@@ -153,7 +153,8 @@ export const makeWalletBridgeFromFollowers = (
     getPursesNotifier: 'purses',
     getContactsNotifier: 'contacts',
     getIssuersNotifier: 'issuers',
-    getOffersNotifier: 'offers',
+    getOfferUpdatesNotifier: 'offerUpdates',
+    getPendingOffersNotifier: 'pendingOffers',
     getPaymentsNotifier: 'payments',
   };
 
@@ -205,13 +206,17 @@ export const makeWalletBridgeFromFollowers = (
     stateName => () => notifierKits[stateName].notifier,
   );
 
-  const offersNotifer: Notifier<OfferStatus> =
-    getNotifierMethods.getOffersNotifier();
+  const offerUpdatesNotifer: Notifier<OfferStatus> =
+    getNotifierMethods.getOfferUpdatesNotifier();
+
+  const pendingOffersNotifier: Notifier<OfferStatus> =
+    getNotifierMethods.getPendingOffersNotifier();
 
   const offerService = getOfferService(
     smartWalletKey,
     signSpendAction,
-    offersNotifer,
+    offerUpdatesNotifer,
+    pendingOffersNotifier,
     marshaller,
   );
 
@@ -292,10 +297,20 @@ export const makeWalletBridgeFromFollowers = (
     }
   };
 
+  const watchPendingOffers = async () => {
+    for await (const { value } of iterateLatest<{ value: any }>(
+      currentFollower,
+    )) {
+      console.debug('current', value);
+      notifierKits.pendingOffers.updater.updateState(value.liveOffers);
+    }
+  };
+
   const fetchCurrent = async () => {
     const resolvedFollower = await currentFollower;
     await assertHasData(resolvedFollower);
     void watchBeansOwing();
+    void watchPendingOffers();
     watchChainBalances();
 
     const latestIterable = await E(resolvedFollower).getLatestIterable();
@@ -374,7 +389,7 @@ export const makeWalletBridgeFromFollowers = (
         }
         case 'offerStatus': {
           const { status } = updateRecord;
-          notifierKits.offers.updater.updateState(status);
+          notifierKits.offerUpdates.updater.updateState(status);
           break;
         }
         default: {
@@ -417,7 +432,7 @@ export const makeWalletBridgeFromFollowers = (
 
   const issuerService = getIssuerService(signSpendAction);
   const dappService = getDappService(smartWalletKey);
-  const { acceptOffer, declineOffer, cancelOffer } = offerService;
+  const { acceptOffer, declineOffer, tryExitOffer } = offerService;
 
   const {
     getContactsNotifier,
@@ -441,7 +456,7 @@ export const makeWalletBridgeFromFollowers = (
     getPursesNotifier,
     acceptOffer,
     declineOffer,
-    cancelOffer,
+    tryExitOffer,
     makeEmptyPurse,
     addContact,
     addIssuer,

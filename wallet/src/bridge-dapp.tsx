@@ -81,10 +81,6 @@ const createAndAddOffer = (dappKey: DappKey, offerConfig: OfferConfig) => {
 
   const offer = {
     id,
-    meta: {
-      id,
-      creationStamp: currentTime,
-    },
     requestContext: { origin: dappKey.origin },
     status: OfferUIStatus.proposed,
     ...offerConfig,

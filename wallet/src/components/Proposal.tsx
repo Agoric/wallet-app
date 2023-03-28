@@ -9,9 +9,10 @@ import PurseValue from './PurseValue';
 import { formatDateNow } from '../util/Date';
 import { withApplicationContext } from '../contexts/Application';
 import BrandIcon from './BrandIcon';
+import { stringify } from '../util/marshal';
+import { Typography } from '@mui/material';
 
 import './Offer.scss';
-import { Typography } from '@mui/material';
 
 const OfferEntryFromTemplate = (
   type,
@@ -193,6 +194,7 @@ const Proposal = ({ offer, purses, swingsetParams, beansOwing }) => {
     } = {},
     error,
     spendAction,
+    offerArgs,
   } = offer;
   let give = {};
   let want = {};
@@ -254,10 +256,12 @@ const Proposal = ({ offer, purses, swingsetParams, beansOwing }) => {
           </div>
         </div>
       )}
-      {args !== undefined && (
+      {offerArgs !== undefined && (
         <div className="OfferEntry">
           <h6>Arguments</h6>
-          <pre>{JSON.stringify(args, null, 2)}</pre>
+          <details style={{ whiteSpace: 'pre-wrap' }}>
+            {stringify(offerArgs, true)}
+          </details>
         </div>
       )}
       <ExecutionFeeInfo
