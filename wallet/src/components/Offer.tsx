@@ -82,7 +82,7 @@ const OfferWithoutContext = ({
   };
 
   const exit = () => {
-    offer.actions.cancel().catch(console.error);
+    offer.actions.tryExit().catch(console.error);
   };
 
   const close = () => {

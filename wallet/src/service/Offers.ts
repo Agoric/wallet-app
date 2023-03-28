@@ -208,7 +208,7 @@ export const getOfferService = (
     return signSpendAction(offer.spendAction);
   };
 
-  const cancelOffer = async (id: number) => {
+  const tryExitOffer = async (id: number) => {
     const action = await E(boardIdMarshaller).serialize(
       harden({
         method: 'tryExitOffer',
@@ -273,7 +273,7 @@ export const getOfferService = (
       pendingOffersNotifier,
     )) {
       console.log('pending offers', pendingOffers);
-      pendingOffers.forEach(([_, o]) => {
+      pendingOffers?.forEach(([_, o]) => {
         const id = Number(o.id);
         const oldOffer = offers.get(id);
         if (!oldOffer) {
@@ -362,7 +362,7 @@ export const getOfferService = (
     notifier,
     addOffer: upsertOffer,
     acceptOffer,
-    cancelOffer,
+    tryExitOffer,
     declineOffer,
   };
 };

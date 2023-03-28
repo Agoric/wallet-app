@@ -332,18 +332,18 @@ test('declines the offer', () => {
 });
 
 test('cancels the offer', () => {
-  const cancel = jest.fn(() => Promise.resolve());
+  const tryExit = jest.fn(() => Promise.resolve());
   const pendingOffer = {
     ...offer,
     isSeated: true,
     status: 'pending',
-    actions: { cancel },
+    actions: { tryExit },
   };
   const component = mount(<Offer offer={pendingOffer} />);
 
   act(() => component.find(Chip).at(1).props().onClick());
 
-  expect(cancel).toHaveBeenCalledWith();
+  expect(tryExit).toHaveBeenCalledWith();
 });
 
 test('renders the dapp origin', () => {

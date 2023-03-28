@@ -66,7 +66,7 @@ export const makeBackendFromWalletBridge = (
                   // Provide these synthetic actions since offers don't have any yet.
                   accept: () => E(walletBridge).acceptOffer(id),
                   decline: () => E(walletBridge).declineOffer(id),
-                  cancel: () => E(walletBridge).cancelOffer(id),
+                  tryExit: () => E(walletBridge).tryExitOffer(id),
                 },
               }),
             ),
@@ -301,9 +301,7 @@ export const makeWalletBridgeFromFollowers = (
     for await (const { value } of iterateLatest<{ value: any }>(
       currentFollower,
     )) {
-      notifierKits.pendingOffers.updater.updateState(
-        value.possiblyExitableOffers,
-      );
+      notifierKits.pendingOffers.updater.updateState(value.liveOffers);
     }
   };
 
@@ -433,7 +431,7 @@ export const makeWalletBridgeFromFollowers = (
 
   const issuerService = getIssuerService(signSpendAction);
   const dappService = getDappService(smartWalletKey);
-  const { acceptOffer, declineOffer, cancelOffer } = offerService;
+  const { acceptOffer, declineOffer, tryExitOffer } = offerService;
 
   const {
     getContactsNotifier,
@@ -457,7 +455,7 @@ export const makeWalletBridgeFromFollowers = (
     getPursesNotifier,
     acceptOffer,
     declineOffer,
-    cancelOffer,
+    tryExitOffer,
     makeEmptyPurse,
     addContact,
     addIssuer,
