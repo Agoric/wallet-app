@@ -31,6 +31,8 @@ jest.mock(
 
 jest.mock('../../util/Date', () => ({ formatDateNow: stamp => String(stamp) }));
 jest.mock('@mui/material/Popover', () => ({ children }) => <>{children}</>);
+jest.mock('../../util/marshal', () => ({ stringify: () => 'some string' }));
+
 const pendingOffers = new Set();
 const setPendingOffers = jest.fn();
 const declinedOffers = new Set();
@@ -78,8 +80,8 @@ const offer = {
     dappOrigin: 'https://tokenpalace.app',
     origin: 'unknown origin',
   },
+  offerArgs: { foo: 'bar' },
   proposalForDisplay: {
-    arguments: [],
     give: {
       Collateral: {
         amount: {
@@ -176,9 +178,7 @@ test('renders the arguments', () => {
   const args = component.find('.OfferEntry').at(4);
 
   expect(args.text()).toContain('Arguments');
-  expect(args.text()).toContain(
-    JSON.stringify(offer.proposalForDisplay.arguments, null, 2),
-  );
+  expect(args.text()).toContain('some string');
 });
 
 test('renders the controls', () => {
