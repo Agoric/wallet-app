@@ -260,7 +260,9 @@ const Proposal = ({ offer, purses, swingsetParams, beansOwing }) => {
         <div className="OfferEntry">
           <h6>Arguments</h6>
           <details style={{ whiteSpace: 'pre-wrap' }}>
-            {stringify(offerArgs, true)}
+            <Box sx={{ fontFamily: '"RobotoMono", monospace' }}>
+              {stringify(offerArgs, true)}
+            </Box>
           </details>
         </div>
       )}
