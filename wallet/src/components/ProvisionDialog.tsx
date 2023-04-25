@@ -30,6 +30,10 @@ const MINIMUM_PROVISION_POOL_BALANCE = 100n * 1_000_000n;
 
 const isProvisionPoolLow = provisionPoolData =>
   provisionPoolData &&
+  AmountMath.isGTE(
+    provisionPoolData.totalMintedConverted,
+    provisionPoolData.totalMintedProvided,
+  ) &&
   AmountMath.subtract(
     provisionPoolData.totalMintedConverted,
     provisionPoolData.totalMintedProvided,
