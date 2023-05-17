@@ -132,8 +132,8 @@ export const makeWalletBridgeFromFollowers = (
   smartWalletKey: SmartWalletKey,
   rpc: HttpEndpoint,
   marshaller: Marshal<string>,
-  currentFollower: Promise<ValueFollower<CurrentWalletRecord>>,
-  updateFollower: Promise<ValueFollower<UpdateRecord>>,
+  currentFollower: Promise<ValueFollower<Partial<CurrentWalletRecord>>>,
+  updateFollower: Promise<ValueFollower<Partial<UpdateRecord>>>,
   beansOwingFollower: Promise<ValueFollower<string>>,
   vbankAssetsFollower: Promise<ValueFollower<VbankUpdate>>,
   agoricBrandsFollower: Promise<ValueFollower<AgoricBrandsUpdate>>,
@@ -302,7 +302,7 @@ export const makeWalletBridgeFromFollowers = (
       currentFollower,
     )) {
       console.debug('current', value);
-      notifierKits.pendingOffers.updater.updateState(value.liveOffers);
+      notifierKits.pendingOffers.updater.updateState(value.liveOffers ?? []);
     }
   };
 
@@ -324,14 +324,15 @@ export const makeWalletBridgeFromFollowers = (
       // @ts-expect-error xxx param mutation
       firstCallback = undefined;
     }
-    const currentEl: ValueFollowerElement<CurrentWalletRecord> = latest.value;
+    const currentEl: ValueFollowerElement<Partial<CurrentWalletRecord>> =
+      latest.value;
     const wallet = currentEl.value;
     console.debug('wallet current', wallet);
 
     const agoricBrands = await fetchAgoricBrands();
     assert(agoricBrands, 'Failed to fetch agoric brands');
 
-    for (const purse of wallet.purses) {
+    for (const purse of wallet.purses ?? []) {
       // Non 'set' amounts need to be fetched from vbank to know their
       // decimalPlaces, so we can skip them. Currently this means all assets
       // except zoe invites are read via `watchChainBalances`.
@@ -373,6 +374,12 @@ export const makeWalletBridgeFromFollowers = (
       },
     )) {
       const updateRecord = value as UpdateRecord;
+
+      if (updateRecord.updated === undefined) {
+        console.warn('Empty update, skipping');
+        continue;
+      }
+
       switch (updateRecord.updated) {
         case 'balance': {
           // TODO: Don't assume just one purse per brand.
