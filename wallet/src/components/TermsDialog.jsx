@@ -19,7 +19,7 @@ const TermsDialog = ({ onClose, isOpen }) => {
 
   return (
     <Dialog open={isOpen}>
-      <DialogTitle>Disclaimer</DialogTitle>
+      <DialogTitle>Terms</DialogTitle>
       <DialogContent>
         <FormControlLabel
           label={
