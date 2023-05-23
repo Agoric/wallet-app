@@ -62,10 +62,10 @@
     "@endo/promise-kit" "^0.2.56"
     node-fetch "^2.6.0"
 
-"@agoric/cosmic-proto@^0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@agoric/cosmic-proto/-/cosmic-proto-0.3.0.tgz#c9d31d3946c91fbb1630f89d8ba63a662bcdacc5"
-  integrity sha512-cIunby6gs53sGkHx3ALraREbfVQXvsIcObMjQQ0/tZt5HVqwoS7Y1Qj1Xl0ZZvqE8B1Zyk7QMDj829mbTII+9g==
+"@agoric/cosmic-proto@0.2.2-dev-a5437cf.0", "@agoric/cosmic-proto@^0.3.0":
+  version "0.2.2-dev-a5437cf.0"
+  resolved "https://registry.yarnpkg.com/@agoric/cosmic-proto/-/cosmic-proto-0.2.2-dev-a5437cf.0.tgz#cba81f0455ba1875d3f389b69d93e36d5569bfb3"
+  integrity sha512-ocwgjLUJcuKeDP7/RHWQXDqpDDCEEBqsX1JQNjmnkljE5dNkUBiDNMXurzmD+SZJqGDZ1HxaQFfF/9zo99q4vA==
   dependencies:
     protobufjs "^7.0.0"
 
@@ -148,11 +148,6 @@
     "@endo/stream" "^0.3.25"
     anylogger "^0.21.0"
     jessie.js "^0.3.2"
-
-"@agoric/nat@^4.1.0":
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/@agoric/nat/-/nat-4.1.0.tgz#102794e033ffc183a20b0f86031a2e76d204b9f6"
-  integrity sha512-2oMoh3DMn0Fx8HChPPiH8irBNdT/33ttxAZJohhd3nU3gyBRQ1u+eEoOQWfSkrE6M02iMkQM7GE9MzGmjQ6bHg==
 
 "@agoric/notifier@^0.6.0":
   version "0.6.0"
