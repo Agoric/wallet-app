@@ -11,7 +11,6 @@ export const queryBankBalances = async (
   rpc: HttpEndpoint,
 ): Promise<Coin[]> => {
   const tendermint = await Tendermint34Client.connect(rpc);
-  // @ts-expect-error
   const queryClient = new QueryClient(tendermint);
   const rpcClient = createProtobufRpcClient(queryClient);
   const bankQueryService = new QueryClientImpl(rpcClient);
