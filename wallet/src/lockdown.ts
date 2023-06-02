@@ -1,3 +1,5 @@
+/** @file copied into HTML template to do lockdown before app load */
+
 // Allow the React dev environment to extend the console for debugging
 // features.
 // @ts-expect-error template
