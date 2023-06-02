@@ -45,22 +45,32 @@
         console.debug('looking for keplr');
         attempts += 1;
         if (window.keplr) {
+          // XXX copied from lockdown.ts; could be automated
           // Allow the React dev environment to extend the console for debugging
           // features.
+          // @ts-expect-error template
+          // eslint-disable-next-line no-constant-condition
           const consoleTaming =
-            '%NODE_ENV%' === 'production' ? 'safe' : 'unsafe';
+            '%NODE_ENV%' === 'development' ? 'unsafe' : 'safe';
+          // @ts-expect-error template
+          // eslint-disable-next-line no-constant-condition
+          const errorTaming =
+            '%NODE_ENV%' === 'development' ? 'unsafe' : 'safe';
 
+          // eslint-disable-next-line no-restricted-properties
           const { pow: mathPow } = Math;
+          // eslint-disable-next-line no-restricted-properties
           Math.pow = (base, exp) =>
             typeof base === 'bigint' && typeof exp === 'bigint'
               ? base ** exp
               : mathPow(base, exp);
 
           lockdown({
-            errorTaming: 'unsafe',
+            errorTaming,
             overrideTaming: 'severe',
-            consoleTaming: consoleTaming,
+            consoleTaming,
           });
+
           console.log('lockdown done.');
 
           window.addEventListener('unhandledrejection', ev => {
