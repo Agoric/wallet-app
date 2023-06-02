@@ -3,29 +3,6 @@
   <head>
     <meta charset="utf-8" />
     <script src="%PUBLIC_URL%/lockdown.umd.js"></script>
-    <script>
-      // Allow the React dev environment to extend the console for debugging
-      // features.
-      const consoleTaming = '%NODE_ENV%' === 'production' ? 'safe' : 'unsafe';
-
-      const { pow: mathPow } = Math;
-      Math.pow = (base, exp) =>
-        typeof base === 'bigint' && typeof exp === 'bigint'
-          ? base ** exp
-          : mathPow(base, exp);
-
-      lockdown({
-        errorTaming: 'unsafe',
-        overrideTaming: 'severe',
-        consoleTaming: consoleTaming,
-      });
-
-      console.log('lockdown done.');
-
-      window.addEventListener('unhandledrejection', ev => {
-        ev.stopImmediatePropagation();
-      });
-    </script>
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
@@ -60,19 +37,77 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>Agoric Wallet</title>
-  </head>
-  <body style="overflow-x: hidden; overflow-y: scroll">
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
+    <script type="module">
+      const MAX_ATTEMPTS = 10;
+      const WAIT_PER_ATTEMPT = 10;
+      let attempts = 0;
+      const startWhenKeplrAvailable = () => {
+        console.debug('looking for keplr');
+        attempts += 1;
+        if (window.keplr) {
+          // Allow the React dev environment to extend the console for debugging
+          // features.
+          const consoleTaming =
+            '%NODE_ENV%' === 'production' ? 'safe' : 'unsafe';
+
+          const { pow: mathPow } = Math;
+          Math.pow = (base, exp) =>
+            typeof base === 'bigint' && typeof exp === 'bigint'
+              ? base ** exp
+              : mathPow(base, exp);
+
+          lockdown({
+            errorTaming: 'unsafe',
+            overrideTaming: 'severe',
+            consoleTaming: consoleTaming,
+          });
+          console.log('lockdown done.');
+
+          window.addEventListener('unhandledrejection', ev => {
+            ev.stopImmediatePropagation();
+          });
+
+          console.log('Importing app bundle');
+          // iterate manually to load by dynamic import
+          <% htmlWebpackPlugin.files.js.forEach(function(jsPath) { %>
+            import('<%= jsPath %>');
+          <% }); %>
+        } else {
+          if (attempts < MAX_ATTEMPTS) {
+            setTimeout(startWhenKeplrAvailable, WAIT_PER_ATTEMPT);
+          } else {
+            const notice = document.getElementById('keplr-missing');
+            notice.hidden = false;
+          }
+        }
+      };
+      startWhenKeplrAvailable();
+    </script>
     <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
+      this output is normally produced by htmlWebpackPlugin.tags.headTags or
+      inject:true but we need to defer the script tags so do this part manually
     -->
+    <% htmlWebpackPlugin.files.css.forEach(function(cssPath) { %>
+    <link href="<%= cssPath %>" rel="stylesheet" />
+    <% }); %>
+  </head>
+
+  <body style="overflow-x: hidden; overflow-y: scroll">
+    <%= htmlWebpackPlugin.tags.bodyTags %>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root">
+      <!-- replaced by React mounting -->
+    </div>
+    <div id="keplr-missing" hidden>
+      <h1>Keplr required</h1>
+      <p>
+        This app will not start without the
+        <a
+          href="https://chrome.google.com/webstore/detail/keplr/dmkamcknogkgcdfhhbddcghachkejeap"
+          >Keplr</a
+        >
+        browser extension.
+      </p>
+    </div>
   </body>
 </html>
