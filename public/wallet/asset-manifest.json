@@ -1,22 +1,22 @@
 {
   "files": {
     "main.css": "/wallet/static/css/main.55689a12.css",
-    "main.js": "/wallet/static/js/main.6a7dd64a.js",
+    "main.js": "/wallet/static/js/main.d8a051b8.js",
     "index.36fa8b6a.css": "/wallet/static/css/index.36fa8b6a.55689a12.css",
-    "index.36fa8b6a.js": "/wallet/static/js/index.36fa8b6a.6a7dd64a.js",
-    "bridge-dapp.5403a070.js": "/wallet/static/js/bridge-dapp.5403a070.5065fd23.js",
+    "index.36fa8b6a.js": "/wallet/static/js/index.36fa8b6a.d8a051b8.js",
+    "bridge-dapp.5403a070.js": "/wallet/static/js/bridge-dapp.5403a070.391b4d6b.js",
     "public/index.html": "/wallet/public/index.html",
     "index.html": "/wallet/index.html",
     "public/bridge.html": "/wallet/public/bridge.html",
     "./bridge.html": "/wallet/./bridge.html",
     "main.55689a12.css.map": "/wallet/static/css/main.55689a12.css.map",
-    "main.6a7dd64a.js.map": "/wallet/static/js/main.6a7dd64a.js.map",
+    "main.d8a051b8.js.map": "/wallet/static/js/main.d8a051b8.js.map",
     "index.36fa8b6a.55689a12.css.map": "/wallet/static/css/index.36fa8b6a.55689a12.css.map",
-    "index.36fa8b6a.6a7dd64a.js.map": "/wallet/static/js/index.36fa8b6a.6a7dd64a.js.map",
-    "bridge-dapp.5403a070.5065fd23.js.map": "/wallet/static/js/bridge-dapp.5403a070.5065fd23.js.map"
+    "index.36fa8b6a.d8a051b8.js.map": "/wallet/static/js/index.36fa8b6a.d8a051b8.js.map",
+    "bridge-dapp.5403a070.391b4d6b.js.map": "/wallet/static/js/bridge-dapp.5403a070.391b4d6b.js.map"
   },
   "entrypoints": [
     "static/css/main.55689a12.css",
-    "static/js/main.6a7dd64a.js"
+    "static/js/main.d8a051b8.js"
   ]
 }
