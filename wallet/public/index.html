@@ -6,12 +6,6 @@
     <script>
       const devUnsafe = '%NODE_ENV%' === 'development' ? 'unsafe' : 'safe';
 
-      const { pow: mathPow } = Math;
-      Math.pow = (base, exp) =>
-        typeof base === 'bigint' && typeof exp === 'bigint'
-          ? base ** exp
-          : mathPow(base, exp);
-
       lockdown({
         errorTaming: devUnsafe,
         overrideTaming: 'severe',
