@@ -44,7 +44,6 @@ module.exports = function override(config, _env) {
   };
   htmlWebpackPlugin.userOptions = {
     ...htmlWebpackPlugin.userOptions,
-    inject: false, // so the template can customize when the bundle gets loaded
     excludeChunks: bridgeKeys,
   };
   const plug2 = new HtmlWebPackPlugin(opts);
