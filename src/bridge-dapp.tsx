@@ -157,6 +157,9 @@ const handleIncomingMessages = () => {
 };
 
 const connectDapp = async () => {
+  if (!('localStorage' in window)) {
+    throw new Error('No access to localStorage');
+  }
   checkParentWindow();
   handleIncomingMessages();
   sendMessage({
@@ -164,29 +167,16 @@ const connectDapp = async () => {
   });
 };
 
-const sendCookiesDisabledError = () => {
+const sendAccessError = (err: Error) => {
   sendMessage({
     type: BridgeProtocol.error,
-    message: 'Please enable cross-site cookies to use this functionality.',
+    message: err.message,
   });
 };
 
 const Bridge = () => {
   useEffect(() => {
-    const tryConnect = async () => {
-      if ('requestStorageAccess' in document) {
-        if (await document.hasStorageAccess()) {
-          return connectDapp();
-        } else {
-          sendCookiesDisabledError();
-        }
-      } else if ('localStorage' in window) {
-        return connectDapp();
-      } else {
-        sendCookiesDisabledError();
-      }
-    };
-    void tryConnect();
+    connectDapp().catch(sendAccessError);
   }, []);
 
   return <></>;
