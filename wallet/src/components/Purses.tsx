@@ -130,4 +130,5 @@ export const PursesWithoutContext = ({
 export default withApplicationContext(PursesWithoutContext, context => ({
   purses: context.purses,
   previewEnabled: context.previewEnabled,
+  keplrConnection: context.keplrConnection,
 }));
