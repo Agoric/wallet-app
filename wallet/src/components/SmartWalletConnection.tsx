@@ -1,7 +1,7 @@
 import { makeFollower, makeLeader, iterateLatest } from '@agoric/casting';
 import { observeIterator } from '@agoric/notifier';
 import { NO_SMART_WALLET_ERROR } from '@agoric/smart-wallet/src/utils';
-import { makeImportContext } from '@agoric/wallet-backend/src/marshal-contexts';
+import { makeImportContext } from '@agoric/smart-wallet/src/marshal-contexts';
 import { Far } from '@endo/marshal';
 import MuiAlert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
@@ -20,7 +20,7 @@ import {
 } from '../util/WalletBackendAdapter';
 import ProvisionDialog from './ProvisionDialog';
 
-import type { MetricsNotification as ProvisionPoolMetrics } from '@agoric/vats/src/provisionPool';
+import type { MetricsNotification as ProvisionPoolMetrics } from '@agoric/vats/src/provisionPoolKit';
 
 // @ts-expect-error xxx forwardRef
 const Alert = React.forwardRef(function Alert({ children, ...props }, ref) {
@@ -172,6 +172,7 @@ const SmartWalletConnection = ({
     const follow = async () => {
       const followPublished = <T extends {}>(path) =>
         makeFollower<T>(`:published.${path}`, leader, {
+          // @ts-expect-error xxx marshal changes
           unserializer: context.fromMyWallet,
         });
 
@@ -185,6 +186,7 @@ const SmartWalletConnection = ({
         followPublished(`wallet.${publicAddress}.current`),
         followPublished(`wallet.${publicAddress}`),
         makeFollower(`:beansOwing.${publicAddress}`, leader, {
+          // @ts-expect-error xxx marshal changes
           unserializer: { unserialize: data => data },
         }),
         followPublished('agoricNames.vbankAsset'),

@@ -32,13 +32,16 @@ import { queryBankBalances } from './queryBankBalances';
 import type { Coin } from '@cosmjs/stargate';
 import type { PurseInfo } from '../service/Offers';
 import { wellKnownPetnames } from './well-known-petnames';
+import type { Params as CosmicSwingsetParams } from '@agoric/cosmic-proto/dist/agoric/swingset/swingset';
 
 const newId = kind => `${kind}${Math.random()}`;
 const POLL_INTERVAL_MS = 6000;
 
 export type BackendSchema = {
-  actions: object;
+  actions: any;
+  beansOwing: any;
   issuerSuggestions: Promise<AsyncIterator<any, any>>;
+  swingsetParams: Promise<CosmicSwingsetParams>;
 };
 
 export const makeBackendFromWalletBridge = (

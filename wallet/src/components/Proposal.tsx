@@ -2,7 +2,7 @@ import * as React from 'react';
 import Popover from '@mui/material/Popover';
 import Link from '@mui/material/Link';
 import Box from '@mui/material/Box';
-import { Nat } from '@agoric/nat';
+import { Nat } from '@endo/nat';
 import { stringifyPurseValue } from '@agoric/ui-components';
 import PetnameSpan from './PetnameSpan';
 import PurseValue from './PurseValue';
