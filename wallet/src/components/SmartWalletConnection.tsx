@@ -1,7 +1,11 @@
-import { makeFollower, makeLeader, iterateLatest } from '@agoric/casting';
+import { makeFollower, makeLeader } from '@agoric/casting';
+import {
+  AgoricChainStoragePathKind as Kind,
+  makeAgoricChainStorageWatcher,
+} from '../rpc';
 import { observeIterator } from '@agoric/notifier';
 import { NO_SMART_WALLET_ERROR } from '@agoric/smart-wallet/src/utils';
-import { makeImportContext } from '@agoric/wallet-backend/src/marshal-contexts';
+import { makeImportContext } from '@agoric/smart-wallet/src/marshal-contexts';
 import { Far } from '@endo/marshal';
 import MuiAlert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
@@ -21,6 +25,7 @@ import {
 import ProvisionDialog from './ProvisionDialog';
 
 import type { MetricsNotification as ProvisionPoolMetrics } from '@agoric/vats/src/provisionPool';
+import type { ChainStorageWatcher } from '../rpc/src/chainStorageWatcher';
 
 // @ts-expect-error xxx forwardRef
 const Alert = React.forwardRef(function Alert({ children, ...props }, ref) {
@@ -32,38 +37,18 @@ const Alert = React.forwardRef(function Alert({ children, ...props }, ref) {
   );
 });
 
-export const useProvisionPoolMetrics = (unserializer, leader) => {
+export const useProvisionPoolMetrics = (watcher?: ChainStorageWatcher) => {
   const [data, setData] = useState<ProvisionPoolMetrics | null>(null);
 
-  useEffect(() => {
-    if (!(unserializer && leader)) return;
-
-    let cancelled = false;
-    const fetchData = async () => {
-      const follower = await makeFollower<{ value: ProvisionPoolMetrics }>(
-        `:published.provisionPool.metrics`,
-        leader,
-        {
-          unserializer,
-        },
-      );
-      for await (const { value } of iterateLatest<{
-        value: ProvisionPoolMetrics;
-      }>(follower)) {
-        if (cancelled) {
-          break;
-        }
-        console.log('provisionPoolData', value);
-        setData(value);
-      }
-    };
-    fetchData().catch(e =>
-      console.error('useProvisionPoolMetrics fetchData error', e),
-    );
-    return () => {
-      cancelled = true;
-    };
-  }, [unserializer, leader]);
+  useEffect(
+    () =>
+      watcher?.watchLatest(
+        [Kind.Data, 'published.provisionPool.metrics'],
+        setData,
+        e => console.error('error watching provision pool metrics', e),
+      ),
+    [watcher],
+  );
 
   return data;
 };
@@ -137,7 +122,18 @@ const SmartWalletConnection = ({
     [connectionConfig, keplrConnection],
   );
 
-  const provisionPoolData = useProvisionPoolMetrics(context.fromBoard, leader);
+  const storageWatcher = useMemo(() => {
+    if (!keplrConnection) return undefined;
+
+    return makeAgoricChainStorageWatcher(
+      keplrConnection.rpc,
+      keplrConnection.chainId,
+      context.fromBoard.unserialize,
+      backendError,
+    );
+  }, [keplrConnection, context]);
+
+  const provisionPoolData = useProvisionPoolMetrics(storageWatcher);
 
   useEffect(() => {
     maybeSave('connectionConfig', connectionConfig);
@@ -163,7 +159,7 @@ const SmartWalletConnection = ({
   }, [connectionConfig]);
 
   useEffect(() => {
-    if (!connectionConfig || !keplrConnection) {
+    if (!connectionConfig || !keplrConnection || !storageWatcher) {
       return undefined;
     }
 
@@ -173,6 +169,7 @@ const SmartWalletConnection = ({
       const followPublished = <T extends {}>(path) =>
         makeFollower<T>(`:published.${path}`, leader, {
           unserializer: context.fromMyWallet,
+          proof: 'none',
         });
 
       const bridge = makeWalletBridgeFromFollowers(
@@ -184,11 +181,7 @@ const SmartWalletConnection = ({
         context.fromBoard,
         followPublished(`wallet.${publicAddress}.current`),
         followPublished(`wallet.${publicAddress}`),
-        makeFollower(`:beansOwing.${publicAddress}`, leader, {
-          unserializer: { unserialize: data => data },
-        }),
-        followPublished('agoricNames.vbankAsset'),
-        followPublished('agoricNames.brand'),
+        storageWatcher,
         keplrConnection,
         backendError,
         () => {

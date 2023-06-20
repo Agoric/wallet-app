@@ -1,5 +1,5 @@
 // @ts-check
-import { iterateEach, iterateLatest } from '@agoric/casting';
+import { iterateEach } from '@agoric/casting';
 import { AmountMath, AssetKind } from '@agoric/ertp';
 import { objectMap } from '@agoric/internal';
 import {
@@ -32,6 +32,8 @@ import { queryBankBalances } from './queryBankBalances';
 import type { Coin } from '@cosmjs/stargate';
 import type { PurseInfo } from '../service/Offers';
 import { wellKnownPetnames } from './well-known-petnames';
+import type { ChainStorageWatcher } from '../rpc/src/chainStorageWatcher';
+import { AgoricChainStoragePathKind } from '../rpc';
 
 const newId = kind => `${kind}${Math.random()}`;
 const POLL_INTERVAL_MS = 6000;
@@ -134,9 +136,7 @@ export const makeWalletBridgeFromFollowers = (
   marshaller: Marshal<string>,
   currentFollower: Promise<ValueFollower<Partial<CurrentWalletRecord>>>,
   updateFollower: Promise<ValueFollower<Partial<UpdateRecord>>>,
-  beansOwingFollower: Promise<ValueFollower<string>>,
-  vbankAssetsFollower: Promise<ValueFollower<VbankUpdate>>,
-  agoricBrandsFollower: Promise<ValueFollower<AgoricBrandsUpdate>>,
+  watcher: ChainStorageWatcher,
   keplrConnection: KeplrUtils,
   errorHandler: (e: any) => void | ((e: any) => never) = e => {
     // Make an unhandled rejection.
@@ -148,6 +148,7 @@ export const makeWalletBridgeFromFollowers = (
   let isBankLoaded = false;
   let isSmartWalletLoaded = false;
   let isOfferServiceStarted = false;
+  const stopWatchingHooks = Array<() => void>();
 
   const notifiers = {
     getPursesNotifier: 'purses',
@@ -223,13 +224,16 @@ export const makeWalletBridgeFromFollowers = (
   const { notifier: beansOwingNotifier, updater: beansOwingUpdater } =
     makeNotifierKit<Number | null>(null);
 
-  const watchBeansOwing = async () => {
-    for await (const { value } of iterateLatest<{ value: string }>(
-      beansOwingFollower,
-    )) {
-      if (isHalted) return;
-      beansOwingUpdater.updateState(Number(value));
-    }
+  const watchBeansOwing = () => {
+    stopWatchingHooks.push(
+      watcher.watchLatest(
+        [
+          AgoricChainStoragePathKind.Data,
+          `published.beansOwing.${smartWalletKey.address}`,
+        ],
+        value => beansOwingUpdater.updateState(Number(value)),
+      ),
+    );
   };
 
   // Infers purse balances from cosmos bank module balances since purses are
@@ -274,36 +278,51 @@ export const makeWalletBridgeFromFollowers = (
       setTimeout(watchBank, POLL_INTERVAL_MS);
     };
 
-    const watchVbankAssets = async () => {
-      for await (const { value } of iterateLatest<{ value: VbankUpdate }>(
-        vbankAssetsFollower,
-      )) {
-        if (isHalted) return;
-        vbankAssets = value;
-        possiblyUpdateBankPurses();
-      }
+    const watchVbankAssets = () => {
+      stopWatchingHooks.push(
+        watcher.watchLatest<VbankUpdate>(
+          [AgoricChainStoragePathKind.Data, 'published.agoricNames.vbankAsset'],
+          value => {
+            vbankAssets = value;
+            possiblyUpdateBankPurses();
+          },
+        ),
+      );
     };
 
     void watchVbankAssets();
     void watchBank();
   };
 
-  const fetchAgoricBrands = async () => {
-    for await (const { value } of iterateLatest<{ value: AgoricBrandsUpdate }>(
-      agoricBrandsFollower,
-    )) {
-      // Invert so we have a map of brands to petnames.
-      return new Map((value as AgoricBrandsUpdate).map(([k, v]) => [v, k]));
-    }
-  };
+  const fetchAgoricBrands = () =>
+    new Promise<Map<Brand, string>>((res, rej) => {
+      const cancel = watcher.watchLatest(
+        [AgoricChainStoragePathKind.Data, 'published.agoricNames.brand'],
+        value => {
+          cancel();
+          res(new Map((value as AgoricBrandsUpdate).map(([k, v]) => [v, k])));
+        },
+        err => {
+          cancel();
+          rej(err);
+        },
+      );
+    });
 
   const watchPendingOffers = async () => {
-    for await (const { value } of iterateLatest<{ value: any }>(
-      currentFollower,
-    )) {
-      console.debug('current', value);
-      notifierKits.pendingOffers.updater.updateState(value.liveOffers ?? []);
-    }
+    stopWatchingHooks.push(
+      watcher.watchLatest<Partial<CurrentWalletRecord>>(
+        [
+          AgoricChainStoragePathKind.Data,
+          `published.wallet.${smartWalletKey.address}.current`,
+        ],
+        value => {
+          notifierKits.pendingOffers.updater.updateState(
+            value.liveOffers ?? [],
+          );
+        },
+      ),
+    );
   };
 
   const fetchCurrent = async () => {
@@ -467,7 +486,12 @@ export const makeWalletBridgeFromFollowers = (
     makeEmptyPurse,
     addContact,
     addIssuer,
-    cleanup: () => (isHalted = true),
+    cleanup: () => {
+      while (stopWatchingHooks.length) {
+        // @ts-expect-error always defined because length > 0
+        stopWatchingHooks.pop()();
+      }
+    },
   });
 
   return walletBridge;
