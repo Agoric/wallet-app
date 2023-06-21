@@ -229,9 +229,14 @@ export const makeWalletBridgeFromFollowers = (
       watcher.watchLatest(
         [
           AgoricChainStoragePathKind.Data,
-          `published.beansOwing.${smartWalletKey.address}`,
+          `beansOwing.${smartWalletKey.address}`,
         ],
-        value => beansOwingUpdater.updateState(Number(value)),
+        value => {
+          beansOwingUpdater.updateState(Number(value));
+        },
+        err => {
+          console.error('error watching beansOwing', err);
+        },
       ),
     );
   };
@@ -309,7 +314,7 @@ export const makeWalletBridgeFromFollowers = (
       );
     });
 
-  const watchPendingOffers = async () => {
+  const watchPendingOffers = () => {
     stopWatchingHooks.push(
       watcher.watchLatest<Partial<CurrentWalletRecord>>(
         [
@@ -328,8 +333,8 @@ export const makeWalletBridgeFromFollowers = (
   const fetchCurrent = async () => {
     const resolvedFollower = await currentFollower;
     await assertHasData(resolvedFollower);
-    void watchBeansOwing();
-    void watchPendingOffers();
+    watchBeansOwing();
+    watchPendingOffers();
     watchChainBalances();
 
     const latestIterable = await E(resolvedFollower).getLatestIterable();
