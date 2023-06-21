@@ -236,6 +236,7 @@ export const makeWalletBridgeFromFollowers = (
         },
         err => {
           console.error('error watching beansOwing', err);
+          errorHandler(new Error(err));
         },
       ),
     );
@@ -278,7 +279,12 @@ export const makeWalletBridgeFromFollowers = (
 
     const watchBank = async () => {
       if (isHalted) return;
-      bank = await queryBankBalances(keplrConnection.address, rpc);
+      try {
+        bank = await queryBankBalances(keplrConnection.address, rpc);
+      } catch (e) {
+        errorHandler(e);
+        return;
+      }
       possiblyUpdateBankPurses();
       setTimeout(watchBank, POLL_INTERVAL_MS);
     };
@@ -290,6 +296,10 @@ export const makeWalletBridgeFromFollowers = (
           value => {
             vbankAssets = value;
             possiblyUpdateBankPurses();
+          },
+          err => {
+            console.error('error watching vbank assets', err);
+            errorHandler(new Error(err));
           },
         ),
       );
@@ -325,6 +335,10 @@ export const makeWalletBridgeFromFollowers = (
           notifierKits.pendingOffers.updater.updateState(
             value.liveOffers ?? [],
           );
+        },
+        err => {
+          console.error('error watching pending offers', err);
+          errorHandler(new Error(err));
         },
       ),
     );
@@ -430,7 +444,8 @@ export const makeWalletBridgeFromFollowers = (
     }
   };
 
-  const loadData = () => fetchCurrent().then(followLatest);
+  const loadData = () =>
+    fetchCurrent().then(height => followLatest(height).catch(errorHandler));
 
   const retry = () => {
     loadData().catch(e => {
