@@ -10,14 +10,19 @@ import {
   assertHasData,
   NO_SMART_WALLET_ERROR,
 } from '@agoric/smart-wallet/src/utils';
-import { E, ERef } from '@endo/eventual-send';
+import { E, ERef, FarRef } from '@endo/eventual-send';
 import { Far, Marshal } from '@endo/marshal';
 import { querySwingsetParams } from '../util/querySwingsetParams';
 import { getDappService } from '../service/Dapps';
 import { getIssuerService } from '../service/Issuers';
 import { getOfferService } from '../service/Offers';
 
-import type { Brand, DisplayInfo } from '@agoric/ertp/src/types';
+import type {
+  Brand,
+  DepositFacet,
+  DisplayInfo,
+  Issuer,
+} from '@agoric/ertp/src/types';
 import type { Notifier } from '@agoric/notifier/src/types';
 import type { OfferStatus } from '@agoric/smart-wallet/src/offers';
 import type { UpdateRecord } from '@agoric/smart-wallet/src/smartWallet';
@@ -32,16 +37,59 @@ import { queryBankBalances } from './queryBankBalances';
 import type { Coin } from '@cosmjs/stargate';
 import type { PurseInfo } from '../service/Offers';
 import { wellKnownPetnames } from './well-known-petnames';
-import type { ChainStorageWatcher } from '../rpc/src/chainStorageWatcher';
-import { AgoricChainStoragePathKind } from '../rpc';
+import type { ChainStorageWatcher } from '@agoric/rpc';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { AgoricChainStoragePathKind } from '@agoric/rpc';
 
 const newId = kind => `${kind}${Math.random()}`;
 const POLL_INTERVAL_MS = 6000;
 
 export type BackendSchema = {
-  actions: object;
+  actions: FarRef<{
+    createPurse: (issuer: any, id?: string) => void;
+    createContact: (depositFacet: DepositFacet, id?: string) => void;
+    createIssuer: (issuer: Issuer, id?: string) => void;
+  }>;
+  beansOwing: Promise<AsyncIterator<number>>;
+  services: Promise<AsyncIterator<any, any>>;
+  contacts: Promise<AsyncIterator<any, any>>;
+  dapps: Promise<AsyncIterator<any, any>>;
+  issuers: Promise<AsyncIterator<any, any>>;
+  offers: ReturnType<typeof wrapOffersIterator>;
+  payments: Promise<AsyncIterator<any, any>>;
+  purses: Promise<AsyncIterator<any, any>>;
   issuerSuggestions: Promise<AsyncIterator<any, any>>;
+  swingsetParams: Promise<any>;
 };
+
+const wrapOffersIterator = (
+  offersMembers: AsyncIterator<any[], any[]>,
+  walletBridge: any,
+) =>
+  harden({
+    next: async () => {
+      const { done, value } = await E(offersMembers).next();
+      return harden({
+        done,
+        value:
+          value &&
+          value.map(({ id, ...rest }) =>
+            harden({
+              id,
+              ...rest,
+              actions: {
+                // Provide these synthetic actions since offers don't have any yet.
+                accept: () => E(walletBridge).acceptOffer(id),
+                decline: () => E(walletBridge).declineOffer(id),
+                tryExit: () => E(walletBridge).tryExitOffer(id),
+              },
+            }),
+          ),
+      });
+    },
+    return: offersMembers.return,
+    throw: offersMembers.throw,
+  });
 
 export const makeBackendFromWalletBridge = (
   walletBridge: ReturnType<typeof makeWalletBridgeFromFollowers>,
@@ -51,32 +99,6 @@ export const makeBackendFromWalletBridge = (
 
   // XXX we don't have access to the board yet.
   const { notifier: servicesNotifier } = makeNotifierKit();
-
-  const wrapOffersIterator = (offersMembers: AsyncIterator<any[], any[]>) =>
-    harden({
-      next: async () => {
-        const { done, value } = await E(offersMembers).next();
-        return harden({
-          done,
-          value:
-            value &&
-            value.map(({ id, ...rest }) =>
-              harden({
-                id,
-                ...rest,
-                actions: {
-                  // Provide these synthetic actions since offers don't have any yet.
-                  accept: () => E(walletBridge).acceptOffer(id),
-                  decline: () => E(walletBridge).declineOffer(id),
-                  tryExit: () => E(walletBridge).tryExitOffer(id),
-                },
-              }),
-            ),
-        });
-      },
-      return: offersMembers.return,
-      throw: offersMembers.throw,
-    });
 
   const firstSchema: BackendSchema = harden({
     actions: Far('schemaActions', {
@@ -95,6 +117,7 @@ export const makeBackendFromWalletBridge = (
     offers: wrapOffersIterator(
       // @ts-expect-error xxx
       iterateNotifier(E(walletBridge).getOffersNotifier()),
+      walletBridge,
     ),
     payments: iterateNotifier(E(walletBridge).getPaymentsNotifier()),
     purses: iterateNotifier(E(walletBridge).getPursesNotifier()),

@@ -48,5 +48,14 @@ module.exports = function override(config, _env) {
   };
   const plug2 = new HtmlWebPackPlugin(opts);
   config.plugins.push(plug2);
+  config.module.rules = [
+    ...config.module.rules,
+    {
+      test: /\.m?js/,
+      resolve: {
+        fullySpecified: false,
+      },
+    },
+  ];
   return config;
 };

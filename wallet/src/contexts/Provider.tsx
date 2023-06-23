@@ -22,7 +22,7 @@ import { onLoadP } from '../util/onLoad';
 import { DappWithActions } from '../service/Dapps';
 
 import type { Params as CosmicSwingsetParams } from '@agoric/cosmic-proto/dist/agoric/swingset/swingset';
-import { BackendSchema } from '../util/WalletBackendAdapter';
+import type { BackendSchema } from '../util/WalletBackendAdapter';
 import { PurseInfo } from '../service/Offers';
 import { AssetKind } from '@agoric/ertp';
 
@@ -166,7 +166,9 @@ const Provider = ({ children }) => {
     useState<CosmicSwingsetParams | null>(null);
   const [beansOwing, setBeansOwing] = useState<string | null>(null);
   const [backend, setBackend] = useState<BackendSchema | null>(null);
-  const [schemaActions, setSchemaActions] = useState(null);
+  const [schemaActions, setSchemaActions] = useState<Promise<
+    BackendSchema['actions']
+  > | null>(null);
   const [backendErrorHandler, setBackendErrorHandler] = useState(null);
   const [previewEnabled, setPreviewEnabled] = useState(false);
   // expose for development
