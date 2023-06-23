@@ -2,7 +2,7 @@ import { makeFollower, makeLeader } from '@agoric/casting';
 import {
   AgoricChainStoragePathKind as Kind,
   makeAgoricChainStorageWatcher,
-} from '../rpc';
+} from '@agoric/rpc';
 import { observeIterator } from '@agoric/notifier';
 import { NO_SMART_WALLET_ERROR } from '@agoric/smart-wallet/src/utils';
 import { makeImportContext } from '@agoric/smart-wallet/src/marshal-contexts';
@@ -24,8 +24,8 @@ import {
 } from '../util/WalletBackendAdapter';
 import ProvisionDialog from './ProvisionDialog';
 
-import type { MetricsNotification as ProvisionPoolMetrics } from '@agoric/vats/src/provisionPool';
-import type { ChainStorageWatcher } from '../rpc/src/chainStorageWatcher';
+import type { MetricsNotification as ProvisionPoolMetrics } from '@agoric/vats/src/provisionPoolKit';
+import type { ChainStorageWatcher } from '@agoric/rpc';
 
 // @ts-expect-error xxx forwardRef
 const Alert = React.forwardRef(function Alert({ children, ...props }, ref) {
@@ -168,6 +168,7 @@ const SmartWalletConnection = ({
     const follow = async () => {
       const followPublished = <T extends {}>(path) =>
         makeFollower<T>(`:published.${path}`, leader, {
+          // @ts-expect-error FarRef not needed
           unserializer: context.fromMyWallet,
           proof: 'none',
         });

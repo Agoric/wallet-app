@@ -5,7 +5,7 @@ import '@endo/eventual-send/shim';
 
 // Ambient types. Needed only for dev but this does a runtime import.
 import '@agoric/ertp/exported';
-import '@agoric/notifier/exported';
+import '@agoric/notifier/exported.js';
 // eslint-disable-next-line import/no-extraneous-dependencies -- transitive
 import '@agoric/store/exported';
 // eslint-disable-next-line import/no-extraneous-dependencies -- transitive
