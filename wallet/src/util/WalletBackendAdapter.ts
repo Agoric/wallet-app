@@ -259,7 +259,8 @@ export const makeWalletBridgeFromFollowers = (
         },
         err => {
           console.error('error watching beansOwing', err);
-          errorHandler(new Error(err));
+          // Don't throw on beansOwing, for upgrade backwards compatibility.
+          // errorHandler(new Error(err));
         },
       ),
     );
