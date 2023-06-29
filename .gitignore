@@ -51,7 +51,6 @@ typings/
 bundle-*.js
 /.vagrant
 .DS_Store
-.vscode/
 .idea/
 
 /packages.png

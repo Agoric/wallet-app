@@ -124,7 +124,7 @@ const ConnectionSettingsDialog = ({
                 break;
               case 'localhost':
                 setConfig({
-                  href: `http://localhost:3000/wallet/network-config`,
+                  href: `${window.location.origin}/wallet/network-config`,
                 });
                 break;
               case 'custom':
