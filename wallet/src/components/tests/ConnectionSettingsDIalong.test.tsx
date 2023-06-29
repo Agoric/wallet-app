@@ -1,7 +1,10 @@
 import { mount } from 'enzyme';
 import ConnectionSettingsDialog from '../ConnectionSettingsDialog';
-import { DEFAULT_CONNECTION_CONFIGS, KnownNetworkConfigUrls } from '../../util/connections'; 
-import { Input, Select, TextField, ThemeProvider, createTheme } from '@mui/material';
+import {
+  DEFAULT_CONNECTION_CONFIGS,
+  KnownNetworkConfigUrls,
+} from '../../util/connections';
+import { Select, TextField, ThemeProvider, createTheme } from '@mui/material';
 import { act } from '@testing-library/react';
 
 jest.mock('lodash-es/isEqual', () => () => true);
@@ -15,7 +18,7 @@ const appTheme = createTheme({
   },
 });
 
-const MOCK_LOCALHOST = "http://foobar:440"
+const MOCK_LOCALHOST = 'http://foobar:440';
 
 const withApplicationContext =
   (Component, _) =>
@@ -31,7 +34,7 @@ jest.mock('../../contexts/Application', () => {
   return { withApplicationContext };
 });
 
-describe("Connection setting dialog", () => {
+describe('Connection setting dialog', () => {
   const { location } = window;
 
   beforeAll(() => {
@@ -47,20 +50,25 @@ describe("Connection setting dialog", () => {
   });
 
   test('displays the dapp', () => {
-  const component = mount(
-    <ConnectionSettingsDialog 
-      allConnectionConfigs={DEFAULT_CONNECTION_CONFIGS} 
-      connectionConfig={{ href: KnownNetworkConfigUrls.main }}
-      open
-      />);
-  
-  const networkSelect = component.find(Select).first();
-  act(() => networkSelect.props().onChange({ target: { value: 'localhost' } }));
-  component.update();
-  
-  const textField = component.find(TextField).first()
-  const inputField = textField.find("input").first()
-  
-  expect(inputField.prop("value")).toEqual(`${MOCK_LOCALHOST}/wallet/network-config`)
+    const component = mount(
+      <ConnectionSettingsDialog
+        allConnectionConfigs={DEFAULT_CONNECTION_CONFIGS}
+        connectionConfig={{ href: KnownNetworkConfigUrls.main }}
+        open
+      />,
+    );
+
+    const networkSelect = component.find(Select).first();
+    act(() =>
+      networkSelect.props().onChange({ target: { value: 'localhost' } }),
+    );
+    component.update();
+
+    const textField = component.find(TextField).first();
+    const inputField = textField.find('input').first();
+
+    expect(inputField.prop('value')).toEqual(
+      `${MOCK_LOCALHOST}/wallet/network-config`,
+    );
   });
 });
