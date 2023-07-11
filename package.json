@@ -15,10 +15,10 @@
     "start": "web-dev-server --port=3000 packages/wallet/public/",
     "preview": "web-dev-server --port=3001 build/",
     "test": "yarn workspaces run test",
-    "pretty-fix": "prettier --write '**/*.{js,html}'",
-    "pretty-check": "prettier --check '**/*.{js,html}'",
+    "format": "prettier --write '**/*.{js,html}'",
+    "lint:format": "prettier --check '**/*.{js,html}'",
     "lint-fix": "yarn lint:eslint --fix && yarn lint:types",
-    "lint-check": "yarn lint",
+    "lint:check": "yarn lint",
     "lint": "yarn lint:types && yarn lint:eslint",
     "lint:types": "tsc -p jsconfig.json",
     "lint:eslint": "eslint '**/*.js'"
