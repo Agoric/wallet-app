@@ -121,9 +121,8 @@ export const getOfferService = (
               const unserializedAmount = await E(boardIdMarshaller).unserialize(
                 entry.amount,
               );
-              entry.pursePetname = brandToPurse.get(
-                unserializedAmount.brand,
-              )?.pursePetname;
+              entry.pursePetname = brandToPurse.get(unserializedAmount.brand)
+                ?.pursePetname;
               entry.value = String(unserializedAmount.value);
             }
             return [kw, entry];

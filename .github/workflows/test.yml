@@ -19,4 +19,5 @@ jobs:
           cache: 'yarn'
       - run: yarn install --frozen-lockfile # optional, --immutable
       - run: cd wallet && yarn lint
+      - run: cd wallet && yarn pretty-check
       - run: yarn test
