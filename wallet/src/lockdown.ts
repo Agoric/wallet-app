@@ -9,14 +9,6 @@ const consoleTaming = '%NODE_ENV%' === 'development' ? 'unsafe' : 'safe';
 // eslint-disable-next-line no-constant-condition
 const errorTaming = '%NODE_ENV%' === 'development' ? 'unsafe' : 'safe';
 
-// eslint-disable-next-line no-restricted-properties
-const { pow: mathPow } = Math;
-// eslint-disable-next-line no-restricted-properties
-Math.pow = (base, exp) =>
-  typeof base === 'bigint' && typeof exp === 'bigint'
-    ? base ** exp
-    : mathPow(base, exp);
-
 lockdown({
   errorTaming,
   overrideTaming: 'severe',
