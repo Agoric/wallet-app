@@ -9,6 +9,11 @@ import Issuers from './views/Issuers';
 
 import './App.scss';
 
+window.addEventListener('keplr_keystorechange', () => {
+  console.log('Key store in Keplr has changed.');
+  window.location.reload();
+});
+
 const useStyles = makeStyles(theme => ({
   main: {
     boxSizing: 'border-box',
@@ -36,6 +41,7 @@ const useStyles = makeStyles(theme => ({
 
 const App = () => {
   const classes = useStyles(useTheme());
+
   return (
     <span className="App">
       <span className={classes.navMenu}>
