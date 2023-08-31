@@ -9,6 +9,7 @@ export const icons = {
   USDT_grv: 'tokens/USDT_grv.webp',
   USDT_axl: 'tokens/USDT_axl.png',
   DAI_axl: 'tokens/DAI_axl.png',
+  stATOM: 'tokens/statom.svg',
   DAI_grv: 'tokens/DAI_grv.png',
 };
 
