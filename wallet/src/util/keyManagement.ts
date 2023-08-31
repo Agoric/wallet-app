@@ -250,7 +250,6 @@ export const makeBackgroundSigner = async ({
     granter: string,
     rpcClient: import('@cosmjs/tendermint-rpc').Tendermint34Client,
   ): Promise<GenericAuthorization[]> => {
-    // @ts-expect-error
     const base = QueryClient.withExtensions(rpcClient);
     const rpc = createProtobufRpcClient(base);
     const queryService = new QueryClientImpl(rpc);
@@ -403,7 +402,6 @@ export const makeInteractiveSigner = async (
   };
   const signingClient = await connectWithSigner(chainInfo.rpc, offlineSigner, {
     aminoTypes: new AminoTypes(converters),
-    // @ts-expect-error
     registry: SwingsetRegistry,
   });
   console.debug('InteractiveSigner', { signingClient });

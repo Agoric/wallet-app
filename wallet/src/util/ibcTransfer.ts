@@ -8,7 +8,7 @@ const timeoutTimestampSeconds = () =>
   Math.round(Date.now() / 1000) + secondsUntilTimeout;
 
 export const agoricChainId = 'agoric-3';
-const agoricRpc = 'https://agoric-rpc.stakely.io/';
+const agoricRpc = 'https://agoric-rpc.polkachu.com:443';
 const agoricGas = '500000';
 
 export const sendIbcTokens = async (
