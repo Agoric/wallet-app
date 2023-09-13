@@ -1,6 +1,8 @@
 import { OfflineSigner } from '@cosmjs/proto-signing';
 import { SigningStargateClient } from '@cosmjs/stargate';
 import { AssetInfo } from './ibc-assets';
+import { KnownNetworkConfigUrls } from './connections';
+import { fetchChainInfo } from './chainInfo';
 
 const secondsUntilTimeout = 300;
 
@@ -8,7 +10,6 @@ const timeoutTimestampSeconds = () =>
   Math.round(Date.now() / 1000) + secondsUntilTimeout;
 
 export const agoricChainId = 'agoric-3';
-const agoricRpc = 'https://agoric-rpc.polkachu.com:443';
 const agoricGas = '500000';
 
 export const sendIbcTokens = async (
@@ -50,15 +51,8 @@ export const withdrawIbcTokens = async (
 ) => {
   // @ts-expect-error window keys
   const { keplr } = window;
+  const { rpc } = await fetchChainInfo(KnownNetworkConfigUrls.main);
   const signer = await keplr.getOfflineSignerOnlyAmino(agoricChainId);
 
-  return sendIbcTokens(
-    assetInfo,
-    agoricRpc,
-    signer,
-    amount,
-    from,
-    to,
-    agoricGas,
-  );
+  return sendIbcTokens(assetInfo, rpc, signer, amount, from, to, agoricGas);
 };
