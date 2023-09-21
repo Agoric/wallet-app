@@ -16,6 +16,7 @@ import { querySwingsetParams } from '../util/querySwingsetParams';
 import { getDappService } from '../service/Dapps';
 import { getIssuerService } from '../service/Issuers';
 import { getOfferService } from '../service/Offers';
+import { isCopyBag } from '@endo/patterns';
 
 import type {
   Brand,
@@ -242,6 +243,7 @@ export const makeWalletBridgeFromFollowers = (
     offerUpdatesNotifer,
     pendingOffersNotifier,
     marshaller,
+    watcher,
   );
 
   const { notifier: beansOwingNotifier, updater: beansOwingUpdater } =
@@ -402,7 +404,10 @@ export const makeWalletBridgeFromFollowers = (
       // If we ever add non 'set' amount purses that aren't in the vbank, it's
       // not currently possible to read their decimalPlaces, so this code
       // will need updating.
-      if (!Array.isArray(purse.balance.value)) {
+
+      const isCopyBagResult = isCopyBag(purse.balance.value);
+
+      if (!Array.isArray(purse.balance.value) && !isCopyBagResult) {
         console.debug('skipping non-set amount', purse.balance.value);
         continue;
       }
@@ -412,7 +417,9 @@ export const makeWalletBridgeFromFollowers = (
       }
       const brandDescriptor = {
         petname: agoricBrands.get(purse.brand) as Petname,
-        displayInfo: { assetKind: AssetKind.SET },
+        displayInfo: isCopyBagResult
+          ? { assetKind: AssetKind.COPY_BAG }
+          : { assetKind: AssetKind.SET },
       };
       const purseInfo: PurseInfo = {
         brand: purse.brand,

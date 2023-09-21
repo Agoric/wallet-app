@@ -17,6 +17,7 @@ import {
 import { useState, useEffect, useRef } from 'react';
 import PetnameSpan from './PetnameSpan';
 import { stringify } from '../util/marshal';
+import { isCopyBag } from '@endo/patterns';
 
 const Item = ({ showDivider, children }) => {
   const [expanded, setExpanded] = useState(false);
@@ -189,9 +190,9 @@ const RichAmountDisplay = ({ text, items }) => {
 const PurseValue = ({ value, displayInfo, brandPetname }) => {
   const isNat = displayInfo?.assetKind === AssetKind.NAT;
   const isSet = displayInfo?.assetKind === AssetKind.SET;
-  const isCopyBag = displayInfo?.assetKind === AssetKind.COPY_BAG;
+  const isCopyBagResult = displayInfo?.assetKind === AssetKind.COPY_BAG;
 
-  if (isCopyBag && Object.prototype.hasOwnProperty.call(value, 'payload')) {
+  if (isCopyBagResult && isCopyBag(value)) {
     value = value.payload;
   }
 
@@ -216,7 +217,7 @@ const PurseValue = ({ value, displayInfo, brandPetname }) => {
     ));
 
   const copyBagItems =
-    isCopyBag &&
+    isCopyBagResult &&
     value.map((entry, index) => (
       <CopyBagItem
         key={stringify(entry[0], true)}
@@ -230,7 +231,9 @@ const PurseValue = ({ value, displayInfo, brandPetname }) => {
     <Box sx={{ fontWeight: 600 }}>
       {isNat && text}
       {isSet && <RichAmountDisplay text={text} items={setItems} />}
-      {isCopyBag && <RichAmountDisplay text={text} items={copyBagItems} />}
+      {isCopyBagResult && (
+        <RichAmountDisplay text={text} items={copyBagItems} />
+      )}
     </Box>
   );
 };
