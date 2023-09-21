@@ -13,38 +13,40 @@ import { stringify } from '../util/marshal';
 import { Typography } from '@mui/material';
 
 import './Offer.scss';
+import type { Amount, DisplayInfo } from '@agoric/ertp/src/types';
 
 const OfferEntryFromTemplate = (
-  type,
-  [role, { value: stringifiedValue, pursePetname }],
-  purses,
+  type: { header: string; move: string },
+  entry: [
+    any,
+    { amount: Amount; brandPetname: string; displayInfo: DisplayInfo },
+  ],
 ) => {
-  const value = BigInt(stringifiedValue);
-  const purse = purses.find(p => p.pursePetname === pursePetname);
-  if (!purse) {
-    return null;
-  }
+  const [role, { amount, brandPetname, displayInfo }] = entry;
+
   return (
-    <div className="OfferEntry" key={purse.brandPetname}>
+    <div className="OfferEntry" key={brandPetname}>
       <h6>
         {type.header} {role}
       </h6>
       <div className="Token">
-        <BrandIcon brandPetname={purse.brandPetname} />
+        <BrandIcon brandPetname={brandPetname} />
         <div>
           <PurseValue
-            value={value}
-            displayInfo={purse.displayInfo}
-            brandPetname={purse.brandPetname}
+            value={amount.value}
+            displayInfo={displayInfo}
+            brandPetname={brandPetname}
           />
-          {type.move} <PetnameSpan name={purse.pursePetname} />
+          {type.move} <PetnameSpan name={brandPetname} />
         </div>
       </div>
     </div>
   );
 };
 
-const OfferEntryFromDisplayInfo = (type, [role, { amount, pursePetname }]) => {
+const OfferEntryFromDisplayInfo = (type, entry) => {
+  const [role, { amount, pursePetname }] = entry;
+
   const value =
     amount.displayInfo.assetKind === 'nat' ? Nat(amount.value) : amount.value;
   return (
@@ -77,10 +79,10 @@ const GiveFromDisplayInfo = entry =>
 const WantFromDisplayInfo = entry =>
   OfferEntryFromDisplayInfo(entryTypes.want, entry);
 
-const GiveFromTemplate = (entry, purses) =>
-  OfferEntryFromTemplate(entryTypes.give, entry, purses);
-const WantFromTemplate = (entry, purses) =>
-  OfferEntryFromTemplate(entryTypes.want, entry, purses);
+const GiveFromTemplate = entry =>
+  OfferEntryFromTemplate(entryTypes.give, entry);
+const WantFromTemplate = entry =>
+  OfferEntryFromTemplate(entryTypes.want, entry);
 
 const cmp = (a, b) => {
   if (a < b) {
@@ -237,10 +239,10 @@ const Proposal = ({ offer, purses, swingsetParams, beansOwing }) => {
   );
 
   const Gives = sortedEntries(give).map(g =>
-    hasDisplayInfo ? GiveFromDisplayInfo(g) : GiveFromTemplate(g, purses),
+    hasDisplayInfo ? GiveFromDisplayInfo(g) : GiveFromTemplate(g),
   );
   const Wants = sortedEntries(want).map(w =>
-    hasDisplayInfo ? WantFromDisplayInfo(w) : WantFromTemplate(w, purses),
+    hasDisplayInfo ? WantFromDisplayInfo(w) : WantFromTemplate(w),
   );
 
   return (
@@ -283,9 +285,10 @@ const Proposal = ({ offer, purses, swingsetParams, beansOwing }) => {
 
 export default withApplicationContext(
   Proposal,
-  ({ purses, swingsetParams, beansOwing }) => ({
+  ({ purses, swingsetParams, beansOwing, watcher }) => ({
     swingsetParams,
     purses,
     beansOwing,
+    watcher,
   }),
 );
