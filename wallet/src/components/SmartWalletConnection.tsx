@@ -128,8 +128,8 @@ const SmartWalletConnection = ({
     return makeAgoricChainStorageWatcher(
       keplrConnection.rpc,
       keplrConnection.chainId,
-      context.fromBoard.unserialize,
       backendError,
+      context.fromBoard,
     );
   }, [keplrConnection, context]);
 

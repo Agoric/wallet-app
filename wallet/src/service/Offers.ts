@@ -22,6 +22,8 @@ import type { Notifier } from '@agoric/notifier/src/types';
 import type { Petname } from '@agoric/smart-wallet/src/types';
 import type { Amount, Brand, DisplayInfo } from '@agoric/ertp/src/types';
 import type { InvitationSpec } from '@agoric/smart-wallet/src/invitations';
+import { AgoricChainStoragePathKind, ChainStorageWatcher } from '@agoric/rpc';
+import { deeplyFulfilledObject, objectMap } from '@agoric/internal';
 
 // XXX These should be imported from @agoric/web-components.
 export type PurseInfo = {
@@ -33,12 +35,14 @@ export type PurseInfo = {
   denom?: string;
 };
 
+// XXX better name?
+type PurseDisplayInfo = {
+  value?: number | string; // Localstorage cannot serialize BigInt.
+  pursePetname?: Petname;
+  amount?: CapData<string>;
+};
 type GiveOrWantEntries = {
-  [keyword: string]: {
-    value?: number | string; // Localstorage cannot serialize BigInt.
-    pursePetname?: Petname;
-    amount?: CapData<string>;
-  };
+  [keyword: string]: PurseDisplayInfo;
 };
 
 const sourceDescriptionForSpec = (spec: InvitationSpec) => {
@@ -58,10 +62,16 @@ export const getOfferService = (
   offerUpdatesNotifier: Notifier<OfferStatus>,
   pendingOffersNotifier: Notifier<OfferStatus>,
   boardIdMarshaller: Marshal<string>,
+  watcher: ChainStorageWatcher,
 ) => {
   const offers = new Map<number, Offer>();
   const { notifier, updater } = makeNotifierKit<Offer[]>();
   const broadcastUpdates = () => updater.updateState([...offers.values()]);
+
+  const brandsP = watcher.queryOnce<[string, unknown][]>([
+    AgoricChainStoragePathKind.Data,
+    'published.agoricNames.brand',
+  ]);
 
   // Takes an offer object from storage and augments it with a spend action and
   // everything needed to display it in the UI.
@@ -109,26 +119,41 @@ export const getOfferService = (
       return Object.fromEntries(entries);
     };
 
+    const readDisplayInfo = async (entry: PurseDisplayInfo) => {
+      const amount: Amount = await E(boardIdMarshaller).unserialize(
+        entry.amount as CapData<string>,
+      );
+      const purse = brandToPurse.get(amount.brand);
+
+      if (purse) {
+        const { pursePetname: brandPetname, displayInfo } = purse;
+        return harden({ amount, brandPetname, displayInfo });
+      }
+
+      const [brands, boardAux] = await Promise.all([
+        brandsP,
+        watcher.queryBoardAux<{
+          displayInfo: DisplayInfo;
+        }>([amount.brand])[0],
+      ]);
+
+      const brandPetname: string = brands
+        .find(([_, brand]) => brand === brand)
+        ?.at(0) as string;
+      const displayInfo: DisplayInfo | undefined = boardAux?.displayInfo;
+
+      return harden({ amount, brandPetname, displayInfo });
+    };
+
     // Takes give/want entries from dapps and augments them with data needed to
     // display them in the UI, namely a pursePetname and value.
-    const makeProposalTemplateDisplayable = async (
+    const makeProposalTemplateDisplayable = (
       proposalTemplate: GiveOrWantEntries,
-    ) =>
-      Object.fromEntries(
-        await Promise.all(
-          Object.entries(proposalTemplate).map(async ([kw, entry]) => {
-            if (entry.amount && !(entry.pursePetname && entry.value)) {
-              const unserializedAmount = await E(boardIdMarshaller).unserialize(
-                entry.amount,
-              );
-              entry.pursePetname = brandToPurse.get(unserializedAmount.brand)
-                ?.pursePetname;
-              entry.value = String(unserializedAmount.value);
-            }
-            return [kw, entry];
-          }),
-        ),
+    ) => {
+      return deeplyFulfilledObject(
+        objectMap(proposalTemplate, readDisplayInfo),
       );
+    };
 
     const [give, want, displayableGiveTemplate, displayableWantTemplate] =
       await Promise.all([
@@ -257,15 +282,43 @@ export const getOfferService = (
   };
 
   const watchPendingOffers = async (brandToPurse: Map<Brand, PurseInfo>) => {
-    const makeProposalEntriesDisplayable = (proposalEntries: {
+    const makeProposalEntriesDisplayable = async (proposalEntries: {
       [key: string]: Amount;
     }) =>
       Object.fromEntries(
-        Object.entries(proposalEntries).map(([kw, entry]) => {
-          const pursePetname = brandToPurse.get(entry.brand)?.pursePetname;
-          const value = String(entry.value);
-          return [kw, { pursePetname, value }];
-        }),
+        await Promise.all(
+          Object.entries(proposalEntries).map(
+            async ([kw, unserializedAmount]) => {
+              assert(unserializedAmount);
+              const purse = brandToPurse.get(unserializedAmount.brand);
+              if (purse) {
+                const { pursePetname: brandPetname, displayInfo } = purse;
+                return [
+                  kw,
+                  { amount: unserializedAmount, brandPetname, displayInfo },
+                ];
+              }
+
+              const [brands, boardAux] = await Promise.all([
+                brandsP,
+                watcher.queryBoardAux<{
+                  displayInfo: DisplayInfo;
+                }>([unserializedAmount.brand])[0],
+              ]);
+
+              const brandPetname: string = brands
+                .find(([_, brand]) => brand === brand)
+                ?.at(0) as string;
+              const displayInfo: DisplayInfo | undefined =
+                boardAux?.displayInfo;
+
+              return [
+                kw,
+                { amount: unserializedAmount, brandPetname, displayInfo },
+              ];
+            },
+          ),
+        ),
       );
 
     for await (const pendingOffers of makeAsyncIterableFromNotifier(
@@ -282,10 +335,10 @@ export const getOfferService = (
             proposalTemplate: {
               give:
                 o.proposal.give &&
-                makeProposalEntriesDisplayable(o.proposal.give),
+                (await makeProposalEntriesDisplayable(o.proposal.give)),
               want:
                 o.proposal.want &&
-                makeProposalEntriesDisplayable(o.proposal.want),
+                (await makeProposalEntriesDisplayable(o.proposal.want)),
             },
             sourceDescription:
               'Source: ' + sourceDescriptionForSpec(o.invitationSpec),
