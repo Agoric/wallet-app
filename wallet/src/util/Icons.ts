@@ -11,6 +11,7 @@ export const icons = {
   DAI_axl: 'tokens/DAI_axl.png',
   stATOM: 'tokens/statom.svg',
   DAI_grv: 'tokens/DAI_grv.png',
+  USDT: 'tokens/USDT.png',
 };
 
 export const defaultIcon = 'tokens/default.png';
