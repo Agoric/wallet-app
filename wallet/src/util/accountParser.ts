@@ -13,6 +13,7 @@ import {
   PeriodicVestingAccount,
 } from 'cosmjs-types/cosmos/vesting/v1beta1/vesting';
 import { Any } from 'cosmjs-types/google/protobuf/any';
+import { StridePeriodicVestingAccount } from 'stridejs/main/codegen/stride/vesting/vesting';
 
 export interface Account {
   /** Bech32 account address */
@@ -84,6 +85,16 @@ export function accountFromAny(input: Any): Account {
     case '/cosmos.vesting.v1beta1.PeriodicVestingAccount': {
       const baseAccount =
         PeriodicVestingAccount.decode(value)?.baseVestingAccount?.baseAccount;
+      assert(baseAccount);
+      return accountFromBaseAccount(baseAccount);
+    }
+
+    // custom
+
+    case '/stride.vesting.StridePeriodicVestingAccount': {
+      const baseAccount =
+        StridePeriodicVestingAccount.decode(value).baseVestingAccount
+          .baseAccount;
       assert(baseAccount);
       return accountFromBaseAccount(baseAccount);
     }
