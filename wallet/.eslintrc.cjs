@@ -61,5 +61,5 @@ module.exports = {
       },
     ],
   },
-  ignorePatterns: ['**/*.umd.js', '**/generated/*'],
+  ignorePatterns: ['**/*.umd.js', '**/generated/*', '**/*.d.ts'],
 };

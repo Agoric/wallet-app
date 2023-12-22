@@ -27,6 +27,7 @@ import {
 
 import { stableCurrency, bech32Config } from './chainInfo';
 import type { ChainInfo, Keplr } from '@keplr-wallet/types';
+import { accountFromAny } from './accountParser';
 
 export function toAccAddress(address: string): Uint8Array {
   return fromBech32(address).data;
@@ -403,6 +404,7 @@ export const makeInteractiveSigner = async (
   const signingClient = await connectWithSigner(chainInfo.rpc, offlineSigner, {
     aminoTypes: new AminoTypes(converters),
     registry: SwingsetRegistry,
+    accountParser: accountFromAny,
   });
   console.debug('InteractiveSigner', { signingClient });
 

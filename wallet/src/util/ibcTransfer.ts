@@ -3,6 +3,7 @@ import { SigningStargateClient } from '@cosmjs/stargate';
 import { AssetInfo } from './ibc-assets';
 import { KnownNetworkConfigUrls } from './connections';
 import { fetchChainInfo } from './chainInfo';
+import { accountFromAny } from './accountParser';
 
 const secondsUntilTimeout = 300;
 
@@ -23,7 +24,9 @@ export const sendIbcTokens = async (
 ) => {
   const { sourceChannel, sourcePort, denom } = assetInfo;
 
-  const client = await SigningStargateClient.connectWithSigner(rpc, signer);
+  const client = await SigningStargateClient.connectWithSigner(rpc, signer, {
+    accountParser: accountFromAny,
+  });
 
   return client.sendIbcTokens(
     from,
