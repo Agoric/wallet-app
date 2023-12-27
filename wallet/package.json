@@ -17,11 +17,14 @@
     "@agoric/smart-wallet": "^0.5.4-dev-6bce049.0",
     "@agoric/ui-components": "^0.3.9-dev-2c6fbc5.0",
     "@agoric/web-components": "^0.6.4-dev-2c6fbc5.0",
+    "@cosmjs/amino": "^0.31.1",
     "@cosmjs/crypto": "^0.31.1",
     "@cosmjs/encoding": "^0.31.1",
+    "@cosmjs/math": "^0.31.1",
     "@cosmjs/proto-signing": "^0.31.1",
     "@cosmjs/stargate": "^0.31.1",
     "@cosmjs/tendermint-rpc": "^0.31.1",
+    "@cosmjs/utils": "^0.31.1",
     "@emotion/react": "^11.5.0",
     "@emotion/styled": "^11.3.0",
     "@endo/captp": "^3.1.1",
@@ -42,6 +45,7 @@
     "react-dom": "^16.8.0",
     "react-router-dom": "^5.3.0",
     "ses": "^0.18.1",
+    "stridejs": "^0.6.2",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
