@@ -33,6 +33,7 @@ export type KeplrUtils = {
     interactiveSigner: InteractiveSigner;
     backgroundSigner: BackgroundSigner;
   };
+  rpc: string;
 };
 
 const useDebugLogging = (state, watch) => {
@@ -212,7 +213,7 @@ const Provider = ({ children }) => {
     assert(keplr, 'Missing window.keplr');
     const { getBytes } = Random;
 
-    const chainInfo = await suggestChain(connectionConfig.href, {
+    const chainInfo = await suggestChain(connectionConfig, {
       fetch,
       keplr,
       random: Math.random,
@@ -236,7 +237,6 @@ const Provider = ({ children }) => {
       address: accounts[0]?.address,
       signers: { interactiveSigner, backgroundSigner },
       chainId: chainInfo.chainId,
-      // @ts-expect-error used?
       rpc: chainInfo.rpc,
     });
   };

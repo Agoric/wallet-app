@@ -26,3 +26,10 @@ export const networkConfigUrl = {
 };
 
 export type NetworkConfigSource = ReturnType<typeof networkConfigUrl.toSource>;
+
+export type ConnectionConfig = {
+  href: string;
+  api?: string;
+  rpc?: string;
+  accessToken?: string;
+};

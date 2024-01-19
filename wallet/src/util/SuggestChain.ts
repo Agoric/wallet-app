@@ -1,6 +1,7 @@
 import type { NetworkConfig } from '@agoric/casting/src/netconfig';
 import type { ChainInfo, Keplr } from '@keplr-wallet/types';
 import { bech32Config, stableCurrency, stakeCurrency } from './chainInfo';
+import { ConnectionConfig } from './connections';
 
 export const AGORIC_COIN_TYPE = 564;
 export const COSMOS_COIN_TYPE = 118;
@@ -10,18 +11,29 @@ export const makeChainInfo = (
   caption: string,
   randomFloat: number,
   walletUrlForStaking?: string,
+  config?: ConnectionConfig,
 ): ChainInfo => {
   const { chainName, rpcAddrs, apiAddrs } = networkConfig;
-  const index = Math.floor(randomFloat * rpcAddrs.length);
+  const rpcIndex = Math.floor(randomFloat * rpcAddrs.length);
 
-  const rpcAddr = rpcAddrs[index];
-  const rpc = rpcAddr.match(/:\/\//) ? rpcAddr : `http://${rpcAddr}`;
+  let rpc: string;
+  if (config?.rpc) {
+    rpc = config.rpc;
+  } else {
+    const rpcAddr = rpcAddrs[rpcIndex];
+    rpc = rpcAddr.match(/:\/\//) ? rpcAddr : `http://${rpcAddr}`;
+  }
 
-  const rest = apiAddrs
-    ? // pick the same index
-      apiAddrs[index]
-    : // adapt from rpc
-      rpc.replace(/(:\d+)?$/, ':1317');
+  let rest: string;
+  if (config?.api) {
+    rest = config.api;
+  } else {
+    rest = apiAddrs
+      ? // pick the same index as rpc node
+        apiAddrs[rpcIndex]
+      : // adapt from rpc
+        rpc.replace(/(:\d+)?$/, ':1317');
+  }
 
   return {
     rpc,
@@ -41,7 +53,7 @@ export const makeChainInfo = (
 };
 
 export async function suggestChain(
-  networkConfigHref: string,
+  config: ConnectionConfig,
   {
     fetch,
     keplr,
@@ -53,8 +65,8 @@ export async function suggestChain(
   },
   caption?: string,
 ) {
-  console.log('suggestChain: fetch', networkConfigHref); // log net IO
-  const url = new URL(networkConfigHref);
+  console.log('suggestChain: fetch', config.href); // log net IO
+  const url = new URL(config.href);
   const res = await fetch(url);
   if (!res.ok) {
     throw Error(`Cannot fetch network: ${res.status}`);
@@ -76,6 +88,7 @@ export async function suggestChain(
     caption,
     random(),
     walletUrlForStaking,
+    config,
   );
   console.log('chainInfo', chainInfo);
   await keplr.experimentalSuggestChain(chainInfo);

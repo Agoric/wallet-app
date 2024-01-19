@@ -8,9 +8,13 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 import { makeStyles } from '@mui/styles';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { withApplicationContext } from '../contexts/Application';
-import { NetworkConfigSource, networkConfigUrl } from '../util/connections';
+import {
+  ConnectionConfig,
+  NetworkConfigSource,
+  networkConfigUrl,
+} from '../util/connections';
 import isEqual from 'lodash-es/isEqual';
 import { maybeSave } from '../util/storage';
 
@@ -43,6 +47,43 @@ const ErrorLabel = ({ children }) => {
   );
 };
 
+const useNodeSuggestions = (networkConfigHref: string) => {
+  const [apiSuggestions, setApiSuggestions] = useState<string[]>([]);
+  const [rpcSuggestions, setRpcSuggestions] = useState<string[]>([]);
+
+  useEffect(() => {
+    let didConfigChange = false;
+    setRpcSuggestions([]);
+    setApiSuggestions([]);
+
+    const updateSuggestions = async () => {
+      const url = new URL(networkConfigHref);
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw Error(`Cannot fetch network: ${res.status}`);
+      }
+      const networkConfig = await res.json();
+
+      if (didConfigChange) return;
+      setApiSuggestions(networkConfig.apiAddrs);
+      setRpcSuggestions(networkConfig.rpcAddrs);
+    };
+
+    updateSuggestions().catch(() =>
+      console.error(
+        'error fetching node suggestions from config',
+        networkConfigHref,
+      ),
+    );
+
+    return () => {
+      didConfigChange = true;
+    };
+  }, [networkConfigHref]);
+
+  return { apiSuggestions, rpcSuggestions };
+};
+
 const ConnectionSettingsDialog = ({
   onClose,
   open,
@@ -60,9 +101,15 @@ const ConnectionSettingsDialog = ({
     networkConfigUrl.toSource(connectionConfig.href),
   );
 
-  const [config, setConfig] = useState(
-    connectionConfig || { href: networkConfigUrl.fromSource(configSource) },
+  const [config, setConfig] = useState<ConnectionConfig>(
+    connectionConfig || {
+      href: networkConfigUrl.fromSource(configSource),
+      rpc: undefined,
+      api: undefined,
+    },
   );
+
+  const { apiSuggestions, rpcSuggestions } = useNodeSuggestions(config.href);
 
   const errors = new Set();
 
@@ -93,10 +140,10 @@ const ConnectionSettingsDialog = ({
       }
       setConnectionConfig(config);
       disconnect(true);
-      const { href } = config;
+      const { href, rpc, api } = config;
       const isKnown = allConnectionConfigs.some(c => c.href === href);
       if (!isKnown) {
-        setAllConnectionConfigs(conns => [{ href }, ...conns]);
+        setAllConnectionConfigs(conns => [{ href, rpc, api }, ...conns]);
       }
     }
     onClose();
@@ -119,11 +166,13 @@ const ConnectionSettingsDialog = ({
               case 'testnet':
               case 'devnet':
                 setConfig({
+                  ...config,
                   href: `https://${value}.agoric.net/network-config`,
                 });
                 break;
               case 'localhost':
                 setConfig({
+                  ...config,
                   href: `${window.location.origin}/wallet/network-config`,
                 });
                 break;
@@ -149,7 +198,9 @@ const ConnectionSettingsDialog = ({
         options={smartConnectionHrefs}
         sx={{ width: 360, mt: 2 }}
         onChange={(_, newValue) =>
+          newValue &&
           setConfig({
+            ...config,
             href: newValue,
           })
         }
@@ -164,7 +215,66 @@ const ConnectionSettingsDialog = ({
             onChange={ev =>
               ev.target.value !== config.href &&
               setConfig({
+                ...config,
                 href: ev.target.value,
+              })
+            }
+          />
+        )}
+      />
+      <Autocomplete
+        value={config.rpc}
+        id="rpc"
+        options={rpcSuggestions}
+        sx={{ width: 360, mt: 2 }}
+        onChange={(_, newValue) =>
+          setConfig({
+            ...config,
+            rpc: newValue ?? undefined,
+          })
+        }
+        renderOption={(props, option) => <li {...props}>{option}</li>}
+        freeSolo
+        selectOnFocus
+        handleHomeEndKeys
+        renderInput={params => (
+          <TextField
+            {...params}
+            label="RPC Node (Default)"
+            onChange={ev =>
+              ev.target.value !== config.rpc &&
+              setConfig({
+                ...config,
+                rpc: ev.target.value,
+              })
+            }
+          />
+        )}
+      />
+      <Autocomplete
+        value={config.api}
+        id="api"
+        options={apiSuggestions}
+        sx={{ width: 360, mt: 2 }}
+        onChange={(_, newValue) =>
+          setConfig({
+            ...config,
+            api: newValue ?? undefined,
+          })
+        }
+        renderOption={(props, option) => <li {...props}>{option}</li>}
+        freeSolo
+        selectOnFocus
+        handleHomeEndKeys
+        renderInput={params => (
+          <TextField
+            {...params}
+            label="API Node (Default)"
+            onChange={ev =>
+              ev.target.value !== config.api &&
+              setConfig({
+                ...config,
+                api: ev.target.value,
               })
             }
           />
