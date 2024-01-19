@@ -59,9 +59,7 @@ describe('Connection setting dialog', () => {
     );
 
     const networkSelect = component.find(Select).first();
-    act(() =>
-      networkSelect.props().onChange({ target: { value: 'localhost' } }),
-    );
+    act(() => networkSelect.props().onChange({ target: { value: 'local' } }));
     component.update();
 
     const textField = component.find(TextField).first();
