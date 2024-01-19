@@ -183,7 +183,7 @@ const ConnectionSettingsDialog = ({
           }}
         >
           <MenuItem value="main">Mainnet</MenuItem>
-          <MenuItem value="testnet">Testnet</MenuItem>
+          <MenuItem value="testnet">Emerynet</MenuItem>
           <MenuItem value="devnet">Devnet</MenuItem>
           <MenuItem value="local">Local</MenuItem>
           <MenuItem value="custom">
