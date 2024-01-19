@@ -20,7 +20,7 @@ export const makeChainInfo = (
   if (config?.rpc) {
     rpc = config.rpc;
   } else {
-    const rpcAddr = rpcAddrs[rpcIndex];
+    const rpcAddr = rpcAddrs[rpcIndex] ?? '';
     rpc = rpcAddr.match(/:\/\//) ? rpcAddr : `http://${rpcAddr}`;
   }
 

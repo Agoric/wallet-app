@@ -65,8 +65,8 @@ const useNodeSuggestions = (networkConfigHref: string) => {
       const networkConfig = await res.json();
 
       if (didConfigChange) return;
-      setApiSuggestions(networkConfig.apiAddrs);
-      setRpcSuggestions(networkConfig.rpcAddrs);
+      setApiSuggestions(networkConfig.apiAddrs ?? []);
+      setRpcSuggestions(networkConfig.rpcAddrs ?? []);
     };
 
     updateSuggestions().catch(() =>
@@ -167,10 +167,10 @@ const ConnectionSettingsDialog = ({
               case 'devnet':
                 setConfig({
                   ...config,
-                  href: `https://${value}.agoric.net/network-config`,
+                  href: networkConfigUrl.fromSource(value),
                 });
                 break;
-              case 'localhost':
+              case 'local':
                 setConfig({
                   ...config,
                   href: `${window.location.origin}/wallet/network-config`,
@@ -185,7 +185,7 @@ const ConnectionSettingsDialog = ({
           <MenuItem value="main">Mainnet</MenuItem>
           <MenuItem value="testnet">Testnet</MenuItem>
           <MenuItem value="devnet">Devnet</MenuItem>
-          <MenuItem value="localhost">Localhost</MenuItem>
+          <MenuItem value="local">Local</MenuItem>
           <MenuItem value="custom">
             <i>Custom URL</i>
           </MenuItem>
