@@ -108,10 +108,24 @@
     "@endo/promise-kit" "^0.2.56"
     node-fetch "^2.6.0"
 
-"@agoric/cosmic-proto@0.2.2-dev-a5437cf.0", "@agoric/cosmic-proto@0.3.1-dev-ff36f02.0+ff36f02", "@agoric/cosmic-proto@^0.3.0":
+"@agoric/cosmic-proto@0.2.2-dev-a5437cf.0":
   version "0.2.2-dev-a5437cf.0"
   resolved "https://registry.yarnpkg.com/@agoric/cosmic-proto/-/cosmic-proto-0.2.2-dev-a5437cf.0.tgz#cba81f0455ba1875d3f389b69d93e36d5569bfb3"
   integrity sha512-ocwgjLUJcuKeDP7/RHWQXDqpDDCEEBqsX1JQNjmnkljE5dNkUBiDNMXurzmD+SZJqGDZ1HxaQFfF/9zo99q4vA==
+  dependencies:
+    protobufjs "^7.0.0"
+
+"@agoric/cosmic-proto@0.3.1-dev-ff36f02.0+ff36f02":
+  version "0.3.1-dev-ff36f02.0"
+  resolved "https://registry.yarnpkg.com/@agoric/cosmic-proto/-/cosmic-proto-0.3.1-dev-ff36f02.0.tgz#f6d6cf21b62e4fffbbc3c5634d3754d17d793f70"
+  integrity sha512-y266YxgI6ZN8UxqDezFjfcHTTOlo9FhFM22cN9EQVah0Z4FbNzXplYwrNRZZljGvtbb33w+oZNfv89fZ2aB5Gw==
+  dependencies:
+    protobufjs "^7.0.0"
+
+"@agoric/cosmic-proto@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@agoric/cosmic-proto/-/cosmic-proto-0.3.0.tgz#c9d31d3946c91fbb1630f89d8ba63a662bcdacc5"
+  integrity sha512-cIunby6gs53sGkHx3ALraREbfVQXvsIcObMjQQ0/tZt5HVqwoS7Y1Qj1Xl0ZZvqE8B1Zyk7QMDj829mbTII+9g==
   dependencies:
     protobufjs "^7.0.0"
 
