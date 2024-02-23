@@ -1,4 +1,5 @@
 {
   "chainName": "agoriclocal",
-  "rpcAddrs": ["http://localhost:26657"]
+  "rpcAddrs": ["http://localhost:26657"],
+  "apiAddrs": ["http://localhost:1317"]
 }
