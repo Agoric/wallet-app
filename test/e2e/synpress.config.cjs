@@ -1,4 +1,4 @@
-const config = require('frazpress/synpress.config');
+const config = require('@agoric/synpress/synpress.config');
 const { defineConfig } = require('cypress');
 
 module.exports = defineConfig({

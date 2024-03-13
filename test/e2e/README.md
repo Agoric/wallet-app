@@ -2,37 +2,28 @@
 
 To run end-to-end test cases on your system, follow these steps:
 
-1. **Switch Branch:**
-   Make sure you're on the branch named rs-inter-dapp-test-cases. To do this, use the following commands:
+1. **Install Dependencies:**
+   Install the `@agoric/synpress` package as a dev dependency:
 
 ```bash
-git fetch && git checkout rs-inter-dapp-test-cases
+yarn add -D @agoric/synpress
 ```
 
-2. **Install Dependencies:**
-   Install the `frazpress` package as a dev dependency:
-
-```bash
-yarn add -D frazpress
-```
-
-Note: Currently, we're using frazpress, our personalized version of synpress. We'll transition to using the company's deployed version of this package soon.
-
-3. **Start Local Agoric Chain**
+2. **Start Local Agoric Chain**
    To begin a local instance of the Agoric Chain, execute the following Docker command:
 
 ```bash
 docker run -d -p 26657:26657 -p 1317:1317 -p 9090:9090 ghcr.io/agoric/agoric-3-proposals:main
 ```
 
-4. **Start Local Server:**
+3. **Start Local Server:**
    Initiate the local server by running the following command:
 
 ```bash
-yarn start
+yarn dev
 ```
 
-5. **Run Test Cases:**
+4. **Run Test Cases:**
    Execute the test cases located in the `test/e2e/specs/test.spec.js` file:
 
 ```bash

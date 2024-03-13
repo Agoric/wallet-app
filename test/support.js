@@ -1,1 +1,1 @@
-import 'frazpress/support/index';
+import '@agoric/synpress/support/index';
