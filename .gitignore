@@ -61,5 +61,6 @@ public/wallet
 
 
 # Synpress directories and files
-tests
+screenshots
+videos
 cypress
