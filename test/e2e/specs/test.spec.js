@@ -5,7 +5,7 @@ describe('Wallet App Test Cases', () => {
       cy.setupWallet().then((setupFinished) => {
         expect(setupFinished).to.be.true;
 
-        cy.visit('localhost:3000');
+        cy.visit('/');
 
         cy.acceptAccess().then((taskCompleted) => {
           expect(taskCompleted).to.be.true;
@@ -14,7 +14,7 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should connect with keplr wallet and succeed in provisioning a new wallet', () => {
-      cy.visit('localhost:3000/wallet/');
+      cy.visit('/wallet/');
 
       cy.get('input.PrivateSwitchBase-input').click();
       cy.contains('Proceed').click();
@@ -22,7 +22,7 @@ describe('Wallet App Test Cases', () => {
       cy.get('button[aria-label="Settings"]').click();
 
       cy.get('#demo-simple-select').click();
-      cy.get('li[data-value="local"]').click();
+      cy.get('li[data-value="testnet"]').click();
       cy.contains('button', 'Connect').click();
 
       cy.acceptAccess().then((taskCompleted) => {
