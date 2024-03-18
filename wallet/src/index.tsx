@@ -13,7 +13,7 @@ import '@agoric/zoe/exported';
 import '@endo/captp/src/types';
 
 import * as React from 'react';
-import ReactDOM from 'react-dom';
+import * as ReactDOM from 'react-dom';
 import { BrowserRouter as Router } from 'react-router-dom';
 import {
   CssBaseline,
