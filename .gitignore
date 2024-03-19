@@ -58,3 +58,8 @@ packages/ui-components/compiled
 packages/ui-components/dist
 build
 public/wallet
+
+
+# Synpress directories and files
+screenshots
+videos

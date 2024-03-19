@@ -3,7 +3,7 @@ import '@endo/eventual-send/shim';
 import './lockdown';
 
 import { useEffect } from 'react';
-import ReactDOM from 'react-dom';
+import * as ReactDOM from 'react-dom';
 import { BridgeProtocol } from '@agoric/web-components';
 import { addOffer, OfferUIStatus } from './store/Offers';
 import { loadDapp, upsertDapp, watchDapps } from './store/Dapps';
