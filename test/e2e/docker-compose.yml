@@ -37,7 +37,6 @@ services:
       - SECRET_WORDS="orbit bench unit task food shock brand bracket domain regular warfare company announce wheel grape trust sphere boy doctor half guard ritual three ecology"
     depends_on:
       - display
-      - video
     entrypoint: []
     working_dir: /app
     volumes:
@@ -73,22 +72,6 @@ services:
     environment:
       - NGROK_AUTH=${NGROK_AUTH}
       - NGROK_BASIC_AUTH=${NGROK_BASIC_AUTH}
-    depends_on:
-      - display
-    networks:
-      - x11
-
-  video:
-    profiles:
-      - synpress
-    container_name: video
-    image: synthetixio/video:457bb48776c3b14de232d9dda620ba9188dc40ac-base
-    volumes:
-      - ./cypress/videos:/videos
-    environment:
-      - FILE_NAME=CI-full-video.mp4
-      - SE_SCREEN_WIDTH=1920
-      - SE_SCREEN_HEIGHT=1080
     depends_on:
       - display
     networks:
