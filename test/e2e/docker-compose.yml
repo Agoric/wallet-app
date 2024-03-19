@@ -37,13 +37,14 @@ services:
       - SECRET_WORDS="orbit bench unit task food shock brand bracket domain regular warfare company announce wheel grape trust sphere boy doctor half guard ritual three ecology"
     depends_on:
       - display
+      - video
     entrypoint: []
     working_dir: /app
     volumes:
       - ./cypress/videos:/app/test/e2e/videos
       - ./cypress/screenshots:/app/test/e2e/screenshots
     command: >
-      bash -c 'echo -n "======> local noVNC URL: http://localhost:8080/vnc.html?autoconnect=true " && pnpm wait-on http://display:8080 && echo -n "======> remote noVNC URL: " && curl -s ngrok:4040/api/tunnels | jq -r .tunnels[0].public_url && yarn test:e2e:ci'
+      bash -c 'echo -n "======> local noVNC URL: http://localhost:8080/vnc.html?autoconnect=true " && yarn wait-on http://display:8080 && echo -n "======> remote noVNC URL: " && curl -s ngrok:4040/api/tunnels | jq -r .tunnels[0].public_url && yarn test:e2e:ci'
     networks:
       - x11
 
@@ -72,6 +73,22 @@ services:
     environment:
       - NGROK_AUTH=${NGROK_AUTH}
       - NGROK_BASIC_AUTH=${NGROK_BASIC_AUTH}
+    depends_on:
+      - display
+    networks:
+      - x11
+
+  video:
+    profiles:
+      - synpress
+    container_name: video
+    image: synthetixio/video:457bb48776c3b14de232d9dda620ba9188dc40ac-base
+    volumes:
+      - ./cypress/videos:/videos
+    environment:
+      - FILE_NAME=CI-full-video.mp4
+      - SE_SCREEN_WIDTH=1920
+      - SE_SCREEN_HEIGHT=1080
     depends_on:
       - display
     networks:
