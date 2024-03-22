@@ -1,12 +1,20 @@
 #!/bin/bash
 
-# Define the mnemonic
-network=https://emerynet.rpc.agoric.net:443
-accountName="rabi-dev"
-mnemonic="silk praise pulse affair trigger mosquito stand action weapon next bottom peanut wish utility fork laugh grief journey unaware also canvas seminar merry suit"
-export AGORIC_NET=emerynet
+source common.sh
 
-# Show your bid
-echo "View Auction..."
-agops  inter auction status
-## Verify certain keys being present
+output=$(agops inter auction status)
+
+# Check if schedule fields are present
+check_field_presence "schedule.nextStartTime"
+check_field_presence "schedule.nextDescendingStepTime"
+
+# Check if book0 fields are present
+check_field_presence "book0.startCollateral"
+check_field_presence "book0.collateralAvailable"
+
+# Check if params fields are present
+check_field_presence "params.DiscountStep"
+check_field_presence "params.ClockStep"
+check_field_presence "params.LowestRate"
+
+echo "All required fields are present"

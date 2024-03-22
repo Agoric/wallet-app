@@ -29,5 +29,45 @@ describe('Wallet App Test Cases', () => {
         expect(taskCompleted).to.be.true;
       });
     });
+
+    it('should check if agops is working', () => {
+      cy.exec('agops -V').then((result) => {
+        const { _, stderr } = result;
+        expect(stderr).to.be.empty;
+      });
+    });
+
+    it('should check if agd is working', () => {
+      cy.exec('agd version').then((result) => {
+        const { _, stderr } = result;
+        expect(stderr).to.be.empty;
+      });
+    });
+
+    it('should place a bid by price from the CLI successfully', () => {
+      cy.exec('bash ./test/e2e/test-scripts/place-bid-by-price.sh').then(
+        (result) => {
+          const { stdout, stderr, code } = result;
+          if (code === 0) {
+            expect(stdout).to.contain('Your bid has been accepted');
+          } else {
+            throw new Error(`Script execution failed: ${stderr}`);
+          }
+        },
+      );
+    });
+
+    it('should place a bid by discount from the CLI successfully', () => {
+      cy.exec('bash ./test/e2e/test-scripts/place-bid-by-discount.sh').then(
+        (result) => {
+          const { stdout, stderr, code } = result;
+          if (code === 0) {
+            expect(stdout).to.contain('Your bid has been accepted');
+          } else {
+            throw new Error(`Script execution failed: ${stderr}`);
+          }
+        },
+      );
+    });
   });
 });

@@ -1,11 +1,6 @@
 #!/bin/bash
 
-# Define the mnemonic
-network=https://emerynet.rpc.agoric.net:443
-accountName="rabi-dev"
-mnemonic="orbit bench unit task food shock brand bracket domain regular warfare company announce wheel grape trust sphere boy doctor half guard ritual three ecology"
-export AGORIC_NET=emerynet
-echo "Adding Account.."
+source ./test/e2e/test-scripts/common.sh
 
 commandToExecute="agd keys add $accountName --recover"
 mnemonicPrompt="Enter your bip39 mnemonic"
@@ -24,6 +19,4 @@ expect -c "
     }
 "
 
-# Place a bid
-echo "Placing Bid..."
-agops inter bid by-discount --give 15IST --price 8.55 --from $accountName | jq
+agops inter bid by-discount --give 1IST --price 8.55 --from $accountName | jq
