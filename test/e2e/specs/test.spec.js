@@ -54,6 +54,29 @@ describe('Wallet App Test Cases', () => {
       );
     });
 
+    it('should only have one element with specific parameters for the bid created in the previous test case', () => {
+      cy.visit('/wallet/');
+
+      cy.get('.RequestSummary h6').contains('Offer');
+      cy.get('.Body .MuiChip-label').contains('Pending');
+      cy.get('.OfferEntry h6').contains('Give Bid');
+      cy.get('.OfferEntry .Token .MuiBox-root').contains('2.00 IST');
+      cy.get('.OfferEntry .Token').contains('from IST');
+      cy.get('.OfferEntry h6').contains('Arguments');
+      cy.get('.Request').should('have.length', 1);
+    });
+
+    it('should cancel the bid by discount', () => {
+      cy.visit('/wallet/');
+      cy.get('.Controls .MuiChip-root').contains('Exit').click();
+      cy.acceptAccess().then((taskCompleted) => {
+        expect(taskCompleted).to.be.true;
+      });
+      cy.get('.Body .MuiChip-label')
+        .contains('Accepted')
+        .should('exist', { timeout: 300000 });
+    });
+
     it('should place a bid by price from the CLI successfully', () => {
       cy.exec('bash ./test/e2e/test-scripts/place-bid-by-price.sh').then(
         (result) => {
@@ -63,6 +86,29 @@ describe('Wallet App Test Cases', () => {
           );
         },
       );
+    });
+
+    it('should only have one element with specific parameters for the bid created in the previous test case', () => {
+      cy.visit('/wallet/');
+
+      cy.get('.RequestSummary h6').contains('Offer');
+      cy.get('.Body .MuiChip-label').contains('Pending');
+      cy.get('.OfferEntry h6').contains('Give Bid');
+      cy.get('.OfferEntry .Token .MuiBox-root').contains('1.00 IST');
+      cy.get('.OfferEntry .Token').contains('from IST');
+      cy.get('.OfferEntry h6').contains('Arguments');
+      cy.get('.Request').should('have.length', 1);
+    });
+
+    it('should cancel the bid by price', () => {
+      cy.visit('/wallet/');
+      cy.get('.Controls .MuiChip-root').contains('Exit').click();
+      cy.acceptAccess().then((taskCompleted) => {
+        expect(taskCompleted).to.be.true;
+      });
+      cy.get('.Body .MuiChip-label')
+        .contains('Accepted')
+        .should('exist', { timeout: 300000 });
     });
   });
 });
