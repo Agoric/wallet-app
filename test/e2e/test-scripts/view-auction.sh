@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source common.sh
+source ./test/e2e/test-scripts/common.sh
 
 output=$(agops inter auction status)
 

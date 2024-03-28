@@ -3,9 +3,8 @@
 run_script() {
     source ./test/e2e/test-scripts/common.sh
 
-    commandToExecute="agd keys add $accountName --recover --keyring-backend=os"
+    commandToExecute="agd keys add $accountName --recover --keyring-backend=test"
     mnemonicPrompt="Enter your bip39 mnemonic"
-    passphrasePrompt="keyring passphrase"
 
     expect -c "
         spawn $commandToExecute
@@ -18,24 +17,11 @@ run_script() {
                 send \"$mnemonic\r\"
                 exp_continue
             }
-            \"$passphrasePrompt\" {
-                send \"Test1234\r\"
-                exp_continue
-            }
         }
     "
 
-    agops_output=$(agops inter bid by-discount --discount 5 --give 2IST --from $accountName | jq)
-
-    expect_pid=$!
-    wait $expect_pid
-
-
-    if [[ $agops_output == *"Your bid has been accepted"* ]]; then
-        echo "Success: Your bid has been accepted."
-        echo "" >&2
-        exit 0
-    fi
+    agops inter bid by-discount --discount 5 --give 2IST --from $accountAddress --keyring-backend=test | jq
+    wait
 }
 
 

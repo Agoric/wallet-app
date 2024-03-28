@@ -47,9 +47,7 @@ describe('Wallet App Test Cases', () => {
       cy.exec('bash ./test/e2e/test-scripts/place-bid-by-discount.sh').then(
         (result) => {
           expect(result.stderr).to.contain('');
-          expect(result.stdout).to.contain(
-            'Success: Your bid has been accepted.',
-          );
+          expect(result.stdout).to.contain('Your bid has been accepted');
         },
       );
     });
@@ -74,16 +72,14 @@ describe('Wallet App Test Cases', () => {
       });
       cy.get('.Body .MuiChip-label')
         .contains('Accepted')
-        .should('exist', { timeout: 300000 });
+        .should('exist', { timeout: 120000 });
     });
 
     it('should place a bid by price from the CLI successfully', () => {
       cy.exec('bash ./test/e2e/test-scripts/place-bid-by-price.sh').then(
         (result) => {
           expect(result.stderr).to.contain('');
-          expect(result.stdout).to.contain(
-            'Success: Your bid has been accepted.',
-          );
+          expect(result.stdout).to.contain('Your bid has been accepted');
         },
       );
     });
@@ -108,7 +104,7 @@ describe('Wallet App Test Cases', () => {
       });
       cy.get('.Body .MuiChip-label')
         .contains('Accepted')
-        .should('exist', { timeout: 300000 });
+        .should('exist', { timeout: 120000 });
     });
   });
 });
