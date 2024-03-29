@@ -1,15 +1,11 @@
 /* eslint-disable ui-testing/no-disabled-tests */
 describe('Wallet App Test Cases', () => {
   context('Test commands', () => {
-    it(`should setup Keplr account and connect with Agoric Chain`, () => {
-      cy.setupWallet().then((setupFinished) => {
-        expect(setupFinished).to.be.true;
+    it(`should connect with Agoric Chain`, () => {
+      cy.visit('/');
 
-        cy.visit('/');
-
-        cy.acceptAccess().then((taskCompleted) => {
-          expect(taskCompleted).to.be.true;
-        });
+      cy.acceptAccess().then((taskCompleted) => {
+        expect(taskCompleted).to.be.true;
       });
     });
 
@@ -28,6 +24,15 @@ describe('Wallet App Test Cases', () => {
       cy.acceptAccess().then((taskCompleted) => {
         expect(taskCompleted).to.be.true;
       });
+
+      cy.reload();
+
+      cy.acceptAccess().then((taskCompleted) => {
+        expect(taskCompleted).to.be.true;
+      });
+
+      cy.get('span').contains('ATOM').should('exist');
+      cy.get('span').contains('BLD').should('exist');
     });
 
     it('should check if agops is working', () => {
