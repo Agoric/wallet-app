@@ -1,28 +1,16 @@
 #!/bin/bash
 
-run_script() {
-    source ./test/e2e/test-scripts/common.sh
 
-    commandToExecute="agd keys add $accountName --recover --keyring-backend=test"
-    mnemonicPrompt="Enter your bip39 mnemonic"
-
-    expect -c "
-        spawn $commandToExecute
-        expect {
-            \"override\" {
-                send \"y\r\"
-                exp_continue
-            }
-            \"$mnemonicPrompt\" {
-                send \"$mnemonic\r\"
-                exp_continue
-            }
-        }
-    "
-
-    agops inter bid by-price --give 1IST --price 8.55 --from $accountAddress --keyring-backend=test | jq
-    wait
-}
+source ./test/e2e/test-scripts/common.sh
 
 
-run_script
+output=$(agops inter bid by-price --give 1IST --price 8.55 --from $accountAddress --keyring-backend=test | jq)
+wait
+
+if echo "$output" | grep -q "Your bid has been accepted"; then
+    echo "Bid Placed Successfully"
+    exit 0
+else
+    echo "Error: $output" >&2
+    exit 1
+fi

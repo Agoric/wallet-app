@@ -1,7 +1,12 @@
-FROM --platform=linux/amd64 synthetixio/docker-e2e:18.16-ubuntu as base
+FROM node:18.18
 
+# Install chrome and necessary dependencies
 RUN apt-get update \
-    && apt-get install -y jq expect 
+    && apt-get install -y wget gnupg ca-certificates jq expect \
+    && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list' \
+    && apt-get update \
+    && apt-get install -y google-chrome-stable
 
 # Setup Golang
 COPY --from=golang:1.21 /usr/local/go/ /usr/local/go/
@@ -13,7 +18,6 @@ ENV GOBIN="/go/bin"
 WORKDIR /agoric-app
 RUN git clone https://github.com/Agoric/agoric-sdk.git && \
     cd agoric-sdk && \
-    git reset --hard baa6382618c81417b593d3806341f1d790726462 && \
     yarn && \
     yarn build && \
     yarn link-cli ~/bin/agoric && \
@@ -22,7 +26,7 @@ RUN git clone https://github.com/Agoric/agoric-sdk.git && \
     cd ../.. && \
     ./bin/agd build
 
-ENV PATH="/agoric-app/agoric-sdk/packages/agoric-cli/bin:/agoric-app/agoric-sdk/bin:${PATH}"
+ENV PATH="/agoric-app/agoric-sdk/bin:${PATH}"
 EXPOSE 26657
 
 # Setup Wallet App
