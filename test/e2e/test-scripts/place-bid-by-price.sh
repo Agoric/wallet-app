@@ -9,6 +9,7 @@ wait
 
 if echo "$output" | grep -q "Your bid has been accepted"; then
     echo "Bid Placed Successfully"
+    echo "" >&2
     exit 0
 else
     echo "Error: $output" >&2

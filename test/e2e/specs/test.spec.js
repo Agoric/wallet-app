@@ -56,12 +56,18 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should place a bid by discount from the CLI successfully', () => {
-      cy.exec('bash ./test/e2e/test-scripts/place-bid-by-discount.sh').then(
-        (result) => {
-          expect(result.stderr).to.contain('');
-          expect(result.stdout).to.contain('Bid Placed Successfully');
-        },
-      );
+      cy.addNewTokensFound();
+      cy.getTokenAmount('IST').then((initialTokenValue) => {
+        cy.exec('bash ./test/e2e/test-scripts/place-bid-by-discount.sh').then(
+          (result) => {
+            expect(result.stderr).to.contain('');
+            expect(result.stdout).to.contain('Bid Placed Successfully');
+            cy.getTokenAmount('IST').then((tokenValue) => {
+              expect(tokenValue).to.lessThan(initialTokenValue);
+            });
+          },
+        );
+      });
     });
 
     it('should only have one element with specific parameters for the bid created in the previous test case', () => {
@@ -76,24 +82,34 @@ describe('Wallet App Test Cases', () => {
       cy.get('.Request').should('have.length', 1);
     });
 
-    it('should cancel the bid by discount', () => {
-      cy.visit('/wallet/');
-      cy.get('.Controls .MuiChip-root').contains('Exit').click();
-      cy.acceptAccess().then((taskCompleted) => {
-        expect(taskCompleted).to.be.true;
+    it('should cancel the bid by discount and verify IST balance', () => {
+      cy.getTokenAmount('IST').then((initialTokenValue) => {
+        cy.visit('/wallet/');
+        cy.get('.Controls .MuiChip-root').contains('Exit').click();
+        cy.acceptAccess().then((taskCompleted) => {
+          expect(taskCompleted).to.be.true;
+        });
+        cy.get('.Body .MuiChip-label')
+          .contains('Accepted', { timeout: 120000 })
+          .should('exist');
+        cy.getTokenAmount('IST').then((tokenValue) => {
+          expect(tokenValue).to.greaterThan(initialTokenValue);
+        });
       });
-      cy.get('.Body .MuiChip-label')
-        .contains('Accepted', { timeout: 120000 })
-        .should('exist');
     });
 
-    it('should place a bid by price from the CLI successfully', () => {
-      cy.exec('bash ./test/e2e/test-scripts/place-bid-by-price.sh').then(
-        (result) => {
-          expect(result.stderr).to.contain('');
-          expect(result.stdout).to.contain('Bid Placed Successfully');
-        },
-      );
+    it('should place a bid by price from the CLI successfully and verify IST balance', () => {
+      cy.getTokenAmount('IST').then((initialTokenValue) => {
+        cy.exec('bash ./test/e2e/test-scripts/place-bid-by-price.sh').then(
+          (result) => {
+            expect(result.stderr).to.contain('');
+            expect(result.stdout).to.contain('Bid Placed Successfully');
+            cy.getTokenAmount('IST').then((tokenValue) => {
+              expect(tokenValue).to.lessThan(initialTokenValue);
+            });
+          },
+        );
+      });
     });
 
     it('should only have one element with specific parameters for the bid created in the previous test case', () => {
@@ -108,15 +124,20 @@ describe('Wallet App Test Cases', () => {
       cy.get('.Request').should('have.length', 1);
     });
 
-    it('should cancel the bid by price', () => {
-      cy.visit('/wallet/');
-      cy.get('.Controls .MuiChip-root').contains('Exit').click();
-      cy.acceptAccess().then((taskCompleted) => {
-        expect(taskCompleted).to.be.true;
+    it('should cancel the bid by price and verify IST balance', () => {
+      cy.getTokenAmount('IST').then((initialTokenValue) => {
+        cy.visit('/wallet/');
+        cy.get('.Controls .MuiChip-root').contains('Exit').click();
+        cy.acceptAccess().then((taskCompleted) => {
+          expect(taskCompleted).to.be.true;
+        });
+        cy.get('.Body .MuiChip-label')
+          .contains('Accepted', { timeout: 120000 })
+          .should('exist');
+        cy.getTokenAmount('IST').then((tokenValue) => {
+          expect(tokenValue).to.greaterThan(initialTokenValue);
+        });
       });
-      cy.get('.Body .MuiChip-label')
-        .contains('Accepted', { timeout: 120000 })
-        .should('exist');
     });
 
     it('should view the auction from the CLI successfully', () => {
