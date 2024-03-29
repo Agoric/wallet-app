@@ -118,5 +118,12 @@ describe('Wallet App Test Cases', () => {
         .contains('Accepted', { timeout: 120000 })
         .should('exist');
     });
+
+    it('should view the auction from the CLI successfully', () => {
+      cy.exec('bash ./test/e2e/test-scripts/view-auction.sh').then((result) => {
+        expect(result.stderr).to.contain('');
+        expect(result.stdout).to.contain('All required fields are present');
+      });
+    });
   });
 });
