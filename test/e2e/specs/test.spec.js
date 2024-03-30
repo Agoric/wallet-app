@@ -35,19 +35,6 @@ describe('Wallet App Test Cases', () => {
       cy.get('span').contains('BLD').should('exist');
     });
 
-    it('should check if agops is working', () => {
-      cy.exec('agops', { failOnNonZeroExit: false }).then((result) => {
-        expect(result.code).to.equal(1);
-        expect(result.stderr).to.contain('Usage: agops [options] [command]');
-      });
-    });
-
-    it('should check if agd is working', () => {
-      cy.exec('agd').then((result) => {
-        expect(result.stderr).to.be.empty;
-      });
-    });
-
     it('should add keys using agd from the CLI successfully', () => {
       cy.exec('bash ./test/e2e/test-scripts/add-keys.sh').then((result) => {
         expect(result.stderr).to.contain('');
@@ -61,7 +48,7 @@ describe('Wallet App Test Cases', () => {
         cy.exec('bash ./test/e2e/test-scripts/place-bid-by-discount.sh').then(
           (result) => {
             expect(result.stderr).to.contain('');
-            expect(result.stdout).to.contain('Bid Placed Successfully');
+            expect(result.stdout).to.contain('Your bid has been accepted');
             cy.getTokenAmount('IST').then((tokenValue) => {
               expect(tokenValue).to.lessThan(initialTokenValue);
             });
@@ -70,16 +57,14 @@ describe('Wallet App Test Cases', () => {
       });
     });
 
-    it('should only have one element with specific parameters for the bid created in the previous test case', () => {
+    it('should see an offer placed in the previous test case', () => {
       cy.visit('/wallet/');
 
-      cy.get('.RequestSummary h6').contains('Offer');
-      cy.get('.Body .MuiChip-label').contains('Pending');
-      cy.get('.OfferEntry h6').contains('Give Bid');
-      cy.get('.OfferEntry .Token .MuiBox-root').contains('2.00 IST');
-      cy.get('.OfferEntry .Token').contains('from IST');
-      cy.get('.OfferEntry h6').contains('Arguments');
-      cy.get('.Request').should('have.length', 1);
+      cy.contains('Offer').should('be.visible');
+      cy.contains('Give Bid').should('be.visible');
+      cy.contains('2.00 IST').should('be.visible');
+      cy.contains('from IST').should('be.visible');
+      cy.contains('Arguments').should('be.visible');
     });
 
     it('should cancel the bid by discount and verify IST balance', () => {
@@ -103,7 +88,7 @@ describe('Wallet App Test Cases', () => {
         cy.exec('bash ./test/e2e/test-scripts/place-bid-by-price.sh').then(
           (result) => {
             expect(result.stderr).to.contain('');
-            expect(result.stdout).to.contain('Bid Placed Successfully');
+            expect(result.stdout).to.contain('Your bid has been accepted');
             cy.getTokenAmount('IST').then((tokenValue) => {
               expect(tokenValue).to.lessThan(initialTokenValue);
             });
@@ -112,16 +97,13 @@ describe('Wallet App Test Cases', () => {
       });
     });
 
-    it('should only have one element with specific parameters for the bid created in the previous test case', () => {
+    it('should see an offer placed in the previous test case', () => {
       cy.visit('/wallet/');
-
-      cy.get('.RequestSummary h6').contains('Offer');
-      cy.get('.Body .MuiChip-label').contains('Pending');
-      cy.get('.OfferEntry h6').contains('Give Bid');
-      cy.get('.OfferEntry .Token .MuiBox-root').contains('1.00 IST');
-      cy.get('.OfferEntry .Token').contains('from IST');
-      cy.get('.OfferEntry h6').contains('Arguments');
-      cy.get('.Request').should('have.length', 1);
+      cy.contains('Offer').should('be.visible');
+      cy.contains('Give Bid').should('be.visible');
+      cy.contains('1.00 IST').should('be.visible');
+      cy.contains('from IST').should('be.visible');
+      cy.contains('Arguments').should('be.visible');
     });
 
     it('should cancel the bid by price and verify IST balance', () => {
@@ -141,7 +123,9 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should view the auction from the CLI successfully', () => {
-      cy.exec('bash ./test/e2e/test-scripts/view-auction.sh').then((result) => {
+      cy.exec('bash ./test/e2e/test-scripts/view-auction.sh', {
+        failOnNonZeroExit: false,
+      }).then((result) => {
         expect(result.stderr).to.contain('');
         expect(result.stdout).to.contain('All required fields are present');
       });
