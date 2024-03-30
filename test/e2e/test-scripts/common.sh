@@ -7,7 +7,6 @@ export mnemonic="orbit bench unit task food shock brand bracket domain regular w
 export AGORIC_NET=emerynet
 export accountAddress=agoric1p2aqakv3ulz4qfy2nut86j9gx0dx0yw09h96md
 
-# Function to check if field is present using jq
 check_field_presence() {
   field_value=$(echo "$output" | jq -r ".$1")
   if [ -z "$field_value" ]; then
@@ -15,3 +14,23 @@ check_field_presence() {
     exit 1
   fi
 }
+
+add_keys() {
+  commandToExecute="agd keys add $accountName --recover --keyring-backend=test"
+  mnemonicPrompt="Enter your bip39 mnemonic"
+
+  expect -c "
+      spawn $commandToExecute
+      expect {
+          \"override\" {
+              send \"y\r\"
+              exp_continue
+          }
+          \"$mnemonicPrompt\" {
+              send \"$mnemonic\r\"
+              exp_continue
+          }
+      }
+  "
+}
+

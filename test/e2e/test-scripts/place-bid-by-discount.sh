@@ -6,7 +6,6 @@ source ./test/e2e/test-scripts/common.sh
 output=$(agops inter bid by-discount --discount 5 --give 2IST --from $accountAddress --keyring-backend=test | jq)
 wait
 
-
 if echo "$output" | grep -q "Your bid has been accepted"; then
     echo "Bid Placed Successfully"
     echo "" >&2
