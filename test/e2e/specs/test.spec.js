@@ -1,7 +1,8 @@
 /* eslint-disable ui-testing/no-disabled-tests */
 describe('Wallet App Test Cases', () => {
   context('Test commands', () => {
-    it(`should connect with Agoric Chain`, () => {
+    it(`should setup wallet and connect with Agoric Chain`, () => {
+      cy.setupWallet();
       cy.visit('/');
 
       cy.acceptAccess().then((taskCompleted) => {
