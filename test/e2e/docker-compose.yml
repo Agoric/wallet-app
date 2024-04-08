@@ -37,13 +37,14 @@ services:
       - SECRET_WORDS="orbit bench unit task food shock brand bracket domain regular warfare company announce wheel grape trust sphere boy doctor half guard ritual three ecology"
     depends_on:
       - display
+      - agd
     entrypoint: []
     working_dir: /app
     volumes:
       - ./cypress/videos:/app/test/e2e/videos
       - ./cypress/screenshots:/app/test/e2e/screenshots
     command: >
-      bash -c 'echo -n "======> local noVNC URL: http://localhost:8080/vnc.html?autoconnect=true " && yarn wait-on http://display:8080 && echo -n "======> remote noVNC URL: " && curl -s ngrok:4040/api/tunnels | jq -r .tunnels[0].public_url && source /tmp/nvm/nvm.sh && nvm use 18.18 && yarn test:e2e:ci'
+      bash -c 'echo -n "======> local noVNC URL: http://localhost:8080/vnc.html?autoconnect=true " && yarn wait-on http://display:8080 && echo -n "======> remote noVNC URL: " && curl -s ngrok:4040/api/tunnels | jq -r .tunnels[0].public_url && nginx && source /tmp/nvm/nvm.sh && nvm use 18.18 && yarn test:e2e:ci'
     networks:
       - x11
 
@@ -74,6 +75,24 @@ services:
       - NGROK_BASIC_AUTH=${NGROK_BASIC_AUTH}
     depends_on:
       - display
+    networks:
+      - x11
+    
+  agd:
+    profiles:
+      - synpress
+    container_name: agoric_chain
+    image: ghcr.io/agoric/agoric-3-proposals:latest
+    logging:
+      driver: none
+    platform: linux/amd64
+    ports:
+      - 26656:26656
+      - 26657:26657
+      - 1317:1317
+    environment:
+      DEST: 1
+      DEBUG: 'SwingSet:ls,SwingSet:vat'
     networks:
       - x11
 
