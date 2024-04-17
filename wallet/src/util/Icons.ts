@@ -14,6 +14,7 @@ export const icons = {
   USDT: 'tokens/USDT.png',
   stTIA: 'tokens/sttia.svg',
   stOSMO: 'tokens/stosmo.svg',
+  stkATOM: 'tokens/stkatom.svg',
 };
 
 export const defaultIcon = 'tokens/default.png';
