@@ -249,7 +249,7 @@ const useSnackbar = () => {
           Transaction {isSuccess ? 'succeeded' : 'failed'}:{' '}
           <Link
             color="rgb(0, 176, 255)"
-            href={`https://bigdipper.live/${explorerPath}/transactions/${transactionHash}`}
+            href={`https://${explorerPath}.explorers.guru/transaction/${transactionHash}`}
             target={transactionHash}
           >
             ...{transactionHash.slice(transactionHash.length - 12)}
