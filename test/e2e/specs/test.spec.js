@@ -46,15 +46,15 @@ describe('Wallet App Test Cases', () => {
     it('should place a bid by discount from the CLI successfully', () => {
       cy.addNewTokensFound();
       cy.getTokenAmount('IST').then((initialTokenValue) => {
-        cy.exec('bash ./test/e2e/test-scripts/place-bid-by-discount.sh', {
-          failOnNonZeroExit: false,
-        }).then((result) => {
-          expect(result.stderr).to.contain('');
-          expect(result.stdout).to.contain('Bid Placed Successfully');
-          cy.getTokenAmount('IST').then((tokenValue) => {
-            expect(tokenValue).to.lessThan(initialTokenValue);
-          });
-        });
+        cy.exec('bash ./test/e2e/test-scripts/place-bid-by-discount.sh').then(
+          (result) => {
+            expect(result.stderr).to.contain('');
+            expect(result.stdout).to.contain('Your bid has been accepted');
+            cy.getTokenAmount('IST').then((tokenValue) => {
+              expect(tokenValue).to.lessThan(initialTokenValue);
+            });
+          },
+        );
       });
     });
 
@@ -86,15 +86,15 @@ describe('Wallet App Test Cases', () => {
 
     it('should place a bid by price from the CLI successfully and verify IST balance', () => {
       cy.getTokenAmount('IST').then((initialTokenValue) => {
-        cy.exec('bash ./test/e2e/test-scripts/place-bid-by-price.sh', {
-          failOnNonZeroExit: false,
-        }).then((result) => {
-          expect(result.stderr).to.contain('');
-          expect(result.stdout).to.contain('Bid Placed Successfully');
-          cy.getTokenAmount('IST').then((tokenValue) => {
-            expect(tokenValue).to.lessThan(initialTokenValue);
-          });
-        });
+        cy.exec('bash ./test/e2e/test-scripts/place-bid-by-price.sh').then(
+          (result) => {
+            expect(result.stderr).to.contain('');
+            expect(result.stdout).to.contain('Your bid has been accepted');
+            cy.getTokenAmount('IST').then((tokenValue) => {
+              expect(tokenValue).to.lessThan(initialTokenValue);
+            });
+          },
+        );
       });
     });
 
