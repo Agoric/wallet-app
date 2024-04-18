@@ -590,10 +590,10 @@
   resolved "https://registry.yarnpkg.com/@agoric/swingset-xsnap-supervisor/-/swingset-xsnap-supervisor-0.10.2.tgz#09f067695b0ea6ebfeb6ea200cc7f1675f0f8939"
   integrity sha512-3PB15aiNHfjTYmtUz9Rxmm6qSHnoO5w5dygRzjx2ytk8yoNn/ZOpxlIOLonhD8kwOaEli5D7btY9OA3jf+Sm6w==
 
-"@agoric/synpress@^3.7.2-beta.12":
-  version "3.7.2-beta.12"
-  resolved "https://registry.yarnpkg.com/@agoric/synpress/-/synpress-3.7.2-beta.12.tgz#1a1d35c3c2c56e985630e0cd4c05039b8b6878b3"
-  integrity sha512-mSDc0IJLdNIXF5re6Bd/7NBXjyeGTNRIji69ZpflikY4BuQpxaQdfvK3TOsdWfs74Z5ReIXADly9YYOuhbkdLw==
+"@agoric/synpress@^3.8.1":
+  version "3.8.1"
+  resolved "https://registry.yarnpkg.com/@agoric/synpress/-/synpress-3.8.1.tgz#0c71e16a5ce81b77f8b20588946d55c312acc34d"
+  integrity sha512-vD8TeKOWup/yrPO7LBiYwvKSy6LAjGJaMiCU52yfp/zqKFBWopfwCdUSpvzTnhBEZAz3VUxsrgzgfil5wCiRNQ==
   dependencies:
     "@cypress/code-coverage" "^3.11.0"
     "@cypress/webpack-dev-server" "^3.5.2"
@@ -15988,17 +15988,7 @@ serve-static@1.15.0:
     parseurl "~1.3.3"
     send "0.18.0"
 
-ses@^0.18.1:
-  version "0.18.1"
-  resolved "https://registry.yarnpkg.com/ses/-/ses-0.18.1.tgz#cd0e6460672f12fd639e9c15d681d45d16901c05"
-  integrity sha512-TySWbVcVDL7V/5lSoPz2EgTirn9APy6ib7lYMsiQ8OkEMA4dVwc1a3REHEzOqjQ8g7f0bLWErOt5IbIMsxf5aQ==
-
-ses@^0.18.4:
-  version "0.18.4"
-  resolved "https://registry.yarnpkg.com/ses/-/ses-0.18.4.tgz#28781719870262afc6928b7d6d94dc16318dbd86"
-  integrity sha512-Ph0PC38Q7uutHmMM9XPqA7rp/2taiRwW6pIZJwTr4gz90DtrBvy/x7AmNPH2uqNPhKriZpYKvPi1xKWjM9xJuQ==
-
-ses@^0.18.8:
+ses@^0.18.1, ses@^0.18.4, ses@^0.18.8:
   version "0.18.8"
   resolved "https://registry.yarnpkg.com/ses/-/ses-0.18.8.tgz#88036511ac3b3c07e4d82dd8cfc6e5f3788205b6"
   integrity sha512-kOH1AhJc6gWDXKURKeU1w7iFUdImAegAljVvBg5EUBgNqjH4bxcEsGVUadVEPtA2PVRMyQp1fiSMDwEZkQNj1g==
