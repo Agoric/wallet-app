@@ -87,7 +87,7 @@
     "start": "yarn build:ses && react-app-rewired start",
     "build": "yarn build:ses && yarn build:react",
     "build:ses": "cp ../node_modules/ses/dist/lockdown.umd.js public/",
-    "build:react": "react-app-rewired build",
+    "build:react": "react-app-rewired --max_old_space_size=4096 build",
     "lint:format": "yarn prettier --check '**/*.{js,jsx,ts,tsx}'",
     "format": "yarn prettier --write '**/*.{js,jsx,ts,tsx}'",
     "lint": "run-s --continue-on-error lint:*",
