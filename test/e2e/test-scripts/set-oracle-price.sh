@@ -8,9 +8,8 @@ fi
 source ./test/e2e/test-scripts/common.sh
 
 
-addKeyAndCheck "gov1" "$mnemonicGov1" "$gov1AccountAddress"
-addKeyAndCheck "gov2" "$mnemonicGov2" "$gov2AccountAddress"
-addKeyAndCheck "user1" "$mnemonicUser1" "$user1Address"
+addKeyAndCheck "gov1" "$mnemonicGov1" "$gov1Address"
+addKeyAndCheck "gov2" "$mnemonicGov2" "$gov2Address"
 
 output=$(agops oracle setPrice --keys gov1,gov2 --pair ATOM.USD --price $1 --keyring-backend test)
 

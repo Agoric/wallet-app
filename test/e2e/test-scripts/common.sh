@@ -1,15 +1,13 @@
 #!/bin/bash
+
 # Common variables
 export AGORIC_NET=emerynet
-export network=https://emerynet.rpc.agoric.net:443
-export accountName="rabi-dev"
-
 export mnemonicGov1="such field health riot cost kitten silly tube flash wrap festival portion imitate this make question host bitter puppy wait area glide soldier knee"
 export mnemonicGov2="physical immune cargo feel crawl style fox require inhale law local glory cheese bring swear royal spy buyer diesel field when task spin alley"
 export mnemonicUser1="tackle hen gap lady bike explain erode midnight marriage wide upset culture model select dial trial swim wood step scan intact what card symptom"
 export mnemonicUser2="orbit bench unit task food shock brand bracket domain regular warfare company announce wheel grape trust sphere boy doctor half guard ritual three ecology"
-export gov1AccountAddress=agoric1ee9hr0jyrxhy999y755mp862ljgycmwyp4pl7q
-export gov2AccountAddress=agoric1wrfh296eu2z34p6pah7q04jjuyj3mxu9v98277
+export gov1Address=agoric1ee9hr0jyrxhy999y755mp862ljgycmwyp4pl7q
+export gov2Address=agoric1wrfh296eu2z34p6pah7q04jjuyj3mxu9v98277
 export user1Address=agoric1ydzxwh6f893jvpaslmaz6l8j2ulup9a7x8qvvq
 export user2Address=agoric1p2aqakv3ulz4qfy2nut86j9gx0dx0yw09h96md
 

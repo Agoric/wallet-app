@@ -38,7 +38,7 @@ describe('Wallet App Test Cases', () => {
     it('should add keys using agd from the CLI successfully', () => {
       cy.exec('bash ./test/e2e/test-scripts/add-keys.sh').then((result) => {
         expect(result.stderr).to.contain('');
-        expect(result.stdout).to.contain('Keys added successfully');
+        expect(result.stdout).to.contain('Keys for user1 added successfully');
       });
     });
 
@@ -57,6 +57,15 @@ describe('Wallet App Test Cases', () => {
       });
     });
 
+    it('should view the bid from CLI', () => {
+      cy.exec('bash ./test/e2e/test-scripts/view-bids.sh', {
+        failOnNonZeroExit: false,
+      }).then((result) => {
+        expect(result.stderr).to.contain('');
+        expect(result.stdout).to.contain('"give":{"Bid":"2.00 IST"}');
+        expect(result.stdout).to.contain('Your bid has been accepted');
+      });
+    });
     it('should see an offer placed in the previous test case', () => {
       cy.visit('/wallet/');
 
@@ -96,7 +105,15 @@ describe('Wallet App Test Cases', () => {
         );
       });
     });
-
+    it('should view the bid from CLI', () => {
+      cy.exec('bash ./test/e2e/test-scripts/view-bids.sh', {
+        failOnNonZeroExit: false,
+      }).then((result) => {
+        expect(result.stderr).to.contain('');
+        expect(result.stdout).to.contain('"give":{"Bid":"1.00 IST"}');
+        expect(result.stdout).to.contain('Your bid has been accepted');
+      });
+    });
     it('should see an offer placed in the previous test case', () => {
       cy.visit('/wallet/');
       cy.contains('Offer').should('be.visible');
@@ -128,6 +145,15 @@ describe('Wallet App Test Cases', () => {
       }).then((result) => {
         expect(result.stderr).to.contain('');
         expect(result.stdout).to.contain('All required fields are present');
+      });
+    });
+
+    it('should set ATOM price to 12.34', () => {
+      cy.exec('bash ./test/e2e/test-scripts/set-oracle-price.sh 12.34', {
+        failOnNonZeroExit: false,
+      }).then((result) => {
+        expect(result.stderr).to.contain('');
+        expect(result.stdout).to.contain('Success: Price set to 12.34');
       });
     });
   });
