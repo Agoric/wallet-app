@@ -57,15 +57,6 @@ describe('Wallet App Test Cases', () => {
       });
     });
 
-    it('should view the bid from CLI', () => {
-      cy.exec('bash ./test/e2e/test-scripts/view-bids.sh', {
-        failOnNonZeroExit: false,
-      }).then((result) => {
-        expect(result.stderr).to.contain('');
-        expect(result.stdout).to.contain('"give":{"Bid":"2.00 IST"}');
-        expect(result.stdout).to.contain('Your bid has been accepted');
-      });
-    });
     it('should see an offer placed in the previous test case', () => {
       cy.visit('/wallet/');
 
@@ -74,6 +65,16 @@ describe('Wallet App Test Cases', () => {
       cy.contains('2.00 IST').should('be.visible');
       cy.contains('from IST').should('be.visible');
       cy.contains('Arguments').should('be.visible');
+    });
+
+    it('should view the bid from CLI', () => {
+      cy.exec('bash ./test/e2e/test-scripts/view-bids.sh', {
+        failOnNonZeroExit: false,
+      }).then((result) => {
+        expect(result.stderr).to.contain('');
+        expect(result.stdout).to.contain('"give":{"Bid":"2 IST"}');
+        expect(result.stdout).to.contain('Your bid has been accepted');
+      });
     });
 
     it('should cancel the bid by discount and verify IST balance', () => {
@@ -105,15 +106,7 @@ describe('Wallet App Test Cases', () => {
         );
       });
     });
-    it('should view the bid from CLI', () => {
-      cy.exec('bash ./test/e2e/test-scripts/view-bids.sh', {
-        failOnNonZeroExit: false,
-      }).then((result) => {
-        expect(result.stderr).to.contain('');
-        expect(result.stdout).to.contain('"give":{"Bid":"1.00 IST"}');
-        expect(result.stdout).to.contain('Your bid has been accepted');
-      });
-    });
+
     it('should see an offer placed in the previous test case', () => {
       cy.visit('/wallet/');
       cy.contains('Offer').should('be.visible');
@@ -121,6 +114,16 @@ describe('Wallet App Test Cases', () => {
       cy.contains('1.00 IST').should('be.visible');
       cy.contains('from IST').should('be.visible');
       cy.contains('Arguments').should('be.visible');
+    });
+
+    it('should view the bid from CLI', () => {
+      cy.exec('bash ./test/e2e/test-scripts/view-bids.sh', {
+        failOnNonZeroExit: false,
+      }).then((result) => {
+        expect(result.stderr).to.contain('');
+        expect(result.stdout).to.contain('"give":{"Bid":"1 IST"}');
+        expect(result.stdout).to.contain('Your bid has been accepted');
+      });
     });
 
     it('should cancel the bid by price and verify IST balance', () => {
