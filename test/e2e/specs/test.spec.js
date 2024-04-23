@@ -1,4 +1,9 @@
 /* eslint-disable ui-testing/no-disabled-tests */
+import {
+  EMERYNET_FAUCET_URL,
+  DEFAULT_TIMEOUT,
+  AGORIC_ADDR_RE,
+} from '../constants';
 describe('Wallet App Test Cases', () => {
   context('Test commands', () => {
     it(`should connect with Agoric Chain`, () => {
@@ -9,7 +14,7 @@ describe('Wallet App Test Cases', () => {
       });
     });
 
-    it('should connect with keplr wallet and succeed in provisioning a new wallet', () => {
+    it('should setup web wallet successfully', () => {
       cy.visit('/wallet/');
 
       cy.get('input.PrivateSwitchBase-input').click();
@@ -35,6 +40,59 @@ describe('Wallet App Test Cases', () => {
       cy.get('span').contains('BLD').should('exist');
     });
 
+    // disabled this test case UNTIL https://github.com/Agoric/wallet-app/issues/161
+    it.skip('should succeed in provisioning a new wallet ', () => {
+      const walletAddress = {
+        value: null,
+      };
+
+      cy.setupWallet({
+        createNewWallet: true,
+        walletName: 'user1',
+      });
+
+      cy.visit('/wallet');
+      // Matches a wallet address pattern that starts with "agoric1" and is followed by exactly 38 characters.
+      cy.contains(AGORIC_ADDR_RE)
+        .spread((element) => {
+          return element.innerHTML.match(AGORIC_ADDR_RE)[0];
+        })
+        .then((address) => {
+          walletAddress.value = address;
+        });
+
+      cy.origin(
+        EMERYNET_FAUCET_URL,
+        { args: { walletAddress } },
+        ({ walletAddress }) => {
+          cy.visit('/');
+          cy.get('[id="address"]').first().type(walletAddress.value);
+          cy.get('[type="submit"]').first().click();
+          cy.get('body').contains('success').should('exist');
+        },
+      );
+
+      cy.visit('/wallet');
+      cy.contains('button', 'Create').click();
+
+      cy.acceptAccess().then((taskCompleted) => {
+        expect(taskCompleted).to.be.true;
+      });
+
+      cy.get('span')
+        .contains('ATOM', { timeout: DEFAULT_TIMEOUT })
+        .should('exist');
+      cy.get('span')
+        .contains('BLD', { timeout: DEFAULT_TIMEOUT })
+        .should('exist');
+    });
+
+    // disabled this test case UNTIL https://github.com/Agoric/wallet-app/issues/161
+    it.skip('should switch to "My Wallet" successfully', () => {
+      cy.switchWallet('My Wallet').then((taskCompleted) => {
+        expect(taskCompleted).to.be.true;
+      });
+    });
     it('should add keys using agd from the CLI successfully', () => {
       cy.exec('bash ./test/e2e/test-scripts/add-keys.sh').then((result) => {
         expect(result.stderr).to.contain('');
