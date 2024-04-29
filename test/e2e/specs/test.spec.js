@@ -1,9 +1,10 @@
-/* eslint-disable ui-testing/no-disabled-tests */
 import {
+  mnemonics,
+  accountAddresses,
   EMERYNET_FAUCET_URL,
   DEFAULT_TIMEOUT,
   AGORIC_ADDR_RE,
-} from '../constants';
+} from '../test.utils';
 describe('Wallet App Test Cases', () => {
   context('Test commands', () => {
     it(`should connect with Agoric Chain`, () => {
@@ -94,24 +95,25 @@ describe('Wallet App Test Cases', () => {
       });
     });
     it('should add keys using agd from the CLI successfully', () => {
-      cy.exec('bash ./test/e2e/test-scripts/add-keys.sh').then((result) => {
-        expect(result.stderr).to.contain('');
-        expect(result.stdout).to.contain('Keys added successfully');
+      cy.addKeys({
+        keyName: 'user2',
+        mnemonic: mnemonics.user2,
+        expectedAddress: accountAddresses.user2,
       });
     });
 
-    it('should place a bid by discount from the CLI successfully', () => {
+    it('should place a bid by discount from the CLI successfully and verify IST balance', () => {
       cy.addNewTokensFound();
       cy.getTokenAmount('IST').then((initialTokenValue) => {
-        cy.exec('bash ./test/e2e/test-scripts/place-bid-by-discount.sh').then(
-          (result) => {
-            expect(result.stderr).to.contain('');
-            expect(result.stdout).to.contain('Your bid has been accepted');
-            cy.getTokenAmount('IST').then((tokenValue) => {
-              expect(tokenValue).to.lessThan(initialTokenValue);
-            });
-          },
-        );
+        cy.placeBidByDiscount({
+          fromAddress: accountAddresses.user2,
+          giveAmount: '2IST',
+          discount: 5,
+        }).then(() => {
+          cy.getTokenAmount('IST').then((tokenValue) => {
+            expect(tokenValue).to.lessThan(initialTokenValue);
+          });
+        });
       });
     });
 
@@ -143,15 +145,15 @@ describe('Wallet App Test Cases', () => {
 
     it('should place a bid by price from the CLI successfully and verify IST balance', () => {
       cy.getTokenAmount('IST').then((initialTokenValue) => {
-        cy.exec('bash ./test/e2e/test-scripts/place-bid-by-price.sh').then(
-          (result) => {
-            expect(result.stderr).to.contain('');
-            expect(result.stdout).to.contain('Your bid has been accepted');
-            cy.getTokenAmount('IST').then((tokenValue) => {
-              expect(tokenValue).to.lessThan(initialTokenValue);
-            });
-          },
-        );
+        cy.placeBidByPrice({
+          fromAddress: accountAddresses.user2,
+          giveAmount: '1IST',
+          price: 8.55,
+        }).then(() => {
+          cy.getTokenAmount('IST').then((tokenValue) => {
+            expect(tokenValue).to.lessThan(initialTokenValue);
+          });
+        });
       });
     });
 
