@@ -12,6 +12,7 @@ module.exports = {
     'eslint-plugin-import',
     'eslint-plugin-jsdoc',
     'jest',
+    "plugin:cypress/recommended"
   ],
   env: {
     browser: true,
