@@ -135,7 +135,7 @@ describe('Wallet App Test Cases', () => {
           expect(taskCompleted).to.be.true;
         });
         cy.get('.Body .MuiChip-label')
-          .contains('Accepted', { timeout: 120000 })
+          .contains('Accepted', { timeout: DEFAULT_TIMEOUT })
           .should('exist');
         cy.getTokenAmount('IST').then((tokenValue) => {
           expect(tokenValue).to.greaterThan(initialTokenValue);
@@ -174,7 +174,7 @@ describe('Wallet App Test Cases', () => {
           expect(taskCompleted).to.be.true;
         });
         cy.get('.Body .MuiChip-label')
-          .contains('Accepted', { timeout: 120000 })
+          .contains('Accepted', { timeout: DEFAULT_TIMEOUT })
           .should('exist');
         cy.getTokenAmount('IST').then((tokenValue) => {
           expect(tokenValue).to.greaterThan(initialTokenValue);
@@ -182,12 +182,9 @@ describe('Wallet App Test Cases', () => {
       });
     });
 
-    it('should view the auction from the CLI successfully', () => {
-      cy.exec('bash ./test/e2e/test-scripts/view-auction.sh', {
-        failOnNonZeroExit: false,
-      }).then((result) => {
-        expect(result.stderr).to.contain('');
-        expect(result.stdout).to.contain('All required fields are present');
+    it('should check the auction status and ensure required fields are present', () => {
+      cy.checkAuctionStatus().then((success) => {
+        expect(success).to.be.true;
       });
     });
   });

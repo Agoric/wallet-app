@@ -28,3 +28,31 @@ Cypress.Commands.add('placeBidByDiscount', (params) => {
     expect(stdout).to.contain('Your bid has been accepted');
   });
 });
+
+Cypress.Commands.add('checkAuctionStatus', () => {
+  cy.exec(`agops inter auction status`, { env: { AGORIC_NET } }).then(
+    ({ stdout }) => {
+      const output = JSON.parse(stdout);
+
+      function checkFieldPresence(field) {
+        const fieldValue = Cypress._.get(output, field);
+        if (!fieldValue) {
+          throw new Error(`Error: ${field} field is missing or empty`);
+        }
+      }
+
+      checkFieldPresence('schedule.nextStartTime');
+      checkFieldPresence('schedule.nextDescendingStepTime');
+
+      checkFieldPresence('book0.startCollateral');
+      checkFieldPresence('book0.collateralAvailable');
+
+      checkFieldPresence('params.DiscountStep');
+      checkFieldPresence('params.ClockStep');
+      checkFieldPresence('params.LowestRate');
+
+      cy.log('All required fields are present');
+      return true;
+    },
+  );
+});
