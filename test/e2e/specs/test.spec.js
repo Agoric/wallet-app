@@ -5,7 +5,7 @@ import {
   DEFAULT_TIMEOUT,
   AGORIC_ADDR_RE,
 } from '../test.utils';
-describe('Wallet App Test Cases', () => {
+describe('Wallet App Test Cases', { execTimeout: DEFAULT_TIMEOUT }, () => {
   context('Test commands', () => {
     it(`should connect with Agoric Chain`, () => {
       cy.visit('/');
@@ -115,6 +115,10 @@ describe('Wallet App Test Cases', () => {
           });
         });
       });
+    });
+
+    it.skip('should view the bid from CLI', () => {
+      cy.listBids(accountAddresses.user2);
     });
 
     it('should see an offer placed in the previous test case', () => {
