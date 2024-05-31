@@ -18,13 +18,12 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_TIMEOUT }, () => {
     it('should setup web wallet successfully', () => {
       cy.visit('/wallet/');
 
-      cy.get('input.PrivateSwitchBase-input').click();
+      cy.get('input[type="checkbox"]').check();
       cy.contains('Proceed').click();
-
       cy.get('button[aria-label="Settings"]').click();
 
-      cy.get('#demo-simple-select').click();
-      cy.get('li[data-value="testnet"]').click();
+      cy.contains('Mainnet').click();
+      cy.contains('Emerynet').click();
       cy.contains('button', 'Connect').click();
 
       cy.acceptAccess().then((taskCompleted) => {
@@ -134,13 +133,11 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_TIMEOUT }, () => {
     it('should cancel the bid by discount and verify IST balance', () => {
       cy.getTokenAmount('IST').then((initialTokenValue) => {
         cy.visit('/wallet/');
-        cy.get('.Controls .MuiChip-root').contains('Exit').click();
+        cy.contains('Exit').click();
         cy.acceptAccess().then((taskCompleted) => {
           expect(taskCompleted).to.be.true;
         });
-        cy.get('.Body .MuiChip-label')
-          .contains('Accepted', { timeout: DEFAULT_TIMEOUT })
-          .should('exist');
+        cy.contains('Accepted', { timeout: DEFAULT_TIMEOUT }).should('exist');
         cy.getTokenAmount('IST').then((tokenValue) => {
           expect(tokenValue).to.greaterThan(initialTokenValue);
         });
@@ -173,13 +170,11 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_TIMEOUT }, () => {
     it('should cancel the bid by price and verify IST balance', () => {
       cy.getTokenAmount('IST').then((initialTokenValue) => {
         cy.visit('/wallet/');
-        cy.get('.Controls .MuiChip-root').contains('Exit').click();
+        cy.contains('Exit').click();
         cy.acceptAccess().then((taskCompleted) => {
           expect(taskCompleted).to.be.true;
         });
-        cy.get('.Body .MuiChip-label')
-          .contains('Accepted', { timeout: DEFAULT_TIMEOUT })
-          .should('exist');
+        cy.contains('Accepted', { timeout: DEFAULT_TIMEOUT }).should('exist');
         cy.getTokenAmount('IST').then((tokenValue) => {
           expect(tokenValue).to.greaterThan(initialTokenValue);
         });
