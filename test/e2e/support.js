@@ -1,6 +1,8 @@
 import '@agoric/synpress/support/index';
 import { AGORIC_NET, flattenObject } from './test.utils';
 
+const agops = '/usr/src/agoric-sdk/packages/agoric-cli/bin/agops';
+
 Cypress.Commands.add('addKeys', (params) => {
   const { keyName, mnemonic, expectedAddress } = params;
   const command = `echo ${mnemonic} | agd keys add ${keyName} --recover --keyring-backend=test`;
@@ -12,7 +14,7 @@ Cypress.Commands.add('addKeys', (params) => {
 
 Cypress.Commands.add('placeBidByPrice', (params) => {
   const { fromAddress, giveAmount, price } = params;
-  const command = `agops inter bid by-price --from ${fromAddress} --give ${giveAmount} --price ${price} --keyring-backend=test`;
+  const command = `${agops} inter bid by-price --from ${fromAddress} --give ${giveAmount} --price ${price} --keyring-backend=test`;
 
   cy.exec(command, { env: { AGORIC_NET } }).then(({ stdout }) => {
     expect(stdout).to.contain('Your bid has been accepted');
@@ -22,7 +24,7 @@ Cypress.Commands.add('placeBidByPrice', (params) => {
 Cypress.Commands.add('placeBidByDiscount', (params) => {
   const { fromAddress, giveAmount, discount } = params;
 
-  const command = `agops inter bid by-discount --from ${fromAddress} --give ${giveAmount} --discount ${discount} --keyring-backend=test`;
+  const command = `${agops} inter bid by-discount --from ${fromAddress} --give ${giveAmount} --discount ${discount} --keyring-backend=test`;
 
   cy.exec(command, { env: { AGORIC_NET }, failOnNonZeroExit: false }).then(
     ({ stdout }) => {
@@ -64,9 +66,12 @@ Cypress.Commands.add('checkAuctionStatus', () => {
 
 Cypress.Commands.add('listBids', (userAddress) => {
   return cy
-    .exec(`agops inter bid list --from ${userAddress} --keyring-backend=test`, {
-      env: { AGORIC_NET },
-    })
+    .exec(
+      `${agops} inter bid list --from ${userAddress} --keyring-backend=test`,
+      {
+        env: { AGORIC_NET },
+      },
+    )
     .then(({ stdout }) => {
       expect(stdout).to.contain('Your bid has been accepted');
     });
