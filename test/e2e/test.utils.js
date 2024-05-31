@@ -15,7 +15,17 @@ export const accountAddresses = {
 };
 
 export const EMERYNET_FAUCET_URL = 'https://emerynet.faucet.agoric.net';
-export const DEFAULT_TIMEOUT = 2 * 60 * 1000;
+/*
+ * DEFAULT_TIMEOUT: timeout for actions involving waiting for DOM elements.
+ * DEFAULT_TASK_TIMEOUT: timeout for custom commands in support.js.
+ *
+ * Many tests use both (waiting for DOM elements and custom commands).
+ * Using both timeouts for such tests can help ensure stability,
+ * especially when running the tests with Emerynet.
+ */
+export const DEFAULT_TIMEOUT = 3 * 60 * 1000;
+export const DEFAULT_TASK_TIMEOUT = 3 * 60 * 1000;
+export const DEFAULT_EXEC_TIMEOUT = 3 * 60 * 1000;
 export const AGORIC_ADDR_RE = /agoric1.{38}/;
 export const AGORIC_NET = 'emerynet';
 
