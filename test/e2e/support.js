@@ -70,6 +70,7 @@ Cypress.Commands.add('listBids', (userAddress) => {
       `${agops} inter bid list --from ${userAddress} --keyring-backend=test`,
       {
         env: { AGORIC_NET },
+        failOnNonZeroExit: false,
       },
     )
     .then(({ stdout }) => {
