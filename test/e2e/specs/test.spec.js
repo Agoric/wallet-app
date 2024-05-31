@@ -3,9 +3,11 @@ import {
   accountAddresses,
   EMERYNET_FAUCET_URL,
   DEFAULT_TIMEOUT,
+  DEFAULT_TASK_TIMEOUT,
+  DEFAULT_EXEC_TIMEOUT,
   AGORIC_ADDR_RE,
 } from '../test.utils';
-describe('Wallet App Test Cases', { execTimeout: DEFAULT_TIMEOUT }, () => {
+describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
   context('Test commands', () => {
     it(`should connect with Agoric Chain`, () => {
       cy.visit('/');
@@ -18,13 +20,12 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_TIMEOUT }, () => {
     it('should setup web wallet successfully', () => {
       cy.visit('/wallet/');
 
-      cy.get('input.PrivateSwitchBase-input').click();
+      cy.get('input[type="checkbox"]').check();
       cy.contains('Proceed').click();
-
       cy.get('button[aria-label="Settings"]').click();
 
-      cy.get('#demo-simple-select').click();
-      cy.get('li[data-value="testnet"]').click();
+      cy.contains('Mainnet').click();
+      cy.contains('Emerynet').click();
       cy.contains('button', 'Connect').click();
 
       cy.acceptAccess().then((taskCompleted) => {
@@ -102,20 +103,26 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_TIMEOUT }, () => {
       });
     });
 
-    it('should place a bid by discount from the CLI successfully and verify IST balance', () => {
-      cy.addNewTokensFound();
-      cy.getTokenAmount('IST').then((initialTokenValue) => {
-        cy.placeBidByDiscount({
-          fromAddress: accountAddresses.user2,
-          giveAmount: '2IST',
-          discount: 5,
-        }).then(() => {
-          cy.getTokenAmount('IST').then((tokenValue) => {
-            expect(tokenValue).to.lessThan(initialTokenValue);
+    it(
+      'should place a bid by discount from the CLI successfully and verify IST balance',
+      {
+        taskTimeout: DEFAULT_TASK_TIMEOUT,
+      },
+      () => {
+        cy.addNewTokensFound();
+        cy.getTokenAmount('IST').then((initialTokenValue) => {
+          cy.placeBidByDiscount({
+            fromAddress: accountAddresses.user2,
+            giveAmount: '2IST',
+            discount: 5,
+          }).then(() => {
+            cy.getTokenAmount('IST').then((tokenValue) => {
+              expect(tokenValue).to.lessThan(initialTokenValue);
+            });
           });
         });
-      });
-    });
+      },
+    );
 
     it.skip('should view the bid from CLI', () => {
       cy.listBids(accountAddresses.user2);
@@ -134,32 +141,36 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_TIMEOUT }, () => {
     it('should cancel the bid by discount and verify IST balance', () => {
       cy.getTokenAmount('IST').then((initialTokenValue) => {
         cy.visit('/wallet/');
-        cy.get('.Controls .MuiChip-root').contains('Exit').click();
+        cy.contains('Exit').click();
         cy.acceptAccess().then((taskCompleted) => {
           expect(taskCompleted).to.be.true;
         });
-        cy.get('.Body .MuiChip-label')
-          .contains('Accepted', { timeout: DEFAULT_TIMEOUT })
-          .should('exist');
+        cy.contains('Accepted', { timeout: DEFAULT_TIMEOUT }).should('exist');
         cy.getTokenAmount('IST').then((tokenValue) => {
           expect(tokenValue).to.greaterThan(initialTokenValue);
         });
       });
     });
 
-    it('should place a bid by price from the CLI successfully and verify IST balance', () => {
-      cy.getTokenAmount('IST').then((initialTokenValue) => {
-        cy.placeBidByPrice({
-          fromAddress: accountAddresses.user2,
-          giveAmount: '1IST',
-          price: 8.55,
-        }).then(() => {
-          cy.getTokenAmount('IST').then((tokenValue) => {
-            expect(tokenValue).to.lessThan(initialTokenValue);
+    it(
+      'should place a bid by price from the CLI successfully and verify IST balance',
+      {
+        taskTimeout: DEFAULT_TASK_TIMEOUT,
+      },
+      () => {
+        cy.getTokenAmount('IST').then((initialTokenValue) => {
+          cy.placeBidByPrice({
+            fromAddress: accountAddresses.user2,
+            giveAmount: '1IST',
+            price: 8.55,
+          }).then(() => {
+            cy.getTokenAmount('IST').then((tokenValue) => {
+              expect(tokenValue).to.lessThan(initialTokenValue);
+            });
           });
         });
-      });
-    });
+      },
+    );
 
     it('should see an offer placed in the previous test case', () => {
       cy.visit('/wallet/');
@@ -173,13 +184,11 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_TIMEOUT }, () => {
     it('should cancel the bid by price and verify IST balance', () => {
       cy.getTokenAmount('IST').then((initialTokenValue) => {
         cy.visit('/wallet/');
-        cy.get('.Controls .MuiChip-root').contains('Exit').click();
+        cy.contains('Exit').click();
         cy.acceptAccess().then((taskCompleted) => {
           expect(taskCompleted).to.be.true;
         });
-        cy.get('.Body .MuiChip-label')
-          .contains('Accepted', { timeout: DEFAULT_TIMEOUT })
-          .should('exist');
+        cy.contains('Accepted', { timeout: DEFAULT_TIMEOUT }).should('exist');
         cy.getTokenAmount('IST').then((tokenValue) => {
           expect(tokenValue).to.greaterThan(initialTokenValue);
         });
