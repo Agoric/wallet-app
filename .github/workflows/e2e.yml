@@ -68,7 +68,7 @@ jobs:
         if: >
           failure() && github.event_name != 'pull_request' &&
           github.repository_owner == 'agoric'
-        uses: ./.github/actions/notify-action.yml
+        uses: ./.github/actions/notify-status
         with:
           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
         continue-on-error: true
