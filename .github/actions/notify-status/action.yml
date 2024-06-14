@@ -1,0 +1,22 @@
+name: Notify GitHub Actions Status on Slack
+description: Notify Slack about the status of GitHub Actions jobs
+
+inputs:
+  webhook:
+    description: 'Slack Webhook URL to send the alerts'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Send GitHub Actions Status to Slack
+      id: slack
+      uses: slackapi/slack-github-action@v1.26.0
+      with:
+        payload: |
+          {
+            "text": "Job ${{ github.job }} in workflow ${{ github.workflow }} of repository ${{ github.repository }} has a status of ${{ job.status }}.\nDetails: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+            "username": "GitHub Actions"
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ inputs.webhook }}
