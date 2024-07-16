@@ -124,10 +124,6 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
       },
     );
 
-    it.skip('should view the bid from CLI', () => {
-      cy.listBids(accountAddresses.user2);
-    });
-
     it('should see an offer placed in the previous test case', () => {
       cy.visit('/wallet/');
 
@@ -171,6 +167,10 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
         });
       },
     );
+
+    it('should view the bid from CLI', () => {
+      cy.listBids(accountAddresses.user2);
+    });
 
     it('should see an offer placed in the previous test case', () => {
       cy.visit('/wallet/');
