@@ -1,7 +1,11 @@
 import '@agoric/synpress/support/index';
 import { AGORIC_NET, flattenObject } from './test.utils';
 
-const agops = '/usr/src/agoric-sdk/packages/agoric-cli/bin/agops';
+const environment = Cypress.env('ENVIRONMENT');
+const agops =
+  environment === 'ci'
+    ? '/usr/src/agoric-sdk/packages/agoric-cli/bin/agops'
+    : 'agops';
 
 Cypress.Commands.add('addKeys', (params) => {
   const { keyName, mnemonic, expectedAddress } = params;
