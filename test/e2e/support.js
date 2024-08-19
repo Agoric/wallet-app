@@ -1,5 +1,11 @@
 import '@agoric/synpress/support/index';
-import { AGORIC_NET, flattenObject } from './test.utils';
+import {
+  AGORIC_NET,
+  flattenObject,
+  FACUET_HEADERS,
+  FACUET_URL,
+  MINUTE_MS,
+} from './test.utils';
 
 Cypress.Commands.add('addKeys', (params) => {
   const { keyName, mnemonic, expectedAddress } = params;
@@ -70,4 +76,21 @@ Cypress.Commands.add('listBids', (userAddress) => {
     .then(({ stdout }) => {
       expect(stdout).to.contain('Your bid has been accepted');
     });
+});
+
+Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
+  cy.request({
+    method: 'POST',
+    url: FACUET_URL,
+    body: {
+      address: walletAddress,
+      command,
+      clientType: 'SMART_WALLET',
+    },
+    headers: FACUET_HEADERS,
+    timeout: 4 * MINUTE_MS,
+    retryOnStatusCodeFailure: true,
+  }).then((resp) => {
+    expect(resp.body).to.eq('success');
+  });
 });
