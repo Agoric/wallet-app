@@ -124,7 +124,7 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
       },
     );
 
-    it.skip('should view the bid from CLI', () => {
+    it('should view the bid from CLI', () => {
       cy.listBids(accountAddresses.user2);
     });
 
