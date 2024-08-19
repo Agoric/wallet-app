@@ -1,4 +1,4 @@
-FROM ghcr.io/agoric/agoric-sdk:45
+FROM ghcr.io/agoric/agoric-sdk:latest
 
 # Add the Agoric CLI to the PATH so that 'agops' can be accessed from anywhere in the command line.
 ENV PATH="/usr/src/agoric-sdk/packages/agoric-cli/bin:${PATH}"
