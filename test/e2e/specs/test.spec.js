@@ -42,55 +42,26 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
       cy.get('span').contains('BLD').should('exist');
     });
 
-    // disabled this test case UNTIL https://github.com/Agoric/wallet-app/issues/161
-    it.skip('should succeed in provisioning a new wallet ', () => {
-      const walletAddress = {
-        value: null,
-      };
-
+    it('should succeed in provisioning a new wallet ', () => {
       cy.setupWallet({
         createNewWallet: true,
-        walletName: 'user1',
+        walletName: 'newWallet',
+        selectedChains: ['Agoric'],
       });
 
-      cy.visit('/wallet');
-      // Matches a wallet address pattern that starts with "agoric1" and is followed by exactly 38 characters.
-      cy.contains(AGORIC_ADDR_RE)
-        .spread((element) => {
-          return element.innerHTML.match(AGORIC_ADDR_RE)[0];
-        })
-        .then((address) => {
-          walletAddress.value = address;
-        });
-
-      cy.origin(
-        EMERYNET_FAUCET_URL,
-        { args: { walletAddress } },
-        ({ walletAddress }) => {
-          cy.visit('/');
-          cy.get('[id="address"]').first().type(walletAddress.value);
-          cy.get('[type="submit"]').first().click();
-          cy.get('body').contains('success').should('exist');
-        },
-      );
-
-      cy.visit('/wallet');
-      cy.contains('button', 'Create').click();
-
-      cy.acceptAccess().then((taskCompleted) => {
-        expect(taskCompleted).to.be.true;
+      cy.getWalletAddress('Agoric').then((address) => {
+        // provision BLD
+        cy.provisionFromFaucet(address, 'delegate');
+        // provision IST
+        cy.provisionFromFaucet(address, 'client');
       });
 
-      cy.get('span')
-        .contains('ATOM', { timeout: DEFAULT_TIMEOUT })
-        .should('exist');
-      cy.get('span')
-        .contains('BLD', { timeout: DEFAULT_TIMEOUT })
-        .should('exist');
+      cy.visit('/wallet/');
+      cy.get('span').contains('ATOM').should('exist');
+      cy.get('span').contains('BLD').should('exist');
     });
 
-    // disabled this test case UNTIL https://github.com/Agoric/wallet-app/issues/161
-    it.skip('should switch to "My Wallet" successfully', () => {
+    it('should switch to "My Wallet" successfully', () => {
       cy.switchWallet('My Wallet').then((taskCompleted) => {
         expect(taskCompleted).to.be.true;
       });

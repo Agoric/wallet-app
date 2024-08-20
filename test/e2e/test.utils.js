@@ -26,6 +26,7 @@ export const EMERYNET_FAUCET_URL = 'https://emerynet.faucet.agoric.net';
 export const DEFAULT_TIMEOUT = 3 * 60 * 1000;
 export const DEFAULT_TASK_TIMEOUT = 3 * 60 * 1000;
 export const DEFAULT_EXEC_TIMEOUT = 3 * 60 * 1000;
+export const MINUTE_MS = 1 * 60 * 1000;
 export const AGORIC_ADDR_RE = /agoric1.{38}/;
 export const AGORIC_NET = 'emerynet';
 
@@ -46,4 +47,12 @@ export const flattenObject = (obj, parentKey = '', result = {}) => {
     }
   }
   return result;
+};
+
+export const FACUET_URL = 'https://emerynet.faucet.agoric.net/go';
+
+export const FACUET_HEADERS = {
+  Accept:
+    'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+  'Content-Type': 'application/x-www-form-urlencoded',
 };
