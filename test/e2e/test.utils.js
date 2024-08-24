@@ -49,8 +49,6 @@ export const flattenObject = (obj, parentKey = '', result = {}) => {
   return result;
 };
 
-export const FACUET_URL = 'https://emerynet.faucet.agoric.net/go';
-
 export const FACUET_HEADERS = {
   Accept:
     'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',

@@ -1,11 +1,11 @@
+import { NETWORKS } from '../constants';
 import {
   mnemonics,
   accountAddresses,
-  EMERYNET_FAUCET_URL,
   DEFAULT_TIMEOUT,
   DEFAULT_TASK_TIMEOUT,
   DEFAULT_EXEC_TIMEOUT,
-  AGORIC_ADDR_RE,
+  AGORIC_NET,
 } from '../test.utils';
 describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
   context('Test commands', () => {
@@ -25,7 +25,7 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
       cy.get('button[aria-label="Settings"]').click();
 
       cy.contains('Mainnet').click();
-      cy.contains('Emerynet').click();
+      cy.contains(NETWORKS[AGORIC_NET]).click();
       cy.contains('button', 'Connect').click();
 
       cy.acceptAccess().then((taskCompleted) => {

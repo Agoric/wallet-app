@@ -3,9 +3,9 @@ import {
   AGORIC_NET,
   flattenObject,
   FACUET_HEADERS,
-  FACUET_URL,
   MINUTE_MS,
 } from './test.utils';
+import { FAUCET_URL_MAP } from './constants';
 
 const environment = Cypress.env('ENVIRONMENT');
 const agops =
@@ -93,7 +93,7 @@ Cypress.Commands.add('listBids', (userAddress) => {
 Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
   cy.request({
     method: 'POST',
-    url: FACUET_URL,
+    url: FAUCET_URL_MAP[AGORIC_NET],
     body: {
       address: walletAddress,
       command,
