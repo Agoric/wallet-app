@@ -1,11 +1,12 @@
+import { FAUCET_URL_MAP } from '../constants';
 import {
   mnemonics,
   accountAddresses,
-  EMERYNET_FAUCET_URL,
   DEFAULT_TIMEOUT,
   DEFAULT_TASK_TIMEOUT,
   DEFAULT_EXEC_TIMEOUT,
   AGORIC_ADDR_RE,
+  AGORIC_NET,
 } from '../test.utils';
 describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
   context('Test commands', () => {
@@ -63,8 +64,10 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
           walletAddress.value = address;
         });
 
+      const FAUCET_URL = FAUCET_URL_MAP[AGORIC_NET];
+
       cy.origin(
-        EMERYNET_FAUCET_URL,
+        FAUCET_URL,
         { args: { walletAddress } },
         ({ walletAddress }) => {
           cy.visit('/');

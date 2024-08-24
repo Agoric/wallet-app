@@ -10,6 +10,15 @@ on:
   schedule:
     - cron: '0 0 * * *'
   workflow_dispatch:
+    inputs:
+      network:
+        description: 'Select the blockchain network for testing'
+        required: false
+        default: 'emerynet'
+        type: choice
+        options:
+          - emerynet
+          - devnet
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -41,6 +50,7 @@ jobs:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
           COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
+          CYPRESS_AGORIC_NET: ${{ inputs.network }}
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
