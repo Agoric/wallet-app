@@ -10,6 +10,8 @@ import {
 describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
   context('Test commands', () => {
     it(`should connect with Agoric Chain`, () => {
+      cy.task('info', `AGORIC_NET: ${AGORIC_NET}`);
+
       cy.visit('/');
 
       cy.acceptAccess().then((taskCompleted) => {

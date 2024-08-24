@@ -14,7 +14,6 @@ export const accountAddresses = {
   gov2: 'agoric1wrfh296eu2z34p6pah7q04jjuyj3mxu9v98277',
 };
 
-export const EMERYNET_FAUCET_URL = 'https://emerynet.faucet.agoric.net';
 /*
  * DEFAULT_TIMEOUT: timeout for actions involving waiting for DOM elements.
  * DEFAULT_TASK_TIMEOUT: timeout for custom commands in support.js.
@@ -28,7 +27,7 @@ export const DEFAULT_TASK_TIMEOUT = 3 * 60 * 1000;
 export const DEFAULT_EXEC_TIMEOUT = 3 * 60 * 1000;
 export const MINUTE_MS = 1 * 60 * 1000;
 export const AGORIC_ADDR_RE = /agoric1.{38}/;
-export const AGORIC_NET = 'emerynet';
+export const AGORIC_NET = Cypress.env('AGORIC_NET') || 'emerynet';
 
 export const flattenObject = (obj, parentKey = '', result = {}) => {
   for (let key in obj) {

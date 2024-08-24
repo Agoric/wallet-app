@@ -1,6 +1,6 @@
 export const FAUCET_URL_MAP = {
-  emerynet: 'https://emerynet.faucet.agoric.net',
-  devnet: 'https://devnet.faucet.agoric.net',
+  emerynet: 'https://emerynet.faucet.agoric.net/go',
+  devnet: 'https://devnet.faucet.agoric.net/go',
 };
 
 export const NETWORKS = {
