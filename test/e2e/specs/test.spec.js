@@ -1,19 +1,25 @@
 import {
-  mnemonics,
-  accountAddresses,
   DEFAULT_TIMEOUT,
   DEFAULT_TASK_TIMEOUT,
   DEFAULT_EXEC_TIMEOUT,
+  config,
 } from '../test.utils';
 
 describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
-  const AGORIC_NET = Cypress.env('AGORIC_NET').trim() || 'emerynet';
+  const AGORIC_NET = Cypress.env('AGORIC_NET').trim() || 'local';
+  const userConfig = config[AGORIC_NET === 'local' ? 'local' : 'testnet'];
 
   context('Test commands', () => {
-    it(`should connect with Agoric Chain`, () => {
+    it('should setup the keplr wallet successfully', () => {
       cy.task('info', `AGORIC_NET: ${AGORIC_NET}`);
 
-      cy.visit('/');
+      cy.setupWallet({
+        walletName: 'My Wallet',
+        secretWords: userConfig.userWalletMnemonic,
+      });
+    });
+    it(`should open the web wallet URL successfully`, () => {
+      cy.visit(`${userConfig.webwalletURL}`);
 
       cy.acceptAccess().then((taskCompleted) => {
         expect(taskCompleted).to.be.true;
@@ -21,7 +27,7 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
     });
 
     it('should setup web wallet successfully', () => {
-      cy.visit('/wallet/');
+      cy.visit(`${userConfig.webwalletURL}wallet/`);
 
       cy.get('input[type="checkbox"]').check();
       cy.contains('Proceed').click();
@@ -34,9 +40,11 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
 
       cy.contains('button', 'Connect').click();
 
-      cy.acceptAccess().then((taskCompleted) => {
-        expect(taskCompleted).to.be.true;
-      });
+      if (AGORIC_NET !== 'local') {
+        cy.acceptAccess().then((taskCompleted) => {
+          expect(taskCompleted).to.be.true;
+        });
+      }
 
       cy.reload();
 
@@ -49,6 +57,7 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
     });
 
     it('should succeed in provisioning a new wallet ', () => {
+      cy.skipWhen(AGORIC_NET === 'local');
       cy.setupWallet({
         createNewWallet: true,
         walletName: 'newWallet',
@@ -62,21 +71,31 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
         cy.provisionFromFaucet(address, 'client');
       });
 
-      cy.visit('/wallet/');
+      cy.visit(`${userConfig.webwalletURL}wallet/`);
       cy.get('span').contains('ATOM').should('exist');
       cy.get('span').contains('BLD').should('exist');
     });
 
     it('should switch to "My Wallet" successfully', () => {
+      cy.skipWhen(AGORIC_NET === 'local');
       cy.switchWallet('My Wallet').then((taskCompleted) => {
         expect(taskCompleted).to.be.true;
       });
     });
     it('should add keys using agd from the CLI successfully', () => {
       cy.addKeys({
-        keyName: 'user2',
-        mnemonic: mnemonics.user2,
-        expectedAddress: accountAddresses.user2,
+        keyName: userConfig.userKeyName,
+        mnemonic: userConfig.userWalletMnemonic,
+        expectedAddress: userConfig.userWalletAddress,
+      });
+    });
+
+    it('should create a vault minting 400 ISTs and giving 80 ATOMs as collateral', () => {
+      cy.skipWhen(AGORIC_NET !== 'local');
+      cy.createVault({
+        wantMinted: 400,
+        giveCollateral: 80,
+        userKey: userConfig.userKeyName,
       });
     });
 
@@ -89,7 +108,7 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
         cy.addNewTokensFound();
         cy.getTokenAmount('IST').then((initialTokenValue) => {
           cy.placeBidByDiscount({
-            fromAddress: accountAddresses.user2,
+            fromAddress: userConfig.userWalletAddress,
             giveAmount: '2IST',
             discount: 5,
           }).then(() => {
@@ -98,15 +117,16 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
             });
           });
         });
+        cy.wait(5000);
       },
     );
 
     it('should view the bid from CLI', () => {
-      cy.listBids(accountAddresses.user2);
+      cy.listBids(userConfig.userWalletAddress);
     });
 
     it('should see an offer placed in the previous test case', () => {
-      cy.visit('/wallet/');
+      cy.visit(`${userConfig.webwalletURL}wallet/`);
 
       cy.contains('Offer').should('be.visible');
       cy.contains('Give Bid').should('be.visible');
@@ -117,7 +137,7 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
 
     it('should cancel the bid by discount and verify IST balance', () => {
       cy.getTokenAmount('IST').then((initialTokenValue) => {
-        cy.visit('/wallet/');
+        cy.visit(`${userConfig.webwalletURL}wallet/`);
         cy.contains('Exit').click();
         cy.acceptAccess().then((taskCompleted) => {
           expect(taskCompleted).to.be.true;
@@ -137,7 +157,7 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
       () => {
         cy.getTokenAmount('IST').then((initialTokenValue) => {
           cy.placeBidByPrice({
-            fromAddress: accountAddresses.user2,
+            fromAddress: userConfig.userWalletAddress,
             giveAmount: '1IST',
             price: 8.55,
           }).then(() => {
@@ -150,7 +170,7 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
     );
 
     it('should see an offer placed in the previous test case', () => {
-      cy.visit('/wallet/');
+      cy.visit(`${userConfig.webwalletURL}wallet/`);
       cy.contains('Offer').should('be.visible');
       cy.contains('Give Bid').should('be.visible');
       cy.contains('1.00 IST').should('be.visible');
@@ -160,7 +180,7 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
 
     it('should cancel the bid by price and verify IST balance', () => {
       cy.getTokenAmount('IST').then((initialTokenValue) => {
-        cy.visit('/wallet/');
+        cy.visit(`${userConfig.webwalletURL}wallet/`);
         cy.contains('Exit').click();
         cy.acceptAccess().then((taskCompleted) => {
           expect(taskCompleted).to.be.true;

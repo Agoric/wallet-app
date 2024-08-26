@@ -1,8 +1,8 @@
 import '@agoric/synpress/support/index';
-import { flattenObject, FACUET_HEADERS, MINUTE_MS } from './test.utils';
-import { FAUCET_URL_MAP, NETWORK_CONFIG_URL } from './constants';
+import { flattenObject, FACUET_HEADERS, MINUTE_MS, config } from './test.utils';
+import { FAUCET_URL_MAP } from './constants';
 
-const AGORIC_NET = Cypress.env('AGORIC_NET').trim() || 'emerynet';
+const AGORIC_NET = Cypress.env('AGORIC_NET').trim() || 'local';
 const environment = Cypress.env('ENVIRONMENT');
 const agops =
   environment === 'ci'
@@ -114,6 +114,9 @@ Cypress.Commands.add('setNetworkConfigURL', (agoricNet) => {
     networkConfigURL = 'https://emerynet.agoric.net/network-config';
   } else if (agoricNet === 'devnet') {
     networkConfigURL = 'https://devnet.agoric.net/network-config';
+  } else if (agoricNet === 'local') {
+    // UNTIL https://github.com/Agoric/wallet-app/issues/184
+    networkConfigURL = 'https://wallet.agoric.app/wallet/network-config';
   } else {
     throw new Error('Unknown Agoric network specified');
   }
@@ -133,4 +136,32 @@ afterEach(function () {
     const errorMessage = this.currentTest.err.message;
     cy.task('info', `Test "${testName}" failed with error: ${errorMessage}`);
   }
+});
+
+Cypress.Commands.add('skipWhen', function (expression) {
+  if (expression) {
+    this.skip();
+  }
+});
+
+Cypress.Commands.add('createVault', (params) => {
+  const { wantMinted, giveCollateral, userKey } = params;
+
+  const createVaultCommand = `${agops} vaults open --wantMinted "${wantMinted}" --giveCollateral "${giveCollateral}" > /tmp/want-ist.json`;
+
+  cy.exec(createVaultCommand, {
+    env: { AGORIC_NET },
+    timeout: config[AGORIC_NET].COMMAND_TIMEOUT,
+  }).then(({ stdout }) => {
+    expect(stdout).not.to.contain('Error');
+
+    const broadcastCommand = `${agops} perf satisfaction --executeOffer /tmp/want-ist.json --from "${userKey}" --keyring-backend=test`;
+
+    cy.exec(broadcastCommand, {
+      env: { AGORIC_NET },
+      timeout: config[AGORIC_NET].COMMAND_TIMEOUT,
+    }).then(({ stdout }) => {
+      expect(stdout).not.to.contain('Error');
+    });
+  });
 });

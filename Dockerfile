@@ -19,6 +19,10 @@ RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key
     && apt-get update \
     && apt-get install -y google-chrome-stable
 
+# Setup Nginx
+RUN apt update && apt install -y nginx
+COPY test/e2e/nginx.conf /etc/nginx/sites-available/default
+
 # Setup Wallet App
 WORKDIR /app
 COPY . .
