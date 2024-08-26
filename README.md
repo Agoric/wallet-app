@@ -18,13 +18,13 @@ To deploy, push to that branch. e.g. if you've qualified main:
 
 `git push origin main:production`
 
-## E2E Testing
+# E2E Testing
 
 E2E tests have been written in order to test the dapp as well as to perform automated testing on emerynet/devnet when upgrading the chain
 
 There are two ways to run the tests:
 
-### On Local Machine
+## On Local Machine
 
 To run tests on your local machine, first you need to start the frontend server:
 
@@ -42,7 +42,7 @@ where `network` can be: `emerynet` or `devnet`
 
 Note: the tests use chrome browser by default so they require it to be installed
 
-### On Github
+## On Github
 
 To run the tests on github, you can use the workflow trigger to run the tests.
 
