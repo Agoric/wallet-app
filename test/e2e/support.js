@@ -1,6 +1,6 @@
 import '@agoric/synpress/support/index';
-import { flattenObject, FACUET_HEADERS, MINUTE_MS } from './test.utils';
-import { FAUCET_URL_MAP, NETWORK_CONFIG_URL } from './constants';
+import { flattenObject, FACUET_HEADERS, MINUTE_MS, config } from './test.utils';
+import { FAUCET_URL_MAP } from './constants';
 
 const AGORIC_NET = Cypress.env('AGORIC_NET').trim() || 'local';
 const environment = Cypress.env('ENVIRONMENT');
@@ -142,4 +142,26 @@ Cypress.Commands.add('skipWhen', function (expression) {
   if (expression) {
     this.skip();
   }
+});
+
+Cypress.Commands.add('createVault', (params) => {
+  const { wantMinted, giveCollateral, userKey } = params;
+
+  const createVaultCommand = `${agops} vaults open --wantMinted "${wantMinted}" --giveCollateral "${giveCollateral}" > /tmp/want-ist.json`;
+
+  cy.exec(createVaultCommand, {
+    env: { AGORIC_NET },
+    timeout: config[AGORIC_NET].COMMAND_TIMEOUT,
+  }).then(({ stdout }) => {
+    expect(stdout).not.to.contain('Error');
+
+    const broadcastCommand = `${agops} perf satisfaction --executeOffer /tmp/want-ist.json --from "${userKey}" --keyring-backend=test`;
+
+    cy.exec(broadcastCommand, {
+      env: { AGORIC_NET },
+      timeout: config[AGORIC_NET].COMMAND_TIMEOUT,
+    }).then(({ stdout }) => {
+      expect(stdout).not.to.contain('Error');
+    });
+  });
 });

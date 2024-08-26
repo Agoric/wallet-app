@@ -46,11 +46,9 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
 
       cy.reload();
 
-      if (AGORIC_NET !== 'local') {
-        cy.acceptAccess().then((taskCompleted) => {
-          expect(taskCompleted).to.be.true;
-        });
-      }
+      cy.acceptAccess().then((taskCompleted) => {
+        expect(taskCompleted).to.be.true;
+      });
 
       cy.get('span').contains('ATOM').should('exist');
       cy.get('span').contains('BLD').should('exist');
@@ -87,6 +85,15 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
         keyName: userConfig.userKeyName,
         mnemonic: userConfig.userWalletMnemonic,
         expectedAddress: userConfig.userWalletAddress,
+      });
+    });
+
+    it('should create a vault minting 400 ISTs and giving 80 ATOMs as collateral', () => {
+      cy.skipWhen(AGORIC_NET !== 'local');
+      cy.createVault({
+        wantMinted: 400,
+        giveCollateral: 80,
+        userKey: userConfig.userKeyName,
       });
     });
 
