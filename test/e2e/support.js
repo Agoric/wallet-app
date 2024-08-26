@@ -1,12 +1,8 @@
 import '@agoric/synpress/support/index';
-import {
-  AGORIC_NET,
-  flattenObject,
-  FACUET_HEADERS,
-  MINUTE_MS,
-} from './test.utils';
+import { flattenObject, FACUET_HEADERS, MINUTE_MS } from './test.utils';
 import { FAUCET_URL_MAP } from './constants';
 
+const AGORIC_NET = Cypress.env('AGORIC_NET') || 'emerynet';
 const environment = Cypress.env('ENVIRONMENT');
 const agops =
   environment === 'ci'

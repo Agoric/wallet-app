@@ -1,13 +1,14 @@
-import { NETWORK_CONFIG_URL, NETWORKS } from '../constants';
+import { NETWORK_CONFIG_URL } from '../constants';
 import {
   mnemonics,
   accountAddresses,
   DEFAULT_TIMEOUT,
   DEFAULT_TASK_TIMEOUT,
   DEFAULT_EXEC_TIMEOUT,
-  AGORIC_NET,
 } from '../test.utils';
 describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
+  const AGORIC_NET = Cypress.env('AGORIC_NET') || 'emerynet';
+  const networkConfigURL = NETWORK_CONFIG_URL[AGORIC_NET];
   context('Test commands', () => {
     it(`should connect with Agoric Chain`, () => {
       cy.task('info', `AGORIC_NET: ${AGORIC_NET}`);
@@ -27,14 +28,15 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
       cy.get('button[aria-label="Settings"]').click();
 
       cy.contains('Mainnet').click();
-      cy.contains(NETWORKS[AGORIC_NET]).click();
+      cy.contains('Custom URL').should('be.visible').click();
 
-      if (['xnet', 'ollinet'].includes(AGORIC_NET)) {
-        cy.get('input[value="https://main.agoric.net/network-config"]').click();
-        cy.get('input[value="https://main.agoric.net/network-config"]')
-          .clear()
-          .type(NETWORK_CONFIG_URL[AGORIC_NET]);
-      }
+      cy.get('input[value="https://main.agoric.net/network-config"]')
+        .should('be.visible')
+        .click()
+        .then(($input) => {
+          cy.wrap($input).clear().type(networkConfigURL);
+        })
+        .should('have.value', networkConfigURL);
 
       cy.contains('button', 'Connect').click();
 
