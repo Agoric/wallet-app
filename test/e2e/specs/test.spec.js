@@ -46,9 +46,11 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
 
       cy.reload();
 
-      cy.acceptAccess().then((taskCompleted) => {
-        expect(taskCompleted).to.be.true;
-      });
+      if (AGORIC_NET !== 'local') {
+        cy.acceptAccess().then((taskCompleted) => {
+          expect(taskCompleted).to.be.true;
+        });
+      }
 
       cy.get('span').contains('ATOM').should('exist');
       cy.get('span').contains('BLD').should('exist');

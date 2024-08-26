@@ -114,6 +114,9 @@ Cypress.Commands.add('setNetworkConfigURL', (agoricNet) => {
     networkConfigURL = 'https://emerynet.agoric.net/network-config';
   } else if (agoricNet === 'devnet') {
     networkConfigURL = 'https://devnet.agoric.net/network-config';
+  } else if (agoricNet === 'local') {
+    // UNTIL https://github.com/Agoric/wallet-app/issues/184
+    networkConfigURL = 'https://wallet.agoric.app/wallet/network-config';
   } else {
     throw new Error('Unknown Agoric network specified');
   }
