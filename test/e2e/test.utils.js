@@ -51,3 +51,19 @@ export const FACUET_HEADERS = {
     'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
   'Content-Type': 'application/x-www-form-urlencoded',
 };
+
+export const config = {
+  local: {
+    userKeyName: 'user1',
+    userWalletAddress: accountAddresses.user1,
+    userWalletMnemonic: mnemonics.user1,
+    // UNTIL https://github.com/Agoric/wallet-app/issues/184
+    webwalletURL: 'https://wallet.agoric.app/',
+  },
+  testnet: {
+    userKeyName: 'user2',
+    userWalletAddress: accountAddresses.user2,
+    userWalletMnemonic: mnemonics.user2,
+    webwalletURL: '/',
+  },
+};

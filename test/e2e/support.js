@@ -2,7 +2,7 @@ import '@agoric/synpress/support/index';
 import { flattenObject, FACUET_HEADERS, MINUTE_MS } from './test.utils';
 import { FAUCET_URL_MAP, NETWORK_CONFIG_URL } from './constants';
 
-const AGORIC_NET = Cypress.env('AGORIC_NET').trim() || 'emerynet';
+const AGORIC_NET = Cypress.env('AGORIC_NET').trim() || 'local';
 const environment = Cypress.env('ENVIRONMENT');
 const agops =
   environment === 'ci'
@@ -132,5 +132,11 @@ afterEach(function () {
     const testName = this.currentTest.title;
     const errorMessage = this.currentTest.err.message;
     cy.task('info', `Test "${testName}" failed with error: ${errorMessage}`);
+  }
+});
+
+Cypress.Commands.add('skipWhen', function (expression) {
+  if (expression) {
+    this.skip();
   }
 });
