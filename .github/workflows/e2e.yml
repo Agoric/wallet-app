@@ -47,12 +47,12 @@ jobs:
           NGROK_BASIC_AUTH: ${{ secrets.NGROK_BASIC_AUTH }}
           CYPRESS_PRIVATE_KEY_WITH_FUNDS: ${{ secrets.CYPRESS_PRIVATE_KEY_WITH_FUNDS }}
           CYPRESS_ENVIRONMENT: ci
-          CYPRESS_AGORIC_NET: >
-            ${{ contains(github.event.pull_request.labels.*.name, 'emerynet') && 'emerynet' 
-            || contains(github.event.pull_request.labels.*.name, 'devnet') && 'devnet' 
-            || contains(github.event.pull_request.labels.*.name, 'ollinet') && 'ollinet' 
-            || contains(github.event.pull_request.labels.*.name, 'xnet') && 'xnet' 
-            || inputs.network }}
+          CYPRESS_AGORIC_NET: >-
+            ${{ contains(github.event.pull_request.labels.*.name, 'emerynet') && 'emerynet'
+             || contains(github.event.pull_request.labels.*.name, 'devnet') && 'devnet'
+             || contains(github.event.pull_request.labels.*.name, 'ollinet') && 'ollinet'
+             || contains(github.event.pull_request.labels.*.name, 'xnet') && 'xnet'
+             || inputs.network }}
           ANVIL_FORK_URL: ${{ secrets.ANVIL_FORK_URL }}
           GH_PAT: ${{ secrets.GH_PAT }}
           GH_USERNAME: ${{ secrets.GH_USERNAME }}

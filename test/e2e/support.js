@@ -2,7 +2,7 @@ import '@agoric/synpress/support/index';
 import { flattenObject, FACUET_HEADERS, MINUTE_MS } from './test.utils';
 import { FAUCET_URL_MAP, NETWORK_CONFIG_URL } from './constants';
 
-const AGORIC_NET = Cypress.env('AGORIC_NET') || 'emerynet';
+const AGORIC_NET = Cypress.env('AGORIC_NET').trim() || 'emerynet';
 const environment = Cypress.env('ENVIRONMENT');
 const agops =
   environment === 'ci'
@@ -103,12 +103,34 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
   });
 });
 
-Cypress.Commands.add('setNetworkConfigURL', () => {
+Cypress.Commands.add('setNetworkConfigURL', (agoricNet) => {
+  let networkConfigURL = '';
+
+  if (agoricNet === 'xnet') {
+    networkConfigURL = 'https://xnet.agoric.net/network-config';
+  } else if (agoricNet === 'ollinet') {
+    networkConfigURL = 'https://ollinet.agoric.net/network-config';
+  } else if (agoricNet === 'emerynet') {
+    networkConfigURL = 'https://emerynet.agoric.net/network-config';
+  } else if (agoricNet === 'devnet') {
+    networkConfigURL = 'https://devnet.agoric.net/network-config';
+  } else {
+    throw new Error('Unknown Agoric network specified');
+  }
+
   cy.get('input[value="https://main.agoric.net/network-config"]')
     .should('be.visible')
     .click()
     .then(($input) => {
-      cy.wrap($input).clear().type(NETWORK_CONFIG_URL[AGORIC_NET]);
+      cy.wrap($input).clear().type(networkConfigURL);
     })
-    .should('have.value', NETWORK_CONFIG_URL[AGORIC_NET]);
+    .should('have.value', networkConfigURL);
+});
+
+afterEach(function () {
+  if (this.currentTest.state === 'failed') {
+    const testName = this.currentTest.title;
+    const errorMessage = this.currentTest.err.message;
+    cy.task('info', `Test "${testName}" failed with error: ${errorMessage}`);
+  }
 });

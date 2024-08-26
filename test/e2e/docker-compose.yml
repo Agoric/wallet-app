@@ -45,29 +45,7 @@ services:
       - ./cypress/videos:/app/test/e2e/videos
       - ./cypress/screenshots:/app/test/e2e/screenshots
     command: >
-      bash -c '
-        # Display local noVNC URL
-        echo "======> local noVNC URL: http://localhost:8080/vnc.html?autoconnect=true" &&
-        
-        # Wait for the noVNC display to be available
-        yarn wait-on http://display:8080 &&
-        
-        # Fetch and display the remote noVNC URL
-        echo -n "======> remote noVNC URL: " &&
-        curl -s ngrok:4040/api/tunnels | jq -r .tunnels[0].public_url &&
-        
-        # Start nginx if running locally
-        if [ "$CYPRESS_AGORIC_NET" == "local" ]; then
-          nginx
-        fi &&
-        
-        # Start development server and wait for it to be ready
-        yarn start & sleep 5 &&
-        
-        # Run end-to-end tests
-        yarn test:e2e
-      '
-
+      bash -c 'echo -n "======> local noVNC URL: http://localhost:8080/vnc.html?autoconnect=true " && yarn wait-on http://display:8080 && echo -n "======> remote noVNC URL: " && curl -s ngrok:4040/api/tunnels | jq -r .tunnels[0].public_url && yarn test:e2e:ci'
     networks:
       - x11
 
