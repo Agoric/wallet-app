@@ -103,7 +103,7 @@ services:
     profiles:
       - synpress
     container_name: agoric_chain
-    image: ghcr.io/agoric/agoric-3-proposals:latest
+    image: ghcr.io/agoric/agoric-3-proposals:${A3P_IMAGE_TAG}
     logging:
       driver: none
     platform: linux/amd64

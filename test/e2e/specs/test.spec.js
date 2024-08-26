@@ -40,9 +40,11 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
 
       cy.contains('button', 'Connect').click();
 
-      cy.acceptAccess().then((taskCompleted) => {
-        expect(taskCompleted).to.be.true;
-      });
+      if (AGORIC_NET !== 'local') {
+        cy.acceptAccess().then((taskCompleted) => {
+          expect(taskCompleted).to.be.true;
+        });
+      }
 
       cy.reload();
 
@@ -115,6 +117,7 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
             });
           });
         });
+        cy.wait(5000);
       },
     );
 

@@ -25,6 +25,10 @@ on:
           - ollinet
           - xnet
           - local
+      a3p_image_tag:
+        description: 'Docker image tag for the a3p chain to use in testing'
+        required: false
+        type: string
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -53,6 +57,7 @@ jobs:
         run: |
           docker compose -f test/e2e/docker-compose.yml --profile $SYNPRESS_PROFILE up --build --exit-code-from synpress
         env:
+          A3P_IMAGE_TAG: ${{ inputs.a3p_image_tag || 'latest' }}
           SYNPRESS_PROFILE: ${{ env.AGORIC_NET == 'local' && 'synpress' || 'daily-tests' }}
           COMPOSE_DOCKER_CLI_BUILD: 1
           DOCKER_BUILDKIT: 1
