@@ -1,13 +1,14 @@
-import { NETWORKS } from '../constants';
 import {
   mnemonics,
   accountAddresses,
   DEFAULT_TIMEOUT,
   DEFAULT_TASK_TIMEOUT,
   DEFAULT_EXEC_TIMEOUT,
-  AGORIC_NET,
 } from '../test.utils';
+
 describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
+  const AGORIC_NET = Cypress.env('AGORIC_NET').trim() || 'emerynet';
+
   context('Test commands', () => {
     it(`should connect with Agoric Chain`, () => {
       cy.task('info', `AGORIC_NET: ${AGORIC_NET}`);
@@ -27,7 +28,10 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
       cy.get('button[aria-label="Settings"]').click();
 
       cy.contains('Mainnet').click();
-      cy.contains(NETWORKS[AGORIC_NET]).click();
+      cy.contains('Custom URL').should('be.visible').click();
+
+      cy.setNetworkConfigURL(AGORIC_NET);
+
       cy.contains('button', 'Connect').click();
 
       cy.acceptAccess().then((taskCompleted) => {
