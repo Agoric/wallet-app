@@ -1,4 +1,4 @@
-import { NETWORKS } from '../constants';
+import { NETWORK_CONFIG_URL, NETWORKS } from '../constants';
 import {
   mnemonics,
   accountAddresses,
@@ -28,6 +28,14 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
 
       cy.contains('Mainnet').click();
       cy.contains(NETWORKS[AGORIC_NET]).click();
+
+      if (['xnet', 'ollinet'].includes(AGORIC_NET)) {
+        cy.get('input[value="https://main.agoric.net/network-config"]').click();
+        cy.get('input[value="https://main.agoric.net/network-config"]')
+          .clear()
+          .type(NETWORK_CONFIG_URL[AGORIC_NET]);
+      }
+
       cy.contains('button', 'Connect').click();
 
       cy.acceptAccess().then((taskCompleted) => {
