@@ -1,6 +1,6 @@
 import '@agoric/synpress/support/index';
 import { flattenObject, FACUET_HEADERS, MINUTE_MS } from './test.utils';
-import { FAUCET_URL_MAP } from './constants';
+import { FAUCET_URL_MAP, NETWORK_CONFIG_URL } from './constants';
 
 const AGORIC_NET = Cypress.env('AGORIC_NET') || 'emerynet';
 const environment = Cypress.env('ENVIRONMENT');
@@ -101,4 +101,14 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
   }).then((resp) => {
     expect(resp.body).to.eq('success');
   });
+});
+
+Cypress.Commands.add('setNetworkConfigURL', () => {
+  cy.get('input[value="https://main.agoric.net/network-config"]')
+    .should('be.visible')
+    .click()
+    .then(($input) => {
+      cy.wrap($input).clear().type(NETWORK_CONFIG_URL[AGORIC_NET]);
+    })
+    .should('have.value', NETWORK_CONFIG_URL[AGORIC_NET]);
 });
