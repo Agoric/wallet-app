@@ -52,8 +52,12 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
         expect(taskCompleted).to.be.true;
       });
 
-      cy.get('span').contains('ATOM').should('exist');
-      cy.get('span').contains('BLD').should('exist');
+      cy.get('span')
+        .contains('ATOM', { timeout: DEFAULT_TIMEOUT })
+        .should('exist');
+      cy.get('span')
+        .contains('BLD', { timeout: DEFAULT_TIMEOUT })
+        .should('exist');
     });
 
     it('should succeed in provisioning a new wallet ', () => {
