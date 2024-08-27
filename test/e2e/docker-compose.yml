@@ -4,6 +4,7 @@ services:
   synpress:
     profiles:
       - synpress
+      - daily-tests
     container_name: synpress
     build: ../..
     environment:
@@ -70,6 +71,7 @@ services:
   display:
     profiles:
       - synpress
+      - daily-tests
     container_name: display
     image: synthetixio/display:016121eafdfff448414894d0ca5a50b1d72b62eb-base
     environment:
@@ -98,8 +100,6 @@ services:
       - x11
 
   agd:
-    tty: false
-    stdin_open: false
     profiles:
       - synpress
     container_name: agoric_chain
