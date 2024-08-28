@@ -22,8 +22,7 @@
     "lint": "yarn lint:types && yarn lint:eslint",
     "lint:types": "tsc -p jsconfig.json",
     "lint:eslint": "eslint '**/*.js'",
-    "test:e2e": "SKIP_EXTENSION_SETUP=true EXTENSION=keplr synpress run --configFile=test/e2e/synpress.config.cjs",
-    "test:e2e:ci": "yarn build && start-server-and-test 'yarn preview' http-get://localhost:3001 'yarn test:e2e'"
+    "test:e2e": "SKIP_EXTENSION_SETUP=true EXTENSION=keplr synpress run --configFile=test/e2e/synpress.config.cjs"
   },
   "exports": {
     "./package.json": "./package.json",

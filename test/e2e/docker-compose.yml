@@ -61,9 +61,11 @@ services:
           nginx
         fi &&
 
+        # Start development server and wait for it to be ready
+        yarn start & sleep 5 &&
 
         # Run end-to-end tests
-        yarn test:e2e:ci'
+        yarn test:e2e'
 
     networks:
       - x11
