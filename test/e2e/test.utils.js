@@ -60,7 +60,7 @@ export const config = {
     COMMAND_TIMEOUT: 2 * 60 * 1000,
   },
   testnet: {
-    userKeyName: 'user2',
+    userKeyName: 'user1',
     userWalletAddress: accountAddresses.user2,
     userWalletMnemonic: mnemonics.user2,
     COMMAND_TIMEOUT: 2 * 60 * 1000,
