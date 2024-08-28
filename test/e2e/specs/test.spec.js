@@ -19,7 +19,7 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
       });
     });
     it(`should open the web wallet URL successfully`, () => {
-      cy.visit(`${userConfig.webwalletURL}`);
+      cy.visit('/');
 
       cy.acceptAccess().then((taskCompleted) => {
         expect(taskCompleted).to.be.true;
@@ -27,7 +27,7 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
     });
 
     it('should setup web wallet successfully', () => {
-      cy.visit(`${userConfig.webwalletURL}wallet/`);
+      cy.visit('/wallet/');
 
       cy.get('input[type="checkbox"]').check();
       cy.contains('Proceed').click();
@@ -75,7 +75,7 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
         cy.provisionFromFaucet(address, 'client');
       });
 
-      cy.visit(`${userConfig.webwalletURL}wallet/`);
+      cy.visit('/wallet/');
       cy.get('span').contains('ATOM').should('exist');
       cy.get('span').contains('BLD').should('exist');
     });
@@ -130,7 +130,7 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
     });
 
     it('should see an offer placed in the previous test case', () => {
-      cy.visit(`${userConfig.webwalletURL}wallet/`);
+      cy.visit('/wallet/');
 
       cy.contains('Offer').should('be.visible');
       cy.contains('Give Bid').should('be.visible');
@@ -141,7 +141,7 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
 
     it('should cancel the bid by discount and verify IST balance', () => {
       cy.getTokenAmount('IST').then((initialTokenValue) => {
-        cy.visit(`${userConfig.webwalletURL}wallet/`);
+        cy.visit('/wallet/');
         cy.contains('Exit').click();
         cy.acceptAccess().then((taskCompleted) => {
           expect(taskCompleted).to.be.true;
@@ -174,7 +174,7 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
     );
 
     it('should see an offer placed in the previous test case', () => {
-      cy.visit(`${userConfig.webwalletURL}wallet/`);
+      cy.visit('/wallet/');
       cy.contains('Offer').should('be.visible');
       cy.contains('Give Bid').should('be.visible');
       cy.contains('1.00 IST').should('be.visible');
@@ -184,7 +184,7 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
 
     it('should cancel the bid by price and verify IST balance', () => {
       cy.getTokenAmount('IST').then((initialTokenValue) => {
-        cy.visit(`${userConfig.webwalletURL}wallet/`);
+        cy.visit('/wallet/');
         cy.contains('Exit').click();
         cy.acceptAccess().then((taskCompleted) => {
           expect(taskCompleted).to.be.true;

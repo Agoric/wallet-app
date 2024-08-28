@@ -57,15 +57,12 @@ export const config = {
     userKeyName: 'user1',
     userWalletAddress: accountAddresses.user1,
     userWalletMnemonic: mnemonics.user1,
-    // UNTIL https://github.com/Agoric/wallet-app/issues/184
-    webwalletURL: 'https://wallet.agoric.app/',
     COMMAND_TIMEOUT: 2 * 60 * 1000,
   },
   testnet: {
     userKeyName: 'user2',
     userWalletAddress: accountAddresses.user2,
     userWalletMnemonic: mnemonics.user2,
-    webwalletURL: '/',
     COMMAND_TIMEOUT: 2 * 60 * 1000,
   },
 };
