@@ -124,7 +124,7 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
     },
     headers: FACUET_HEADERS,
     timeout: 4 * MINUTE_MS,
-    retryOnStatusCodeFailure: true,
+    followRedirect: false,
   })
     .then((resp) => {
       cy.task('info', `headers: ${JSON.stringify(resp.headers)}`);
