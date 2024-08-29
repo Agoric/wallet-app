@@ -10,13 +10,16 @@ module.exports = defineConfig({
     supportFile: 'test/e2e/support.js',
     screenshotsFolder: 'test/e2e/screenshots',
     videosFolder: 'test/e2e/videos',
-    setupNodeEvents: (on) => {
+    setupNodeEvents: (on) =>
       on('task', {
-        log(message) {
+        info: (message) => {
+          console.info(message);
+          return null;
+        },
+        log: (message) => {
           console.log(message);
           return null;
         },
-      });
-    },
+      }),
   },
 });
