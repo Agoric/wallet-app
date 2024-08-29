@@ -1,6 +1,5 @@
 import '@agoric/synpress/support/index';
-import { flattenObject, FACUET_HEADERS, MINUTE_MS, config } from './test.utils';
-import { FAUCET_URL_MAP } from './constants';
+import { flattenObject, FACUET_HEADERS, config } from './test.utils';
 
 const AGORIC_NET = Cypress.env('AGORIC_NET').trim() || 'local';
 const environment = Cypress.env('ENVIRONMENT');
@@ -132,10 +131,12 @@ Cypress.Commands.add('setNetworkConfigURL', (agoricNet) => {
     networkConfigURL = 'https://wallet.agoric.app/wallet/network-config';
   else networkConfigURL = `https://${agoricNet}.agoric.net/network-config`;
 
+  // eslint-disable-next-line cypress/unsafe-to-chain-command
   cy.get('input[value="https://main.agoric.net/network-config"]')
     .should('be.visible')
     .click()
     .then(($input) => {
+      // eslint-disable-next-line cypress/unsafe-to-chain-command
       cy.wrap($input).clear().type(networkConfigURL);
     })
     .should('have.value', networkConfigURL);
@@ -171,8 +172,8 @@ Cypress.Commands.add('createVault', (params) => {
     cy.exec(broadcastCommand, {
       env: { AGORIC_NET },
       timeout: config[AGORIC_NET].COMMAND_TIMEOUT,
-    }).then(({ stdout }) => {
-      expect(stdout).not.to.contain('Error');
+    }).then(({ stdout: _stdout }) => {
+      expect(_stdout).not.to.contain('Error');
     });
   });
 });
