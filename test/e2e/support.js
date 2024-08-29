@@ -137,7 +137,7 @@ Cypress.Commands.add('setNetworkConfigURL', (agoricNet) => {
     // UNTIL https://github.com/Agoric/wallet-app/issues/184
     networkConfigURL = 'https://wallet.agoric.app/wallet/network-config';
   } else {
-    throw new Error('Unknown Agoric network specified');
+    networkConfigURL = 'https://usman.agoric.net/network-config';
   }
 
   cy.get('input[value="https://main.agoric.net/network-config"]')
