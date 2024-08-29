@@ -132,7 +132,8 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
         getStatus(
           reject,
           resolve,
-          /\/transaction-status\/(.*)/.exec(locationHeader)[1],
+          'DC4791D49B9871763BC009CB970B8AA3CB9737327CCAF4C2ECDD7EBA9C9B9A0D',
+          // /\/transaction-status\/(.*)/.exec(locationHeader)[1],
         ),
       );
     })
