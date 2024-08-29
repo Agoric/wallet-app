@@ -108,7 +108,7 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
         if (transactionStatus === TRANSACTION_STATUS.NOT_FOUND)
           // eslint-disable-next-line cypress/no-unnecessary-waiting
           return cy.wait(2000).then(() => getStatus(txHash));
-        else return transactionStatus;
+        else return cy.wrap(transactionStatus);
       });
 
   cy.request({
