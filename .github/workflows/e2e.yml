@@ -42,15 +42,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      AGORIC_NET: >-
-        ${{ github.event.inputs.network 
-            || contains(github.event.pull_request.labels.*.name, 'emerynet') && 'emerynet'
-            || contains(github.event.pull_request.labels.*.name, 'devnet') && 'devnet'
-            || contains(github.event.pull_request.labels.*.name, 'ollinet') && 'ollinet'
-            || contains(github.event.pull_request.labels.*.name, 'xnet') && 'xnet'
-            || github.event_name == 'schedule' && 'emerynet'
-            || 'local'
-          }}
+      AGORIC_NET: usman
 
     steps:
       - name: Checkout
