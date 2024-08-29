@@ -105,7 +105,7 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
 
   cy.request({
     method: 'POST',
-    url: 'https://usman.faucet.agoric.net/go',
+    url: FAUCET_URL_MAP[AGORIC_NET],
     body: {
       address: walletAddress,
       command,
@@ -115,8 +115,9 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
     timeout: 4 * MINUTE_MS,
     retryOnStatusCodeFailure: true,
   }).then((resp) => {
+    console.log('headers: ', JSON.stringify(resp.headers));
     const locationHeader = resp.headers['location'];
-    cy.log(`Redirect Location: ${locationHeader}`);
+    console.log(`Redirect Location: ${locationHeader}`);
     return new Promise((resolve, reject) => getStatus(reject, resolve, (/\/transaction-status\/(.*)/.exec(locationHeader))[1]));
   }).then((resp) => expect(resp).to.eq(TRANSACTION_STATUS.SUCCESSFUL));
 });
