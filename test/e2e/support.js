@@ -131,14 +131,15 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
       const locationHeader = resp.headers.location;
       cy.task('info', `Redirect Location: ${locationHeader}`);
       return cy.wrap(
-        new Promise((resolve, reject) =>
-          // getStatus(
-          //   reject,
-          //   resolve,
-          //   'DC4791D49B9871763BC009CB970B8AA3CB9737327CCAF4C2ECDD7EBA9C9B9A0D',
-          //   // /\/transaction-status\/(.*)/.exec(locationHeader)[1],
-          // ),
-          resolve(TRANSACTION_STATUS.FAILED),
+        new Promise(
+          (resolve, reject) =>
+            getStatus(
+              reject,
+              resolve,
+              // 'DC4791D49B9871763BC009CB970B8AA3CB9737327CCAF4C2ECDD7EBA9C9B9A0D',
+              /\/transaction-status\/(.*)/.exec(locationHeader)[1],
+            ),
+          // resolve(TRANSACTION_STATUS.FAILED),
         ),
       );
     })
