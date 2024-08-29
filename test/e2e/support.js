@@ -121,26 +121,19 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
     .then((resp) =>
       getStatus(/\/transaction-status\/(.*)/.exec(resp.headers.location)[1]),
     )
-    .then((status) => expect(status).to.eq(TRANSACTION_STATUS.SUCCESSFUL));
+    .then((status) => {
+      cy.task('info', `Status: "${status}"`);
+      expect(status).to.eq(TRANSACTION_STATUS.SUCCESSFUL);
+    });
 });
 
 Cypress.Commands.add('setNetworkConfigURL', (agoricNet) => {
   let networkConfigURL = '';
 
-  if (agoricNet === 'xnet') {
-    networkConfigURL = 'https://xnet.agoric.net/network-config';
-  } else if (agoricNet === 'ollinet') {
-    networkConfigURL = 'https://ollinet.agoric.net/network-config';
-  } else if (agoricNet === 'emerynet') {
-    networkConfigURL = 'https://emerynet.agoric.net/network-config';
-  } else if (agoricNet === 'devnet') {
-    networkConfigURL = 'https://devnet.agoric.net/network-config';
-  } else if (agoricNet === 'local') {
+  if (agoricNet === 'local')
     // UNTIL https://github.com/Agoric/wallet-app/issues/184
     networkConfigURL = 'https://wallet.agoric.app/wallet/network-config';
-  } else {
-    networkConfigURL = 'https://usman.agoric.net/network-config';
-  }
+  else networkConfigURL = `https://${agoricNet}.agoric.net/network-config`;
 
   cy.get('input[value="https://main.agoric.net/network-config"]')
     .should('be.visible')
