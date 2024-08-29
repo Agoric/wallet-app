@@ -105,11 +105,10 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
           `response for "${txHash}": ${JSON.stringify(resp.body)}`,
         );
         const { transactionStatus } = resp.body;
-        if (transactionStatus === TRANSACTION_STATUS.NOT_FOUND) {
+        if (transactionStatus === TRANSACTION_STATUS.NOT_FOUND)
           // eslint-disable-next-line cypress/no-unnecessary-waiting
-          cy.wait(2000);
-          return getStatus(txHash);
-        } else return transactionStatus;
+          return cy.wait(2000).then(() => getStatus(txHash));
+        else return transactionStatus;
       });
 
   cy.request({
