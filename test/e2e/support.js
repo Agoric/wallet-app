@@ -121,10 +121,7 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
     .then((resp) =>
       getStatus(/\/transaction-status\/(.*)/.exec(resp.headers.location)[1]),
     )
-    .then((status) => {
-      cy.task('info', `Status: "${status}"`);
-      expect(status).to.eq(TRANSACTION_STATUS.SUCCESSFUL);
-    });
+    .then((status) => expect(status).to.eq(TRANSACTION_STATUS.SUCCESSFUL));
 });
 
 Cypress.Commands.add('setNetworkConfigURL', (agoricNet) => {

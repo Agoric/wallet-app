@@ -74,7 +74,6 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
         // provision IST
         cy.provisionFromFaucet(address, 'client');
       });
-      cy.task('info', 'Finished provisioning');
 
       cy.visit('/wallet/');
       cy.get('span').contains('ATOM').should('exist');
