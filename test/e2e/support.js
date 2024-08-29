@@ -101,7 +101,7 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
       })
       .then((resp) => {
         cy.task(
-          'log',
+          'info',
           `response for "${txHash}": ${JSON.stringify(resp.body)}`,
         );
         const { transactionStatus } = resp.body;
@@ -125,9 +125,9 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
     retryOnStatusCodeFailure: true,
   })
     .then((resp) => {
-      cy.task('log', `headers: ${JSON.stringify(resp.headers)}`);
+      cy.task('info', `headers: ${JSON.stringify(resp.headers)}`);
       const locationHeader = resp.headers.location;
-      cy.task('log', `Redirect Location: ${locationHeader}`);
+      cy.task('info', `Redirect Location: ${locationHeader}`);
       return new Promise((resolve, reject) =>
         getStatus(
           reject,
