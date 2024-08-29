@@ -87,9 +87,25 @@ Cypress.Commands.add('listBids', (userAddress) => {
 });
 
 Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
+  const TRANSACTION_STATUS = {
+    FAILED: 1000,
+    NOT_FOUND: 1001,
+    SUCCESSFUL: 1002,
+  };
+
+  const getStatus = (reject, resolve, txHash) => cy.request({
+    method: 'GET',
+    url: `https://usman.faucet.agoric.net/api/transaction-status/${txHash}`,
+  }).then((resp) => {
+    const { transactionStatus } = resp.body;
+    if (transactionStatus === TRANSACTION_STATUS.NOT_FOUND) setTimeout(() => getStatus(reject, resolve, txHash), 2000);
+    else if (transactionStatus === TRANSACTION_STATUS.FAILED) reject(transactionStatus);
+    else resolve(transactionStatus);
+  })
+
   cy.request({
     method: 'POST',
-    url: FAUCET_URL_MAP[AGORIC_NET],
+    url: 'https://usman.faucet.agoric.net/go',
     body: {
       address: walletAddress,
       command,
@@ -99,8 +115,10 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
     timeout: 4 * MINUTE_MS,
     retryOnStatusCodeFailure: true,
   }).then((resp) => {
-    expect(resp.body).to.eq('success');
-  });
+    const locationHeader = resp.headers['location'];
+    cy.log(`Redirect Location: ${locationHeader}`);
+    return new Promise((resolve, reject) => getStatus(reject, resolve, (/\/transaction-status\/(.*)/.exec(locationHeader))[1]));
+  }).then((resp) => expect(resp).to.eq(TRANSACTION_STATUS.SUCCESSFUL));
 });
 
 Cypress.Commands.add('setNetworkConfigURL', (agoricNet) => {
