@@ -100,6 +100,10 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
         url: `https://usman.faucet.agoric.net/api/transaction-status/${txHash}`,
       })
       .then((resp) => {
+        cy.task(
+          'log',
+          `response for "${txHash}": ${JSON.stringify(resp.body)}`,
+        );
         const { transactionStatus } = resp.body;
         if (transactionStatus === TRANSACTION_STATUS.NOT_FOUND)
           setTimeout(() => getStatus(reject, resolve, txHash), 2000);
@@ -121,9 +125,9 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
     retryOnStatusCodeFailure: true,
   })
     .then((resp) => {
-      console.error('headers: ', JSON.stringify(resp.headers));
+      cy.task('log', `headers: ${JSON.stringify(resp.headers)}`);
       const locationHeader = resp.headers.location;
-      console.error(`Redirect Location: ${locationHeader}`);
+      cy.task('log', `Redirect Location: ${locationHeader}`);
       return new Promise((resolve, reject) =>
         getStatus(
           reject,
@@ -132,8 +136,7 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
         ),
       );
     })
-    .then((resp) => expect(resp).to.eq(TRANSACTION_STATUS.SUCCESSFUL))
-    .catch((err) => console.error('err: ', err));
+    .then((resp) => expect(resp).to.eq(TRANSACTION_STATUS.SUCCESSFUL));
 });
 
 Cypress.Commands.add('setNetworkConfigURL', (agoricNet) => {
