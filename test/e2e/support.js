@@ -93,7 +93,7 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
     SUCCESSFUL: 1002,
   };
 
-  const getStatus = (reject, resolve, txHash) =>
+  const getStatus = (txHash) =>
     cy
       .request({
         method: 'GET',
@@ -105,14 +105,13 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
           `response for "${txHash}": ${JSON.stringify(resp.body)}`,
         );
         const { transactionStatus } = resp.body;
-        if (transactionStatus === TRANSACTION_STATUS.NOT_FOUND)
-          setTimeout(() => getStatus(reject, resolve, txHash), 2000);
-        else if (transactionStatus === TRANSACTION_STATUS.FAILED)
-          reject(transactionStatus);
-        else resolve(transactionStatus);
+        if (transactionStatus === TRANSACTION_STATUS.NOT_FOUND) {
+          // eslint-disable-next-line cypress/no-unnecessary-waiting
+          cy.wait(2000);
+          return getStatus(txHash);
+        } else return transactionStatus;
       });
 
-  cy.task('info', `command: ${command}`);
   cy.request({
     method: 'POST',
     url: FAUCET_URL_MAP[AGORIC_NET],
@@ -129,17 +128,9 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
       cy.task('info', `headers: ${JSON.stringify(resp.headers)}`);
       const locationHeader = resp.headers.location;
       cy.task('info', `Redirect Location: ${locationHeader}`);
-      return cy.wrap(
-        new Promise((resolve, reject) =>
-          getStatus(
-            reject,
-            resolve,
-            /\/transaction-status\/(.*)/.exec(locationHeader)[1],
-          ),
-        ),
-      );
+      getStatus(/\/transaction-status\/(.*)/.exec(locationHeader)[1]);
     })
-    .then((resp) => expect(resp).to.eq(TRANSACTION_STATUS.SUCCESSFUL));
+    .then((status) => expect(status).to.eq(TRANSACTION_STATUS.SUCCESSFUL));
 });
 
 Cypress.Commands.add('setNetworkConfigURL', (agoricNet) => {
