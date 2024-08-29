@@ -104,7 +104,6 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
           'info',
           `response for "${txHash}": ${JSON.stringify(resp.body)}`,
         );
-        resolve(TRANSACTION_STATUS.FAILED);
         const { transactionStatus } = resp.body;
         if (transactionStatus === TRANSACTION_STATUS.NOT_FOUND)
           setTimeout(() => getStatus(reject, resolve, txHash), 2000);
@@ -131,15 +130,12 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
       const locationHeader = resp.headers.location;
       cy.task('info', `Redirect Location: ${locationHeader}`);
       return cy.wrap(
-        new Promise(
-          (resolve, reject) =>
-            getStatus(
-              reject,
-              resolve,
-              // 'DC4791D49B9871763BC009CB970B8AA3CB9737327CCAF4C2ECDD7EBA9C9B9A0D',
-              /\/transaction-status\/(.*)/.exec(locationHeader)[1],
-            ),
-          // resolve(TRANSACTION_STATUS.FAILED),
+        new Promise((resolve, reject) =>
+          getStatus(
+            reject,
+            resolve,
+            /\/transaction-status\/(.*)/.exec(locationHeader)[1],
+          ),
         ),
       );
     })
