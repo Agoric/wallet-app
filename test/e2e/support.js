@@ -97,13 +97,9 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
     cy
       .request({
         method: 'GET',
-        url: `https://usman.faucet.agoric.net/api/transaction-status/${txHash}`,
+        url: `https://${AGORIC_NET}.faucet.agoric.net/api/transaction-status/${txHash}`,
       })
       .then((resp) => {
-        cy.task(
-          'info',
-          `response for "${txHash}": ${JSON.stringify(resp.body)}`,
-        );
         const { transactionStatus } = resp.body;
         if (transactionStatus === TRANSACTION_STATUS.NOT_FOUND)
           // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -112,23 +108,19 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
       });
 
   cy.request({
-    method: 'POST',
-    url: FAUCET_URL_MAP[AGORIC_NET],
     body: {
       address: walletAddress,
       command,
       clientType: 'SMART_WALLET',
     },
-    headers: FACUET_HEADERS,
-    timeout: 4 * MINUTE_MS,
     followRedirect: false,
+    headers: FACUET_HEADERS,
+    method: 'POST',
+    url: `https://${AGORIC_NET}.faucet.agoric.net/go`,
   })
-    .then((resp) => {
-      cy.task('info', `headers: ${JSON.stringify(resp.headers)}`);
-      const locationHeader = resp.headers.location;
-      cy.task('info', `Redirect Location: ${locationHeader}`);
-      getStatus(/\/transaction-status\/(.*)/.exec(locationHeader)[1]);
-    })
+    .then((resp) =>
+      getStatus(/\/transaction-status\/(.*)/.exec(resp.headers.location)[1]),
+    )
     .then((status) => expect(status).to.eq(TRANSACTION_STATUS.SUCCESSFUL));
 });
 
