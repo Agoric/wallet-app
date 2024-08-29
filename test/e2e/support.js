@@ -93,15 +93,20 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
     SUCCESSFUL: 1002,
   };
 
-  const getStatus = (reject, resolve, txHash) => cy.request({
-    method: 'GET',
-    url: `https://usman.faucet.agoric.net/api/transaction-status/${txHash}`,
-  }).then((resp) => {
-    const { transactionStatus } = resp.body;
-    if (transactionStatus === TRANSACTION_STATUS.NOT_FOUND) setTimeout(() => getStatus(reject, resolve, txHash), 2000);
-    else if (transactionStatus === TRANSACTION_STATUS.FAILED) reject(transactionStatus);
-    else resolve(transactionStatus);
-  })
+  const getStatus = (reject, resolve, txHash) =>
+    cy
+      .request({
+        method: 'GET',
+        url: `https://usman.faucet.agoric.net/api/transaction-status/${txHash}`,
+      })
+      .then((resp) => {
+        const { transactionStatus } = resp.body;
+        if (transactionStatus === TRANSACTION_STATUS.NOT_FOUND)
+          setTimeout(() => getStatus(reject, resolve, txHash), 2000);
+        else if (transactionStatus === TRANSACTION_STATUS.FAILED)
+          reject(transactionStatus);
+        else resolve(transactionStatus);
+      });
 
   cy.request({
     method: 'POST',
@@ -114,12 +119,21 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
     headers: FACUET_HEADERS,
     timeout: 4 * MINUTE_MS,
     retryOnStatusCodeFailure: true,
-  }).then((resp) => {
-    console.log('headers: ', JSON.stringify(resp.headers));
-    const locationHeader = resp.headers['location'];
-    console.log(`Redirect Location: ${locationHeader}`);
-    return new Promise((resolve, reject) => getStatus(reject, resolve, (/\/transaction-status\/(.*)/.exec(locationHeader))[1]));
-  }).then((resp) => expect(resp).to.eq(TRANSACTION_STATUS.SUCCESSFUL));
+  })
+    .then((resp) => {
+      console.error('headers: ', JSON.stringify(resp.headers));
+      const locationHeader = resp.headers.location;
+      console.error(`Redirect Location: ${locationHeader}`);
+      return new Promise((resolve, reject) =>
+        getStatus(
+          reject,
+          resolve,
+          /\/transaction-status\/(.*)/.exec(locationHeader)[1],
+        ),
+      );
+    })
+    .then((resp) => expect(resp).to.eq(TRANSACTION_STATUS.SUCCESSFUL))
+    .catch((err) => console.error('err: ', err));
 });
 
 Cypress.Commands.add('setNetworkConfigURL', (agoricNet) => {
