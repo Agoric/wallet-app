@@ -104,6 +104,7 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
           'info',
           `response for "${txHash}": ${JSON.stringify(resp.body)}`,
         );
+        resolve(TRANSACTION_STATUS.FAILED);
         const { transactionStatus } = resp.body;
         if (transactionStatus === TRANSACTION_STATUS.NOT_FOUND)
           setTimeout(() => getStatus(reject, resolve, txHash), 2000);
