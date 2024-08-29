@@ -113,6 +113,7 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
         else resolve(transactionStatus);
       });
 
+  cy.task('info', `command: ${command}`);
   cy.request({
     method: 'POST',
     url: FAUCET_URL_MAP[AGORIC_NET],
@@ -129,12 +130,15 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
       cy.task('info', `headers: ${JSON.stringify(resp.headers)}`);
       const locationHeader = resp.headers.location;
       cy.task('info', `Redirect Location: ${locationHeader}`);
-      return new Promise((resolve, reject) =>
-        getStatus(
-          reject,
-          resolve,
-          'DC4791D49B9871763BC009CB970B8AA3CB9737327CCAF4C2ECDD7EBA9C9B9A0D',
-          // /\/transaction-status\/(.*)/.exec(locationHeader)[1],
+      return cy.wrap(
+        new Promise((resolve, reject) =>
+          // getStatus(
+          //   reject,
+          //   resolve,
+          //   'DC4791D49B9871763BC009CB970B8AA3CB9737327CCAF4C2ECDD7EBA9C9B9A0D',
+          //   // /\/transaction-status\/(.*)/.exec(locationHeader)[1],
+          // ),
+          resolve(TRANSACTION_STATUS.FAILED),
         ),
       );
     })
