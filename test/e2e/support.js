@@ -1,6 +1,5 @@
 import '@agoric/synpress/support/index';
-import { flattenObject, FACUET_HEADERS, MINUTE_MS, config } from './test.utils';
-import { FAUCET_URL_MAP } from './constants';
+import { flattenObject, FACUET_HEADERS, config } from './test.utils';
 
 const AGORIC_NET = Cypress.env('AGORIC_NET').trim() || 'local';
 const environment = Cypress.env('ENVIRONMENT');
@@ -87,44 +86,57 @@ Cypress.Commands.add('listBids', (userAddress) => {
 });
 
 Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
+  const TRANSACTION_STATUS = {
+    FAILED: 1000,
+    NOT_FOUND: 1001,
+    SUCCESSFUL: 1002,
+  };
+
+  const getStatus = (txHash) =>
+    cy
+      .request({
+        method: 'GET',
+        url: `https://${AGORIC_NET}.faucet.agoric.net/api/transaction-status/${txHash}`,
+      })
+      .then((resp) => {
+        const { transactionStatus } = resp.body;
+        if (transactionStatus === TRANSACTION_STATUS.NOT_FOUND)
+          // eslint-disable-next-line cypress/no-unnecessary-waiting
+          return cy.wait(2000).then(() => getStatus(txHash));
+        else return cy.wrap(transactionStatus);
+      });
+
   cy.request({
-    method: 'POST',
-    url: FAUCET_URL_MAP[AGORIC_NET],
     body: {
       address: walletAddress,
       command,
       clientType: 'SMART_WALLET',
     },
+    followRedirect: false,
     headers: FACUET_HEADERS,
-    timeout: 4 * MINUTE_MS,
-    retryOnStatusCodeFailure: true,
-  }).then((resp) => {
-    expect(resp.body).to.eq('success');
-  });
+    method: 'POST',
+    url: `https://${AGORIC_NET}.faucet.agoric.net/go`,
+  })
+    .then((resp) =>
+      getStatus(/\/transaction-status\/(.*)/.exec(resp.headers.location)[1]),
+    )
+    .then((status) => expect(status).to.eq(TRANSACTION_STATUS.SUCCESSFUL));
 });
 
 Cypress.Commands.add('setNetworkConfigURL', (agoricNet) => {
   let networkConfigURL = '';
 
-  if (agoricNet === 'xnet') {
-    networkConfigURL = 'https://xnet.agoric.net/network-config';
-  } else if (agoricNet === 'ollinet') {
-    networkConfigURL = 'https://ollinet.agoric.net/network-config';
-  } else if (agoricNet === 'emerynet') {
-    networkConfigURL = 'https://emerynet.agoric.net/network-config';
-  } else if (agoricNet === 'devnet') {
-    networkConfigURL = 'https://devnet.agoric.net/network-config';
-  } else if (agoricNet === 'local') {
+  if (agoricNet === 'local')
     // UNTIL https://github.com/Agoric/wallet-app/issues/184
     networkConfigURL = 'https://wallet.agoric.app/wallet/network-config';
-  } else {
-    throw new Error('Unknown Agoric network specified');
-  }
+  else networkConfigURL = `https://${agoricNet}.agoric.net/network-config`;
 
+  // eslint-disable-next-line cypress/unsafe-to-chain-command
   cy.get('input[value="https://main.agoric.net/network-config"]')
     .should('be.visible')
     .click()
     .then(($input) => {
+      // eslint-disable-next-line cypress/unsafe-to-chain-command
       cy.wrap($input).clear().type(networkConfigURL);
     })
     .should('have.value', networkConfigURL);
@@ -160,8 +172,8 @@ Cypress.Commands.add('createVault', (params) => {
     cy.exec(broadcastCommand, {
       env: { AGORIC_NET },
       timeout: config[AGORIC_NET].COMMAND_TIMEOUT,
-    }).then(({ stdout }) => {
-      expect(stdout).not.to.contain('Error');
+    }).then(({ stdout: _stdout }) => {
+      expect(_stdout).not.to.contain('Error');
     });
   });
 });

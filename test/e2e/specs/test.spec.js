@@ -67,6 +67,7 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
         walletName: 'newWallet',
         selectedChains: ['Agoric'],
       });
+      cy.visit('/wallet/');
 
       cy.getWalletAddress('Agoric').then((address) => {
         // provision BLD
