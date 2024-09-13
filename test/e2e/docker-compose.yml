@@ -6,7 +6,10 @@ services:
       - synpress
       - daily-tests
     container_name: synpress
-    build: ../..
+    build:
+      context: ../..
+      args:
+        BASE_IMAGE_TAG: ${BASE_IMAGE_TAG_INPUT}
     environment:
       - DISPLAY=display:0.0
       - CYPRESS_PRIVATE_KEY_WITH_FUNDS=${CYPRESS_PRIVATE_KEY_WITH_FUNDS}
