@@ -117,6 +117,7 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
             giveAmount: '2IST',
             discount: 5,
           }).then(() => {
+            cy.wait(5000);
             cy.getTokenAmount('IST').then((tokenValue) => {
               expect(tokenValue).to.lessThan(initialTokenValue);
             });
@@ -148,6 +149,7 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
           expect(taskCompleted).to.be.true;
         });
         cy.contains('Accepted', { timeout: DEFAULT_TIMEOUT }).should('exist');
+        cy.wait(5000);
         cy.getTokenAmount('IST').then((tokenValue) => {
           expect(tokenValue).to.greaterThan(initialTokenValue);
         });
@@ -166,6 +168,7 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
             giveAmount: '1IST',
             price: 8.55,
           }).then(() => {
+            cy.wait(5000);
             cy.getTokenAmount('IST').then((tokenValue) => {
               expect(tokenValue).to.lessThan(initialTokenValue);
             });
@@ -191,6 +194,7 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
           expect(taskCompleted).to.be.true;
         });
         cy.contains('Accepted', { timeout: DEFAULT_TIMEOUT }).should('exist');
+        cy.wait(5000);
         cy.getTokenAmount('IST').then((tokenValue) => {
           expect(tokenValue).to.greaterThan(initialTokenValue);
         });
