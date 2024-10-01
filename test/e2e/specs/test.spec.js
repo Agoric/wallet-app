@@ -40,6 +40,8 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
 
       cy.contains('button', 'Connect').click();
 
+      cy.wait(5000);
+
       if (AGORIC_NET !== 'local') {
         cy.acceptAccess().then((taskCompleted) => {
           expect(taskCompleted).to.be.true;
