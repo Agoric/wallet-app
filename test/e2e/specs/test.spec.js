@@ -62,13 +62,17 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
         .should('exist');
     });
 
-    it('should succeed in provisioning a new wallet ', () => {
+    it('should create a new wallet', () => {
       cy.skipWhen(AGORIC_NET === 'local');
       cy.setupWallet({
         createNewWallet: true,
         walletName: 'newWallet',
         selectedChains: ['Agoric'],
       });
+    });
+
+    it('should succeed in provisioning the new wallet ', () => {
+      cy.skipWhen(AGORIC_NET === 'local');
       cy.visit('/wallet/');
 
       cy.getWalletAddress('Agoric').then((address) => {
@@ -79,8 +83,12 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
       });
 
       cy.visit('/wallet/');
-      cy.get('span').contains('ATOM').should('exist');
-      cy.get('span').contains('BLD').should('exist');
+      cy.get('span')
+        .contains('ATOM', { timeout: DEFAULT_TIMEOUT })
+        .should('exist');
+      cy.get('span')
+        .contains('BLD', { timeout: DEFAULT_TIMEOUT })
+        .should('exist');
     });
 
     it('should switch to "My Wallet" successfully', () => {
