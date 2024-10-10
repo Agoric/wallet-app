@@ -3,6 +3,11 @@ import { flattenObject, FACUET_HEADERS, config } from './test.utils';
 
 const AGORIC_NET = Cypress.env('AGORIC_NET').trim() || 'local';
 const environment = Cypress.env('ENVIRONMENT');
+const balanceUrl =
+  AGORIC_NET !== 'local'
+    ? `https://${AGORIC_NET}.api.agoric.net/cosmos/bank/v1beta1/balances/`
+    : 'http://localhost:1317/cosmos/bank/v1beta1/balances/';
+
 const agops =
   environment === 'ci'
     ? '/usr/src/agoric-sdk/packages/agoric-cli/bin/agops'
@@ -175,5 +180,33 @@ Cypress.Commands.add('createVault', (params) => {
     }).then(({ stdout: _stdout }) => {
       expect(_stdout).not.to.contain('Error');
     });
+  });
+});
+
+Cypress.Commands.add('getISTBalance', ({ walletAddress }) => {
+  cy.task('info', `Query balance using balance url: ${balanceUrl}`);
+
+  cy.request(`${balanceUrl}/${walletAddress}`).then((response) => {
+    expect(response.status).to.eq(200);
+    cy.task('info', `Balances fetched successfully for ${walletAddress}`);
+
+    const balancesArr = response.body?.balances;
+    if (!balancesArr || !Array.isArray(balancesArr)) {
+      throw new Error('Balances array is missing or invalid');
+    }
+
+    cy.task('info', `Balances: ${JSON.stringify(balancesArr)}`);
+    cy.task('info', `denom for IST: uist`);
+
+    const istBalance = balancesArr.find((balance) => balance.denom === 'uist');
+    if (!istBalance) {
+      throw new Error(`IST balance not found for denom: uist`);
+    }
+    cy.task('info', `IST Balance:${JSON.stringify(istBalance)}`);
+
+    const istBalanceNormalized = Number(istBalance.amount) / 1_000_000;
+    cy.task('info', `IST Balance Normalized:${istBalanceNormalized}`);
+
+    cy.wrap(istBalanceNormalized);
   });
 });

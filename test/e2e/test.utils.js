@@ -27,6 +27,7 @@ export const DEFAULT_TASK_TIMEOUT = 3 * 60 * 1000;
 export const DEFAULT_EXEC_TIMEOUT = 3 * 60 * 1000;
 export const MINUTE_MS = 1 * 60 * 1000;
 export const AGORIC_ADDR_RE = /agoric1.{38}/;
+export const QUICK_WAIT = 10 * 1000;
 export const flattenObject = (obj, parentKey = '', result = {}) => {
   for (let key in obj) {
     if (obj.hasOwnProperty(key)) {
