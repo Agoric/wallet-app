@@ -2,14 +2,16 @@ import {
   DEFAULT_TIMEOUT,
   DEFAULT_TASK_TIMEOUT,
   DEFAULT_EXEC_TIMEOUT,
+  QUICK_WAIT,
   config,
 } from '../test.utils';
 
 describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
   const AGORIC_NET = Cypress.env('AGORIC_NET').trim() || 'local';
   const userConfig = config[AGORIC_NET === 'local' ? 'local' : 'testnet'];
+  let istBalance = 0;
 
-  context('Test commands', () => {
+  context('Bidding Tests', () => {
     it('should setup the keplr wallet successfully', () => {
       cy.task('info', `AGORIC_NET: ${AGORIC_NET}`);
 
@@ -42,11 +44,9 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
 
       cy.wait(5000);
 
-      if (AGORIC_NET !== 'local') {
-        cy.acceptAccess().then((taskCompleted) => {
-          expect(taskCompleted).to.be.true;
-        });
-      }
+      cy.acceptAccess().then((taskCompleted) => {
+        expect(taskCompleted).to.be.true;
+      });
 
       cy.reload();
 
@@ -62,13 +62,17 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
         .should('exist');
     });
 
-    it('should succeed in provisioning a new wallet ', () => {
+    it('should create a new wallet', () => {
       cy.skipWhen(AGORIC_NET === 'local');
       cy.setupWallet({
         createNewWallet: true,
         walletName: 'newWallet',
         selectedChains: ['Agoric'],
       });
+    });
+
+    it('should succeed in provisioning the new wallet ', () => {
+      cy.skipWhen(AGORIC_NET === 'local');
       cy.visit('/wallet/');
 
       cy.getWalletAddress('Agoric').then((address) => {
@@ -79,8 +83,12 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
       });
 
       cy.visit('/wallet/');
-      cy.get('span').contains('ATOM').should('exist');
-      cy.get('span').contains('BLD').should('exist');
+      cy.get('span')
+        .contains('ATOM', { timeout: DEFAULT_TIMEOUT })
+        .should('exist');
+      cy.get('span')
+        .contains('BLD', { timeout: DEFAULT_TIMEOUT })
+        .should('exist');
     });
 
     it('should switch to "My Wallet" successfully', () => {
@@ -89,6 +97,7 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
         expect(taskCompleted).to.be.true;
       });
     });
+
     it('should add keys using agd from the CLI successfully', () => {
       cy.addKeys({
         keyName: userConfig.userKeyName,
@@ -106,34 +115,46 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
       });
     });
 
+    it('should save user1 IST balance before placing bid', () => {
+      cy.getISTBalance({
+        walletAddress: userConfig.userWalletAddress,
+      }).then((output) => {
+        istBalance = Number(output.toFixed(2));
+        cy.task('info', `user1 IST Balance: ${istBalance}`);
+      });
+    });
+
     it(
-      'should place a bid by discount from the CLI successfully and verify IST balance',
+      'should place a bid by discount',
       {
         taskTimeout: DEFAULT_TASK_TIMEOUT,
       },
       () => {
-        cy.addNewTokensFound();
-        cy.getTokenAmount('IST').then((initialTokenValue) => {
-          cy.placeBidByDiscount({
-            fromAddress: userConfig.userWalletAddress,
-            giveAmount: '2IST',
-            discount: 5,
-          }).then(() => {
-            cy.wait(5000);
-            cy.getTokenAmount('IST').then((tokenValue) => {
-              expect(tokenValue).to.lessThan(initialTokenValue);
-            });
-          });
+        cy.placeBidByDiscount({
+          fromAddress: userConfig.userWalletAddress,
+          giveAmount: '2IST',
+          discount: 5,
         });
-        cy.wait(5000);
       },
     );
+
+    it("should see decrease in user1's IST balance after placing bid", () => {
+      cy.wait(QUICK_WAIT);
+      cy.getISTBalance({
+        walletAddress: userConfig.userWalletAddress,
+      }).then((newBalance) => {
+        cy.task('info', `Initial user1 IST Balance: ${istBalance}`);
+        cy.task('info', `New user1 IST Balance: ${newBalance}`);
+        expect(newBalance).to.be.lessThan(istBalance);
+        istBalance = newBalance;
+      });
+    });
 
     it('should view the bid from CLI', () => {
       cy.listBids(userConfig.userWalletAddress);
     });
 
-    it('should see an offer placed in the previous test case', () => {
+    it('should view the bid on wallet app UI', () => {
       cy.visit('/wallet/');
 
       cy.contains('Offer').should('be.visible');
@@ -143,43 +164,54 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
       cy.contains('Arguments').should('be.visible');
     });
 
-    it('should cancel the bid by discount and verify IST balance', () => {
-      cy.getTokenAmount('IST').then((initialTokenValue) => {
-        cy.visit('/wallet/');
-        cy.contains('Exit').click();
-        cy.acceptAccess().then((taskCompleted) => {
-          expect(taskCompleted).to.be.true;
-        });
-        cy.contains('Accepted', { timeout: DEFAULT_TIMEOUT }).should('exist');
-        cy.wait(5000);
-        cy.getTokenAmount('IST').then((tokenValue) => {
-          expect(tokenValue).to.greaterThan(initialTokenValue);
-        });
+    it('should cancel the bid by discount', () => {
+      cy.visit('/wallet/');
+      cy.contains('Exit').click();
+      cy.acceptAccess().then((taskCompleted) => {
+        expect(taskCompleted).to.be.true;
+      });
+      cy.contains('Accepted', { timeout: DEFAULT_TIMEOUT }).should('exist');
+    });
+
+    it("should see increase in user1's IST balance after canceling bid", () => {
+      cy.wait(QUICK_WAIT);
+      cy.getISTBalance({
+        walletAddress: userConfig.userWalletAddress,
+      }).then((newBalance) => {
+        cy.task('info', `Initial user1 IST Balance: ${istBalance}`);
+        cy.task('info', `New user1 IST Balance: ${newBalance}`);
+        expect(newBalance).to.be.greaterThan(istBalance);
+        istBalance = newBalance;
       });
     });
 
     it(
-      'should place a bid by price from the CLI successfully and verify IST balance',
+      'should place a bid by price',
       {
         taskTimeout: DEFAULT_TASK_TIMEOUT,
       },
       () => {
-        cy.getTokenAmount('IST').then((initialTokenValue) => {
-          cy.placeBidByPrice({
-            fromAddress: userConfig.userWalletAddress,
-            giveAmount: '1IST',
-            price: 8.55,
-          }).then(() => {
-            cy.wait(5000);
-            cy.getTokenAmount('IST').then((tokenValue) => {
-              expect(tokenValue).to.lessThan(initialTokenValue);
-            });
-          });
+        cy.placeBidByPrice({
+          fromAddress: userConfig.userWalletAddress,
+          giveAmount: '1IST',
+          price: 8.55,
         });
       },
     );
 
-    it('should see an offer placed in the previous test case', () => {
+    it("should see decrease in user1's IST balance after placing bid", () => {
+      cy.wait(QUICK_WAIT);
+      cy.getISTBalance({
+        walletAddress: userConfig.userWalletAddress,
+      }).then((newBalance) => {
+        cy.task('info', `Initial user1 IST Balance: ${istBalance}`);
+        cy.task('info', `New user1 IST Balance: ${newBalance}`);
+        expect(newBalance).to.be.lessThan(istBalance);
+        istBalance = newBalance;
+      });
+    });
+
+    it('should view the bid on wallet app UI', () => {
       cy.visit('/wallet/');
       cy.contains('Offer').should('be.visible');
       cy.contains('Give Bid').should('be.visible');
@@ -188,18 +220,24 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
       cy.contains('Arguments').should('be.visible');
     });
 
-    it('should cancel the bid by price and verify IST balance', () => {
-      cy.getTokenAmount('IST').then((initialTokenValue) => {
-        cy.visit('/wallet/');
-        cy.contains('Exit').click();
-        cy.acceptAccess().then((taskCompleted) => {
-          expect(taskCompleted).to.be.true;
-        });
-        cy.contains('Accepted', { timeout: DEFAULT_TIMEOUT }).should('exist');
-        cy.wait(5000);
-        cy.getTokenAmount('IST').then((tokenValue) => {
-          expect(tokenValue).to.greaterThan(initialTokenValue);
-        });
+    it('should cancel the bid by price', () => {
+      cy.visit('/wallet/');
+      cy.contains('Exit').click();
+      cy.acceptAccess().then((taskCompleted) => {
+        expect(taskCompleted).to.be.true;
+      });
+      cy.contains('Accepted', { timeout: DEFAULT_TIMEOUT }).should('exist');
+    });
+
+    it("should see increase in user1's IST balance after canceling bid", () => {
+      cy.wait(QUICK_WAIT);
+      cy.getISTBalance({
+        walletAddress: userConfig.userWalletAddress,
+      }).then((newBalance) => {
+        cy.task('info', `Initial user1 IST Balance: ${istBalance}`);
+        cy.task('info', `New user1 IST Balance: ${newBalance}`);
+        expect(newBalance).to.be.greaterThan(istBalance);
+        istBalance = newBalance;
       });
     });
 
