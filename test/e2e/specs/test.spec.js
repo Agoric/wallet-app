@@ -97,6 +97,7 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
         expect(taskCompleted).to.be.true;
       });
     });
+
     it('should add keys using agd from the CLI successfully', () => {
       cy.addKeys({
         keyName: userConfig.userKeyName,
@@ -126,11 +127,10 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
             fromAddress: userConfig.userWalletAddress,
             giveAmount: '2IST',
             discount: 5,
-          }).then(() => {
-            cy.wait(5000);
-            cy.getTokenAmount('IST').then((tokenValue) => {
-              expect(tokenValue).to.lessThan(initialTokenValue);
-            });
+          });
+
+          cy.getTokenAmount('IST').then((tokenValue) => {
+            expect(tokenValue).to.lessThan(initialTokenValue);
           });
         });
         cy.wait(5000);
@@ -177,11 +177,10 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
             fromAddress: userConfig.userWalletAddress,
             giveAmount: '1IST',
             price: 8.55,
-          }).then(() => {
-            cy.wait(5000);
-            cy.getTokenAmount('IST').then((tokenValue) => {
-              expect(tokenValue).to.lessThan(initialTokenValue);
-            });
+          });
+
+          cy.getTokenAmount('IST').then((tokenValue) => {
+            expect(tokenValue).to.lessThan(initialTokenValue);
           });
         });
       },
