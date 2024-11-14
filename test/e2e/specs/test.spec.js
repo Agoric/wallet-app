@@ -8,7 +8,8 @@ import {
 
 describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
   const AGORIC_NET = Cypress.env('AGORIC_NET').trim() || 'local';
-  const userConfig = config[AGORIC_NET === 'local' ? 'local' : 'testnet'];
+  const network = AGORIC_NET === 'local' ? 'local' : 'testnet';
+  const userConfig = config[network];
   let istBalance = 0;
 
   context('Bidding Tests', () => {
