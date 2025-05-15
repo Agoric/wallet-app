@@ -45,7 +45,6 @@ export const useProvisionPoolMetrics = (watcher?: ChainStorageWatcher) => {
       watcher?.watchLatest(
         [Kind.Data, 'published.provisionPool.metrics'],
         setData,
-        e => console.error('error watching provision pool metrics', e),
       ),
     [watcher],
   );
@@ -126,7 +125,7 @@ const SmartWalletConnection = ({
     if (!keplrConnection) return undefined;
 
     return makeAgoricChainStorageWatcher(
-      keplrConnection.rpc,
+      keplrConnection.api,
       keplrConnection.chainId,
       backendError,
       context.fromBoard,

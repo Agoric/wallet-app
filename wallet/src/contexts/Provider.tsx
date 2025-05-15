@@ -34,6 +34,7 @@ export type KeplrUtils = {
     backgroundSigner: BackgroundSigner;
   };
   rpc: string;
+  api: string;
 };
 
 const useDebugLogging = (state, watch) => {
@@ -238,6 +239,7 @@ const Provider = ({ children }) => {
       signers: { interactiveSigner, backgroundSigner },
       chainId: chainInfo.chainId,
       rpc: chainInfo.rpc,
+      api: chainInfo.rest,
     });
   };
 

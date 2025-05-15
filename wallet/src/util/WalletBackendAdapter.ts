@@ -259,11 +259,6 @@ export const makeWalletBridgeFromFollowers = (
         value => {
           beansOwingUpdater.updateState(Number(value));
         },
-        err => {
-          console.error('error watching beansOwing', err);
-          // Don't throw on beansOwing, for upgrade backwards compatibility.
-          // errorHandler(new Error(err));
-        },
       ),
     );
   };
@@ -323,10 +318,6 @@ export const makeWalletBridgeFromFollowers = (
             vbankAssets = value;
             possiblyUpdateBankPurses();
           },
-          err => {
-            console.error('error watching vbank assets', err);
-            errorHandler(new Error(err));
-          },
         ),
       );
     };
@@ -343,10 +334,6 @@ export const makeWalletBridgeFromFollowers = (
           cancel();
           res(new Map((value as AgoricBrandsUpdate).map(([k, v]) => [v, k])));
         },
-        err => {
-          cancel();
-          rej(err);
-        },
       );
     });
 
@@ -361,10 +348,6 @@ export const makeWalletBridgeFromFollowers = (
           notifierKits.pendingOffers.updater.updateState(
             value.liveOffers ?? [],
           );
-        },
-        err => {
-          console.error('error watching pending offers', err);
-          errorHandler(new Error(err));
         },
       ),
     );
