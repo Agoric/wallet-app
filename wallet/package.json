@@ -8,7 +8,7 @@
   "type": "module",
   "dependencies": {
     "@agoric/casting": "^0.4.3-dev-6bce049.0",
-    "@agoric/cosmic-proto": "0.2.2-dev-a5437cf.0",
+    "@agoric/cosmic-proto": "^0.3.0",
     "@agoric/ertp": "^0.16.3-dev-6bce049.0",
     "@agoric/internal": "0.3.2",
     "@agoric/nat": "^4.1.0",
@@ -54,6 +54,7 @@
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
+    "@types/react": "^16.8.0",
     "@typescript-eslint/eslint-plugin": "^5.42.0",
     "@typescript-eslint/parser": "^5.42.0",
     "agoric": "^0.21.1",
@@ -69,7 +70,6 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "fork-ts-checker-webpack-plugin": "7.2.13",
     "npm-run-all": "^4.1.5",
-    "patch-package": "^6.5.0",
     "prettier": "3.0.0",
     "process": "^0.11.10",
     "react-app-rewire-multiple-entry": "^2.2.3",
@@ -79,9 +79,6 @@
     "sass": "^1.49.9",
     "source-map-explorer": "^2.5.3",
     "typescript": "~5.8.2"
-  },
-  "resolutions": {
-    "@agoric/cosmic-proto": "0.2.2-dev-a5437cf.0"
   },
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",
@@ -95,7 +92,6 @@
     "lint:eslint": "eslint '**/*.{js,jsx,ts,tsx}'",
     "lint:types": "yarn tsc",
     "lint-fix": "yarn lint:eslint --fix",
-    "postinstall": "patch-package",
     "test": "CI=true react-app-rewired test",
     "test:watch": "react-app-rewired test",
     "test:xs": "exit 0",

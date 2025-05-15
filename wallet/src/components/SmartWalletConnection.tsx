@@ -27,7 +27,7 @@ import ProvisionDialog from './ProvisionDialog';
 import type { MetricsNotification as ProvisionPoolMetrics } from '@agoric/vats/src/provisionPoolKit';
 import type { ChainStorageWatcher } from '@agoric/rpc';
 
-// @ts-expect-error xxx forwardRef
+// xxx forwardRef
 const Alert = React.forwardRef(function Alert({ children, ...props }, ref) {
   return (
     // @ts-expect-error xxx forwardRef
@@ -117,6 +117,7 @@ const SmartWalletConnection = ({
   };
 
   const [context, leader] = useMemo(
+    // @ts-expect-error
     () => [makeImportContext(inertPresence), makeLeader(href)],
     [connectionConfig, keplrConnection],
   );

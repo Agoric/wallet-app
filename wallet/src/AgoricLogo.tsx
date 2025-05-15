@@ -10,8 +10,7 @@ const AgoricLogo = () => {
       x="0px"
       y="0px"
       viewBox="0 0 449 294"
-      // @ts-expect-error deprecated https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/enable-background
-      style={{ enableBackground: 'new 0 0 449 294' }}
+      enableBackground="new 0 0 449 294"
       xmlSpace="preserve"
     >
       <path

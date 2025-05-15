@@ -97,7 +97,7 @@ export const getOfferService = (
           async ([kw, { pursePetname, value, amount: serializedAmount }]) => {
             // First try using serializedAmount.
             if (serializedAmount) {
-              const amount = await E(boardIdMarshaller).unserialize(
+              const amount = await boardIdMarshaller.unserialize(
                 serializedAmount,
               );
               return [kw, amount];
@@ -120,27 +120,31 @@ export const getOfferService = (
     };
 
     const readDisplayInfo = async (entry: PurseDisplayInfo) => {
-      const amount: Amount = await E(boardIdMarshaller).unserialize(
-        entry.amount as CapData<string>,
-      );
-      const purse = brandToPurse.get(amount.brand);
+      const amount = await (
+        E(boardIdMarshaller).unserialize as (
+          capData: CapData<string>,
+        ) => Promise<Amount>
+      )(entry.amount as CapData<string>);
+      const purse = brandToPurse.get(amount.brand as Brand);
 
       if (purse) {
         const { pursePetname: brandPetname, displayInfo } = purse;
         return harden({ amount, brandPetname, displayInfo });
       }
 
-      const [brands, boardAux] = await Promise.all([
+      const [brands, boardAuxArr] = await Promise.all([
         brandsP,
         watcher.queryBoardAux<{
           displayInfo: DisplayInfo;
-        }>([amount.brand])[0],
+        }>([amount.brand]),
       ]);
+      const boardAux = boardAuxArr[0];
 
       const brandPetname: string = brands
         .find(([_, brand]) => brand === brand)
         ?.at(0) as string;
-      const displayInfo: DisplayInfo | undefined = boardAux?.displayInfo;
+      const displayInfo: DisplayInfo | undefined = (await boardAux)
+        ?.displayInfo;
 
       return harden({ amount, brandPetname, displayInfo });
     };
@@ -165,7 +169,7 @@ export const getOfferService = (
 
     const [invitationSpecToUse, sourceDescription] = await (async () => {
       if (invitationSpec) {
-        const unserializedSpec = await E(boardIdMarshaller).unserialize(
+        const unserializedSpec = await boardIdMarshaller.unserialize(
           invitationSpec,
         );
         const source = sourceDescriptionForSpec(unserializedSpec);
@@ -173,7 +177,11 @@ export const getOfferService = (
         return [unserializedSpec, `Source: ${source}`];
       }
 
-      const instance = await E(boardIdMarshaller).unserialize(instanceHandle);
+      const instance = await (
+        E(boardIdMarshaller).unserialize as (
+          capData: CapData<string>,
+        ) => Promise<unknown>
+      )(instanceHandle);
       const invitationSpecToUse = {
         source: 'contract',
         instance,
@@ -290,7 +298,7 @@ export const getOfferService = (
           Object.entries(proposalEntries).map(
             async ([kw, unserializedAmount]) => {
               assert(unserializedAmount);
-              const purse = brandToPurse.get(unserializedAmount.brand);
+              const purse = brandToPurse.get(unserializedAmount.brand as Brand);
               if (purse) {
                 const { pursePetname: brandPetname, displayInfo } = purse;
                 return [

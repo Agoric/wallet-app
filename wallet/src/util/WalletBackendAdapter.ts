@@ -47,9 +47,9 @@ const POLL_INTERVAL_MS = 6000;
 
 export type BackendSchema = {
   actions: FarRef<{
-    createPurse: (issuer: any, id?: string) => void;
-    createContact: (depositFacet: DepositFacet, id?: string) => void;
-    createIssuer: (issuer: Issuer, id?: string) => void;
+    createPurse: (issuer: any, id?: string) => Promise<void>;
+    createContact: (depositFacet: DepositFacet, id?: string) => Promise<void>;
+    createIssuer: (issuer: Issuer, id?: string) => Promise<void>;
   }>;
   beansOwing: Promise<AsyncIterator<number>>;
   services: Promise<AsyncIterator<any, any>>;
@@ -69,6 +69,7 @@ const wrapOffersIterator = (
 ) =>
   harden({
     next: async () => {
+      // @ts-expect-error
       const { done, value } = await E(offersMembers).next();
       return harden({
         done,
@@ -109,7 +110,7 @@ export const makeBackendFromWalletBridge = (
         E(walletBridge).addContact(id, depositFacet),
       createIssuer: (issuer, id = newId('Issuer')) =>
         E(walletBridge).addIssuer(id, issuer, true),
-    }),
+    }) as BackendSchema['actions'],
     beansOwing: iterateNotifier(E(walletBridge).getBeansOwingNotifier()),
     services: iterateNotifier(servicesNotifier),
     contacts: iterateNotifier(E(walletBridge).getContactsNotifier()),
@@ -191,8 +192,8 @@ export const makeWalletBridgeFromFollowers = (
   );
 
   // We assume just one cosmos purse per brand.
-  const brandToPurse = new Map<Brand, PurseInfo>();
-  const pursePetnameToBrand = new Map<Petname, Brand>();
+  const brandToPurse = new Map<Brand<any>, PurseInfo>();
+  const pursePetnameToBrand = new Map<Petname, Brand<any>>();
 
   const updatePurses = () => {
     console.debug('brandToPurse map', brandToPurse);
@@ -379,39 +380,42 @@ export const makeWalletBridgeFromFollowers = (
     const agoricBrands = await fetchAgoricBrands();
     assert(agoricBrands, 'Failed to fetch agoric brands');
 
-    for (const purse of wallet.purses ?? []) {
-      // Non 'set' amounts need to be fetched from vbank to know their
-      // decimalPlaces, so we can skip them. Currently this means all assets
-      // except zoe invites are read via `watchChainBalances`.
-      //
-      // If we ever add non 'set' amount purses that aren't in the vbank, it's
-      // not currently possible to read their decimalPlaces, so this code
-      // will need updating.
+    if (wallet && wallet.purses) {
+      for (const purse of wallet.purses ?? []) {
+        // Non 'set' amounts need to be fetched from vbank to know their
+        // decimalPlaces, so we can skip them. Currently this means all assets
+        // except zoe invites are read via `watchChainBalances`.
+        //
+        // If we ever add non 'set' amount purses that aren't in the vbank, it's
+        // not currently possible to read their decimalPlaces, so this code
+        // will need updating.
 
-      const isCopyBagResult = isCopyBag(purse.balance.value);
+        const isCopyBagResult = isCopyBag(purse.balance.value);
 
-      if (!Array.isArray(purse.balance.value) && !isCopyBagResult) {
-        console.debug('skipping non-set amount', purse.balance.value);
-        continue;
+        if (!Array.isArray(purse.balance.value) && !isCopyBagResult) {
+          console.debug('skipping non-set amount', purse.balance.value);
+          continue;
+        }
+        if (!agoricBrands.has(purse.brand)) {
+          console.warn('skipping unknown brand', purse.brand);
+          continue;
+        }
+        const brandDescriptor = {
+          petname: agoricBrands.get(purse.brand) as Petname,
+          displayInfo: isCopyBagResult
+            ? { assetKind: AssetKind.COPY_BAG }
+            : { assetKind: AssetKind.SET },
+        };
+        const purseInfo: PurseInfo = {
+          brand: purse.brand,
+          // @ts-expect-error
+          currentAmount: purse.balance,
+          brandPetname: brandDescriptor.petname,
+          pursePetname: brandDescriptor.petname,
+          displayInfo: brandDescriptor.displayInfo,
+        };
+        brandToPurse.set(purse.brand, purseInfo);
       }
-      if (!agoricBrands.has(purse.brand)) {
-        console.warn('skipping unknown brand', purse.brand);
-        continue;
-      }
-      const brandDescriptor = {
-        petname: agoricBrands.get(purse.brand) as Petname,
-        displayInfo: isCopyBagResult
-          ? { assetKind: AssetKind.COPY_BAG }
-          : { assetKind: AssetKind.SET },
-      };
-      const purseInfo: PurseInfo = {
-        brand: purse.brand,
-        currentAmount: purse.balance,
-        brandPetname: brandDescriptor.petname,
-        pursePetname: brandDescriptor.petname,
-        displayInfo: brandDescriptor.displayInfo,
-      };
-      brandToPurse.set(purse.brand, purseInfo);
     }
     isSmartWalletLoaded = true;
     updatePurses();
@@ -438,10 +442,11 @@ export const makeWalletBridgeFromFollowers = (
           // https://github.com/Agoric/agoric-sdk/issues/6126
           const { currentAmount } = updateRecord;
           const purseObj = {
-            ...brandToPurse.get(currentAmount.brand),
+            ...brandToPurse.get(currentAmount.brand as Brand<any>),
             currentAmount,
             value: currentAmount.value,
           };
+          // @ts-expect-error
           brandToPurse.set(currentAmount.brand, purseObj);
           updatePurses();
           break;
