@@ -10,7 +10,7 @@
     "@agoric/casting": "^0.4.3-dev-6bce049.0",
     "@agoric/cosmic-proto": "^0.3.0",
     "@agoric/ertp": "^0.16.3-dev-6bce049.0",
-    "@agoric/internal": "0.3.2",
+    "@agoric/internal": "^0.4.0-u20.0",
     "@agoric/nat": "^4.1.0",
     "@agoric/notifier": "^0.6.2",
     "@agoric/rpc": "^0.10.0",
