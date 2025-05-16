@@ -1,4 +1,4 @@
-import { Switch, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { makeStyles, useTheme } from '@mui/styles';
 import AppBar from './components/AppBar';
 import NavMenu from './components/NavMenu';
@@ -48,20 +48,12 @@ const App = () => {
         <NavMenu />
       </span>
       <main className={classes.main}>
-        <Switch>
-          <Route path="/dapps">
-            <Dapps />
-          </Route>
-          <Route path="/contacts">
-            <Contacts />
-          </Route>
-          <Route path="/issuers">
-            <Issuers />
-          </Route>
-          <Route path="/">
-            <Dashboard />
-          </Route>
-        </Switch>
+        <Routes>
+          <Route path="/dapps" element={<Dapps />} />
+          <Route path="/contacts" element={<Contacts />} />
+          <Route path="/issuers" element={<Issuers />} />
+          <Route path="/" element={<Dashboard />} />
+        </Routes>
       </main>
       <AppBar />
     </span>
