@@ -1,4 +1,4 @@
-import { act } from '@testing-library/react';
+import { act } from 'react';
 import { stringifyPurseValue } from '@agoric/ui-components';
 import { mount } from 'enzyme';
 import Chip from '@mui/material/Chip';

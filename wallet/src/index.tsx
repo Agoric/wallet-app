@@ -12,8 +12,7 @@ import '@agoric/store/exported';
 import '@agoric/zoe/exported';
 import '@endo/captp/src/types';
 
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { BrowserRouter as Router } from 'react-router-dom';
 import {
   CssBaseline,
@@ -67,7 +66,7 @@ const appTheme = createTheme({
   navMenuWidth: '240px',
 });
 
-ReactDOM.render(
+createRoot(document.getElementById('root')!).render(
   <ApplicationContextProvider>
     {/* @ts-ignore bad type */}
     <Router basename="/wallet">
@@ -79,5 +78,4 @@ ReactDOM.render(
       </StyledEngineProvider>
     </Router>
   </ApplicationContextProvider>,
-  document.getElementById('root'),
 );

@@ -5,7 +5,7 @@ import {
   KnownNetworkConfigUrls,
 } from '../../util/connections';
 import { Select, TextField, ThemeProvider, createTheme } from '@mui/material';
-import { act } from '@testing-library/react';
+import { act } from 'react-dom/test-utils';
 
 jest.mock('lodash-es/isEqual', () => () => true);
 
@@ -46,7 +46,10 @@ describe('Connection setting dialog', () => {
   });
 
   afterAll(() => {
-    window.location = location;
+    Object.defineProperty(window, 'location', {
+      configurable: true,
+      value: location,
+    });
   });
 
   test('displays the dapp', () => {

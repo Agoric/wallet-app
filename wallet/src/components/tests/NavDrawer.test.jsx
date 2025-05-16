@@ -1,4 +1,4 @@
-import { act } from '@testing-library/react';
+import { act } from 'react';
 import { mount } from 'enzyme';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';

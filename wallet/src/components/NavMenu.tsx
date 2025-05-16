@@ -1,5 +1,5 @@
-import { useMemo, forwardRef } from 'react';
-import { Link, useRouteMatch } from 'react-router-dom';
+import { useMemo, forwardRef, ForwardedRef } from 'react';
+import { Link, useMatch } from 'react-router-dom';
 import { makeStyles, useTheme } from '@mui/styles';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -37,10 +37,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const ListItemLink = ({ icon, primary, to, onClick }) => {
-  const match = useRouteMatch({
-    path: to,
-    exact: true,
-  });
+  const match = useMatch(to);
 
   const renderLink = useMemo(
     () =>
@@ -48,7 +45,7 @@ const ListItemLink = ({ icon, primary, to, onClick }) => {
         return (
           <Link
             to={to}
-            ref={ref}
+            ref={ref as ForwardedRef<HTMLAnchorElement>}
             {...itemProps}
             role={undefined}
             onClick={onClick}

@@ -1,5 +1,5 @@
 import { mount } from 'enzyme';
-import { act } from '@testing-library/react';
+import { act } from 'react-dom/test-utils';
 import CircularProgress from '@mui/material/CircularProgress';
 import Button from '@mui/material/Button';
 import { createTheme, ThemeProvider } from '@mui/material';

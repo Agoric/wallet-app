@@ -1,11 +1,8 @@
 import { mount } from 'enzyme';
-import { act } from '@testing-library/react';
-import CircularProgress from '@mui/material/CircularProgress';
 import Button from '@mui/material/Button';
 import { createTheme, ThemeProvider } from '@mui/material';
 import Purses, { PursesWithoutContext } from '../Purses';
 import PurseAmount from '../PurseAmount';
-import Transfer from '../Transfer';
 import Loading from '../Loading';
 
 jest.mock('../PurseAmount', () => () => 'PurseAmount');

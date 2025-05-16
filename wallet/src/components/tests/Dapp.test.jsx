@@ -1,4 +1,4 @@
-import { act } from '@testing-library/react';
+import { act } from 'react-dom/test-utils';
 import { mount } from 'enzyme';
 import TextField from '@mui/material/TextField';
 import Dapp from '../Dapp';

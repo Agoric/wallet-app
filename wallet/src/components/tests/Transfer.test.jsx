@@ -1,6 +1,6 @@
 import { mount } from 'enzyme';
 import Button from '@mui/material/Button';
-import { act } from '@testing-library/react';
+import { act } from 'react';
 import Select from '@mui/material/Select';
 import TextField from '@mui/material/TextField';
 import Snackbar from '@mui/material/Snackbar';

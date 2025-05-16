@@ -1,5 +1,5 @@
 import { mount } from 'enzyme';
-import { act } from '@testing-library/react';
+import { act } from 'react';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';

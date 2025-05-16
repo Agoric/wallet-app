@@ -1,5 +1,6 @@
 import { mount } from 'enzyme';
-import { act } from '@testing-library/react';
+import { act } from 'react-dom/test-utils';
+
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Popover from '@mui/material/Popover';
