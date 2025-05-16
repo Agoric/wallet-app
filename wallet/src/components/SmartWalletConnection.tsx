@@ -117,7 +117,6 @@ const SmartWalletConnection = ({
   };
 
   const [context, leader] = useMemo(
-    // @ts-expect-error
     () => [makeImportContext(inertPresence), makeLeader(href)],
     [connectionConfig, keplrConnection],
   );

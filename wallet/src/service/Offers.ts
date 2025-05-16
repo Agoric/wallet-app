@@ -187,6 +187,7 @@ export const getOfferService = (
         instance,
         publicInvitationMaker,
       };
+      // @ts-expect-error
       const instanceBoardId = (await E(boardIdMarshaller).serialize(instance))
         .slots[0];
 
@@ -202,6 +203,7 @@ export const getOfferService = (
       },
     };
 
+    // @ts-expect-error
     const spendAction = await E(boardIdMarshaller).serialize(
       harden({
         method: 'executeOffer',
@@ -241,6 +243,7 @@ export const getOfferService = (
   };
 
   const tryExitOffer = async (id: number) => {
+    // @ts-expect-error
     const action = await E(boardIdMarshaller).serialize(
       harden({
         method: 'tryExitOffer',

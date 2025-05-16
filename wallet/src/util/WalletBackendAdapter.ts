@@ -110,7 +110,7 @@ export const makeBackendFromWalletBridge = (
         E(walletBridge).addContact(id, depositFacet),
       createIssuer: (issuer, id = newId('Issuer')) =>
         E(walletBridge).addIssuer(id, issuer, true),
-    }) as BackendSchema['actions'],
+    }) as unknown as BackendSchema['actions'],
     beansOwing: iterateNotifier(E(walletBridge).getBeansOwingNotifier()),
     services: iterateNotifier(servicesNotifier),
     contacts: iterateNotifier(E(walletBridge).getContactsNotifier()),
