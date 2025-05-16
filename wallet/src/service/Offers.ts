@@ -97,7 +97,8 @@ export const getOfferService = (
           async ([kw, { pursePetname, value, amount: serializedAmount }]) => {
             // First try using serializedAmount.
             if (serializedAmount) {
-              const amount = await boardIdMarshaller.unserialize(
+              // @ts-expect-error
+              const amount = await E(boardIdMarshaller).unserialize(
                 serializedAmount,
               );
               return [kw, amount];
@@ -120,11 +121,10 @@ export const getOfferService = (
     };
 
     const readDisplayInfo = async (entry: PurseDisplayInfo) => {
-      const amount = await (
-        E(boardIdMarshaller).unserialize as (
-          capData: CapData<string>,
-        ) => Promise<Amount>
-      )(entry.amount as CapData<string>);
+      // @ts-expect-error
+      const amount: Amount = await E(boardIdMarshaller).unserialize(
+        entry.amount as CapData<string>,
+      );
       const purse = brandToPurse.get(amount.brand as Brand);
 
       if (purse) {
@@ -132,19 +132,17 @@ export const getOfferService = (
         return harden({ amount, brandPetname, displayInfo });
       }
 
-      const [brands, boardAuxArr] = await Promise.all([
+      const [brands, boardAux] = await Promise.all([
         brandsP,
         watcher.queryBoardAux<{
           displayInfo: DisplayInfo;
-        }>([amount.brand]),
+        }>([amount.brand])[0],
       ]);
-      const boardAux = boardAuxArr[0];
 
       const brandPetname: string = brands
         .find(([_, brand]) => brand === brand)
         ?.at(0) as string;
-      const displayInfo: DisplayInfo | undefined = (await boardAux)
-        ?.displayInfo;
+      const displayInfo: DisplayInfo | undefined = boardAux?.displayInfo;
 
       return harden({ amount, brandPetname, displayInfo });
     };
@@ -169,7 +167,8 @@ export const getOfferService = (
 
     const [invitationSpecToUse, sourceDescription] = await (async () => {
       if (invitationSpec) {
-        const unserializedSpec = await boardIdMarshaller.unserialize(
+        // @ts-expect-error
+        const unserializedSpec = await E(boardIdMarshaller).unserialize(
           invitationSpec,
         );
         const source = sourceDescriptionForSpec(unserializedSpec);
@@ -177,11 +176,8 @@ export const getOfferService = (
         return [unserializedSpec, `Source: ${source}`];
       }
 
-      const instance = await (
-        E(boardIdMarshaller).unserialize as (
-          capData: CapData<string>,
-        ) => Promise<unknown>
-      )(instanceHandle);
+      // @ts-expect-error
+      const instance = await E(boardIdMarshaller).unserialize(instanceHandle);
       const invitationSpecToUse = {
         source: 'contract',
         instance,

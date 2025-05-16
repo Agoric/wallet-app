@@ -28,7 +28,7 @@
     "@emotion/react": "^11.5.0",
     "@emotion/styled": "^11.3.0",
     "@endo/captp": "^3.1.1",
-    "@endo/eventual-send": "^0.17.2",
+    "@endo/eventual-send": "^0.17.6",
     "@endo/far": "^1.1.11",
     "@endo/init": "^0.5.56",
     "@endo/marshal": "^1.6.4",
