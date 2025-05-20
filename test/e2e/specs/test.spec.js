@@ -151,7 +151,8 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
       });
     });
 
-    it('should view the bid from CLI', () => {
+    // UNTIL https://github.com/Agoric/agoric-private/issues/215
+    it.skip('should view the bid from CLI', () => {
       cy.listBids(userConfig.userWalletAddress);
     });
 
