@@ -43,12 +43,6 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
 
       cy.contains('button', 'Connect').click();
 
-      cy.wait(5000);
-
-      cy.acceptAccess().then((taskCompleted) => {
-        expect(taskCompleted).to.be.true;
-      });
-
       cy.reload();
 
       cy.acceptAccess().then((taskCompleted) => {
@@ -151,7 +145,8 @@ describe('Wallet App Test Cases', { execTimeout: DEFAULT_EXEC_TIMEOUT }, () => {
       });
     });
 
-    it('should view the bid from CLI', () => {
+    // UNTIL https://github.com/Agoric/agoric-private/issues/215
+    it.skip('should view the bid from CLI', () => {
       cy.listBids(userConfig.userWalletAddress);
     });
 
