@@ -1954,7 +1954,7 @@ const        getSourceURL=  (src)=>{
 
 
 /**
- * Find the first occurence of the given pattern and return
+ * Find the first occurrence of the given pattern and return
  * the location as the approximate line number.
  *
  * @param {string} src
@@ -2506,14 +2506,14 @@ const        makeFunctionConstructor=  (safeEvaluate)=>{
 
 
 
-  // Assert identity of Function.__proto__ accross all compartments
+  // Assert identity of Function.__proto__ across all compartments
   assert(
     getPrototypeOf(FERAL_FUNCTION)===  FERAL_FUNCTION.prototype,
-    'Function prototype is the same accross compartments');
+    'Function prototype is the same across compartments');
 
   assert(
     getPrototypeOf(newFunction)===  FERAL_FUNCTION.prototype,
-    'Function constructor prototype is the same accross compartments');
+    'Function constructor prototype is the same across compartments');
 
 
   return newFunction;
@@ -3918,7 +3918,7 @@ const        whitelist=  {
  * guest programs, we cannot emulate the proper behavior.
  * With this shim, assigning Symbol.unscopables causes the given lexical
  * names to fall through to the terminal scope proxy.
- * But, we can install this setter to prevent a program from proceding on
+ * But, we can install this setter to prevent a program from proceeding on
  * this false assumption.
  *
  * @param {Object} globalObject
@@ -4549,7 +4549,7 @@ const        deferExports=  ()=>  {
  };
 
 // `getDeferredExports` memoizes the creation of a deferred module exports
-// namespace proxy for any abritrary full specifier in a compartment.
+// namespace proxy for any arbitrary full specifier in a compartment.
 // It also records the compartment and specifier affiliated with that module
 // exports namespace proxy so it can be used as an alias into another
 // compartment when threaded through a compartment's `moduleMap` argument.
@@ -6200,7 +6200,7 @@ const { details: X, quote: q}=   assert;
  *    * The global variable namespaces.
  *       * The global scope, aliased to properties of the global object.
  *         This is necessarily compartment-wide, and therefore in our
- *         recommened usage pattern, package-wide.
+ *         recommend usage pattern, package-wide.
  *       * The global lexical scope. The SES-shim compartments support
  *         these both compartment-wide as well as per-module. But it is
  *         not yet clear what we will propose in the Compartment proposal.
